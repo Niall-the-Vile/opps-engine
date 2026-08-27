@@ -221,3 +221,143 @@ describe('adjudicate — U19b defect 2: determination.line echoes its own input 
     expect(rd.line.units).toBe('3');
   });
 });
+
+describe('adjudicate — §9.1 C-APC 8011 (U15)', () => {
+  // 99284 (ED visit level 4) is SI J2 in the loaded Addendum B data.
+  // G0378 (hospital observation, per hour) is SI N. 0263T is SI S. 0101T is
+  // SI T. A2001 is SI S1 (exempt, band 1000).
+
+  it('G0378x8 99284 -> 8011 fires: the J2 is PAID_UNPRICED, basis OPPS_COMPREHENSIVE, and a flag names the missing rate', () => {
+    const result = adjudicate({
+      claim: claim({}, [claimLine({ lineId: 'OBS', procCode: 'G0378', units: '8' }), claimLine({ lineId: 'J2', procCode: '99284' })]),
+    });
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID_UNPRICED');
+    expect(j2.basis).toBe('OPPS_COMPREHENSIVE');
+    expect(j2.flags.some((f) => f.code === 'OPPS.8011.RATE_UNAVAILABLE')).toBe(true);
+  });
+
+  it('G0378x8 99284 plus an S line -> the S line bundles under the J2 (comprehensive packaging, not just an unpriced J2)', () => {
+    const result = adjudicate({
+      claim: claim({}, [
+        claimLine({ lineId: 'OBS', procCode: 'G0378', units: '8' }),
+        claimLine({ lineId: 'J2', procCode: '99284' }),
+        claimLine({ lineId: 'S', procCode: '0263T' }),
+      ]),
+    });
+    const s = det(result, 'S');
+    expect(s.status).toBe('BUNDLED');
+    expect(s.bundledUnder).toBe('J2');
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID_UNPRICED');
+    expect(j2.basis).toBe('OPPS_COMPREHENSIVE');
+  });
+
+  it('G0378x4 99284 -> 8011 does not fire (fewer than 8 units): the J2 pays its own APC', () => {
+    const result = adjudicate({
+      claim: claim({}, [claimLine({ lineId: 'OBS', procCode: 'G0378', units: '4' }), claimLine({ lineId: 'J2', procCode: '99284' })]),
+    });
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID');
+    expect(j2.basis).toBe('OPPS_APC');
+    expect(j2.flags.some((f) => f.code === 'OPPS.8011.RATE_UNAVAILABLE')).toBe(false);
+  });
+
+  it('G0378x8 99284 plus a T line -> blocked by condition 3 (no SI T): the J2 pays its own APC, not OPPS_COMPREHENSIVE', () => {
+    const result = adjudicate({
+      claim: claim({}, [
+        claimLine({ lineId: 'OBS', procCode: 'G0378', units: '8' }),
+        claimLine({ lineId: 'J2', procCode: '99284' }),
+        claimLine({ lineId: 'T', procCode: '0101T' }),
+      ]),
+    });
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID');
+    expect(j2.basis).toBe('OPPS_APC');
+    const t = det(result, 'T');
+    expect(t.status).toBe('PAID');
+    expect(t.bundledUnder).toBeNull();
+  });
+
+  it('G0378x4 G0378x4 99284 -> units sum across two lines (§19.7), so 8011 fires', () => {
+    const result = adjudicate({
+      claim: claim({}, [
+        claimLine({ lineId: 'OBS1', procCode: 'G0378', units: '4' }),
+        claimLine({ lineId: 'OBS2', procCode: 'G0378', units: '4' }),
+        claimLine({ lineId: 'J2', procCode: '99284' }),
+      ]),
+    });
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID_UNPRICED');
+    expect(j2.basis).toBe('OPPS_COMPREHENSIVE');
+  });
+
+  it('an exempt-SI line on a fired-8011 claim still pays, not bundled', () => {
+    const result = adjudicate({
+      claim: claim({}, [
+        claimLine({ lineId: 'OBS', procCode: 'G0378', units: '8' }),
+        claimLine({ lineId: 'J2', procCode: '99284' }),
+        claimLine({ lineId: 'EX', procCode: 'A2001' }),
+      ]),
+    });
+    const ex = det(result, 'EX');
+    expect(ex.status).toBe('PAID');
+    expect(ex.bundledUnder).toBeNull();
+    const j2 = det(result, 'J2');
+    expect(j2.status).toBe('PAID_UNPRICED');
+  });
+});
+
+describe('adjudicate — §9.5/§8.1 reserved edit slots (U17)', () => {
+  it('every adjudicated determination carries NOT_EVALUATED entries for the three reserved slots (D40)', () => {
+    const result = adjudicate({ claim: claim({}, [claimLine({ procCode: '00100' })]) });
+    const d = det(result, 'L1');
+    expect(d.disposition).toBe('ADJUDICATED');
+    for (const ruleId of ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
+      const ev = d.trace.find((e) => e.ruleId === ruleId);
+      expect(ev?.outcome).toBe('NOT_EVALUATED');
+    }
+  });
+
+  it('a stop earlier in the phase does not skip the reserved slots (alwaysEvaluate, §4.3)', () => {
+    // 00100 is SI N -> PACKAGED via OPPS.DISP.N at band 5000; no stop effect
+    // is used anywhere in the batch-2 registry, so this asserts the weaker
+    // but still load-bearing half of D40: the reserved slots fire on every
+    // admitted line regardless of what happened earlier in the phase.
+    const result = adjudicate({
+      claim: claim({}, [claimLine({ lineId: 'OBS', procCode: 'G0378', units: '8' }), claimLine({ lineId: 'J2', procCode: '99284' })]),
+    });
+    for (const lineId of ['OBS', 'J2']) {
+      const d = det(result, lineId);
+      for (const ruleId of ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
+        const ev = d.trace.find((e) => e.ruleId === ruleId);
+        expect(ev?.outcome).toBe('NOT_EVALUATED');
+      }
+    }
+  });
+});
+
+describe('adjudicate — §12.7 flag manifest (U17 Part A)', () => {
+  it('a flag effect whose code is absent from the manifest is rejected, not silently passed', () => {
+    const badRegistry = [
+      {
+        id: 'TEST.BAD_FLAG',
+        version: '1.0',
+        effectiveFrom: '20260101',
+        effectiveTo: null,
+        phase: 'ADJUDICATE',
+        band: 1000,
+        order: 1000,
+        epoch: 'E0',
+        scopeTarget: 'line',
+        citation: 'test',
+        scope: { always: {} },
+        then: [{ flag: { code: 'NOT.IN.MANIFEST', severity: 'info', message: 'x' } }],
+      },
+    ];
+    const result = adjudicate({ claim: claim({}, [claimLine({ procCode: '00100' })]), registry: badRegistry });
+    const d = det(result, 'L1');
+    expect(d.disposition).toBe('ENGINE_ERROR');
+    expect(d.flags.some((f) => f.code === 'ENGINE.RULE_FAULT' && f.message.includes('NOT.IN.MANIFEST'))).toBe(true);
+  });
+});

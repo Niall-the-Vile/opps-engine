@@ -187,6 +187,217 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "note": "Claim-scoped: fires exactly once regardless of how many J1 lines are present, per §4.2's scopeTarget discipline — not once per line."
   },
   {
+    "id": "OPPS.CAPC8011.CONTROL",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 3000,
+    "order": 3100,
+    "epoch": "E1",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+    "scope": {
+      "allOf": {
+        "children": [
+          {
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "isExempt",
+                "args": {}
+              }
+            }
+          },
+          {
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "isHighestBy",
+                "args": {
+                  "field": "rateMils",
+                  "among": {
+                    "op": "siIn",
+                    "args": {
+                      "si": [
+                        "J2"
+                      ]
+                    }
+                  },
+                  "tiebreak": "codeAsc"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "when": {
+      "allOf": {
+        "children": [
+          {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J2"
+              ]
+            }
+          },
+          {
+            "op": "claimUnitsAtLeast",
+            "args": {
+              "code": "G0378",
+              "units": 8
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "T"
+              ]
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "then": [
+      {
+        "setStatus": {
+          "status": "BUNDLED"
+        }
+      },
+      {
+        "bundleUnder": {
+          "highestBy": "rateMils",
+          "among": {
+            "op": "siIn",
+            "args": {
+              "si": [
+                "J2"
+              ]
+            }
+          },
+          "tiebreak": "codeAsc"
+        }
+      }
+    ],
+    "note": "C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Mirrors OPPS.PKG.J1.CONTROL's scope pattern exactly: 'not isExempt' and 'not isHighestBy-among-J2' together select every non-exempt line except the ranked J2 itself, regardless of that line's own SI (an SI-enumerated scope cannot express this — §4.3's isExempt/not rationale). Of the six §9.1 firing conditions, four are checked here (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
+  },
+  {
+    "id": "OPPS.CAPC8011.CONTROLLING",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 3000,
+    "order": 3110,
+    "epoch": "E1",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+    "scope": {
+      "allOf": {
+        "children": [
+          {
+            "op": "siIn",
+            "args": {
+              "si": [
+                "J2"
+              ]
+            }
+          },
+          {
+            "op": "isHighestBy",
+            "args": {
+              "field": "rateMils",
+              "among": {
+                "op": "siIn",
+                "args": {
+                  "si": [
+                    "J2"
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc"
+            }
+          }
+        ]
+      }
+    },
+    "when": {
+      "allOf": {
+        "children": [
+          {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J2"
+              ]
+            }
+          },
+          {
+            "op": "claimUnitsAtLeast",
+            "args": {
+              "code": "G0378",
+              "units": 8
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "T"
+              ]
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "then": [
+      {
+        "setStatus": {
+          "status": "PAID_UNPRICED"
+        }
+      },
+      {
+        "setBasis": {
+          "value": "OPPS_COMPREHENSIVE"
+        }
+      },
+      {
+        "flag": {
+          "code": "OPPS.8011.RATE_UNAVAILABLE",
+          "severity": "gap",
+          "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns."
+        }
+      },
+      {
+        "flag": {
+          "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+          "severity": "assumption",
+          "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check)."
+        }
+      }
+    ],
+    "note": "The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
+  },
+  {
     "id": "OPPS.PKG.Q1.COMPANION",
     "version": "2026.1",
     "effectiveFrom": "20260101",
@@ -1398,7 +1609,8 @@ export const DISPOSITION_RULES: readonly unknown[] = [
                 "op": "statusIn",
                 "args": {
                   "status": [
-                    "BUNDLED"
+                    "BUNDLED",
+                    "PAID_UNPRICED"
                   ]
                 }
               }
@@ -1419,7 +1631,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "C-APC 8011 (U15) is held/not built this batch, so J2 is always 'unfired' here: it pays its own visit APC and has zero packaging power over other lines — no J2-control rule exists, by omission, matching §9.1."
+    "note": "U15: C-APC 8011 is now built (band 3000, OPPS.CAPC8011.CONTROL / OPPS.CAPC8011.CONTROLLING in opps.packaging.json). When 8011 fires, its controlling J2 is set PAID_UNPRICED/OPPS_COMPREHENSIVE at band 3000 — excluded here by the 'PAID_UNPRICED' guard, since a cross-band setStatus overwrite is a lint/runtime error (§4.3), not cosmetic. A non-controlling J2 on a fired-8011 claim is excluded by the pre-existing 'BUNDLED' guard, same as any other non-exempt line. When 8011 does not fire (any of its six conditions fails), this rule is the one that applies: J2 pays its own visit APC and has zero packaging power over other lines, matching §9.1."
   },
   {
     "id": "OPPS.DISP.Q1Q2.SURVIVOR",
@@ -1589,5 +1801,101 @@ export const DISPOSITION_RULES: readonly unknown[] = [
       }
     ],
     "note": "SI Q3 is used as the operational proxy for 'composite-APC-eligible companion' — Q3 codes are themselves the composite-APC category, so this is the only claim-derivable signal available; see final report for why this is a judgment call, not a spec-stated rule."
+  },
+  {
+    "id": "NCCI.PTP.PAIR",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6100,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+    "scope": {
+      "always": {}
+    },
+    "when": {
+      "unimplemented": {
+        "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+      }
+    },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "NCCI Procedure-to-Procedure edits were not applied to this claim — no PTP pair table is loaded (§9.5). This effect is structurally unreachable: 'when' is 'unimplemented', which the interpreter short-circuits to outcome NOT_EVALUATED before any then[] effect runs (including this one); it exists only to satisfy the registry schema's non-empty-effects requirement (§4.2)."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Reserved edit slot (§9.5, docs/BUILD_LOG.md D40). The spec's own §9.5 illustration writes dataRequired as a string identifying the source (\"ncci-ptp\"); this codebase's dataRequired field was already implemented as boolean-only by an earlier unit (see dsl/evaluate.ts / dsl/validate.ts) before this unit started, and changing that typed field's shape was out of this unit's granted file scope — so dataRequired is true here and the specific data-source identifier ('ncci-ptp') lives in this note instead. See the final report. Declared so every admitted line's determination reports NOT_EVALUATED for NCCI PTP rather than reporting nothing — the exact failure mode D40 documents (running G0378x8 99284 before C-APC 8011 existed produced a plausible answer with no hint a major packaging rule had never been considered)."
+  },
+  {
+    "id": "MUE.LIMIT",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6110,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "NCCI Medically Unlikely Edits (MUE) table",
+    "scope": {
+      "always": {}
+    },
+    "when": {
+      "unimplemented": {
+        "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+      }
+    },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "Medically Unlikely Edit unit limits were not applied to this line — no MUE table is loaded (§9.5). Reuses NCCI.PTP.PAIR's flag code: both reserved slots are the same §16 non-goal (NCCI PTP and MUE evaluation), and this effect is likewise structurally unreachable — see NCCI.PTP.PAIR's then[] note."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Reserved edit slot (§9.5, D40) — see NCCI.PTP.PAIR's note for the dataRequired boolean-vs-string decision, which applies identically here (dataRequired: \"mue\" in the spec's own vocabulary, dataRequired: true plus this note in this codebase's typed field)."
+  },
+  {
+    "id": "OPPS.CLASSIFY.DELETED",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6120,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+    "scope": {
+      "always": {}
+    },
+    "when": {
+      "unimplemented": {
+        "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+      }
+    },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.DELETED.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "Whether this code has since been terminated was not checked — no code in the loaded data carries a termination date (§8.1). This effect is structurally unreachable — see NCCI.PTP.PAIR's then[] note for why."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Distinct from INVALID_HISTORICAL (U5, driven by the already-loaded historical-validity index that DOES drive a real determination): DELETED asks whether a code CURRENTLY present in Addendum B has since been terminated; INVALID_HISTORICAL asks whether a code ABSENT from current data was still active on the claim's date of service. Different question, different (unloaded) file — do not conflate the two when reading a trace (§8.1 is explicit about this). Reserved per §9.5's mechanism even though DELETED is an §8.1 (phase 1 / CLASSIFY) verdict in the spec's own prose: this unit's brief places all three reserved slots — including this one — in phase ADJUDICATE band 6000, matching §9.5's 'the same mechanism covers a rule that is specified but not yet built' and keeping every reserved slot in one place a reader can check in a single pass."
   }
 ];

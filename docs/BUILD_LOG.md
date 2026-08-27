@@ -2,7 +2,7 @@
 
 **Read this first if you are picking the build up cold.** It is the resume point. The repo plus this file should be enough to continue without replaying any conversation.
 
-- **Spec:** `ref/opps-adjudicator-scope.md` — normative, rev 13. Section references below (§n) are to it.
+- **Spec:** `ref/opps-adjudicator-scope.md` — normative, rev 14. Section references below (§n) are to it.
 - **Architecture plan:** `ref/opps-architecture-edit-plan.md` — Tiers C and D not yet applied to the spec.
 - **Milestone 1 goal:** given a UB-04 code set, state per line whether it pays or bundles, under which line, and why. **No dollar amounts in output.**
 
@@ -39,19 +39,22 @@
 | U12 | `phases/classify.ts` — §8.0 gate (5 conditions) + §8.0.2 `likelySystem` routing, §8.0.1 rev-only lines, §8.1 shapes + `INVALID_HISTORICAL`, REJECTED/ROUTED split | U7, U9, U5 | **done** |
 | U13 | Registry: exempt set {U,G,H,F,L,S1,H1,K1} (518 codes, S1/H1/K1 flagged UNVERIFIED_POLICY) + standard dispositions (§9.4, §9.6) | U8, U9 | **done** |
 | U14 | Registry: J1 comprehensive control, payment-ranked (§9.1) | U13 | **done** |
-| U15 | Registry: C-APC 8011, all six conditions (§9.1) | U14 | todo |
+| U15 | Registry: C-APC 8011, all six conditions (§9.1) | U14 | **done** |
 | U16 | Registry: Q1/Q2/Q3/Q4 packaging, Q4→A conversion, the Q1/Q4 asymmetry (§9.2, §9.3) | U14 | **done** |
-| U17 | Registry: reserved NCCI/MUE + `DELETED` slots, `dataRequired` suspension (§8.1, §9.5) | U13 | todo |
+| U17 | Registry: reserved NCCI/MUE + `DELETED` slots, `dataRequired` suspension (§8.1, §9.5) | U13 | **done** |
 | U18 | `lint-registry.mjs` — every gate in §15.3 | U13 | todo |
 | U19a | `adapters/codeList.ts` + `tools/adjudicate.mjs` — paste codes, read an adjudication. Synthesized claim fields surfaced as stated assumptions | U12a | **done** |
 | U19b | `PACKAGED` status for SI N; `determination.line` echoes its own input; conditional UNITS column | U19a | **done** |
-| U19 | `inspect.ts` — explain + applicability modes (§6.1, §6.2) | U10 | todo |
+| U19 | `inspect.ts` — explain + applicability modes (§6.1, §6.2) | U10 | **done** |
+| U19c | `--why` restructured: WHY / CONSIDERED-DID-NOT-APPLY / NOT-CHECKED footer; reserved slots stated once | U19a | **done** |
+| U19d | WHY text **generated** from rule condition + effects rather than printing `note`; `note` moved to `--why-verbose` | U19c | **done** |
+| U9b | Fixed dangling `factRefs`: on-demand rank facts were cited but never registered into `Result.facts`, so `inspect.explain()` threw on any T-line claim | U9 | **done** |
 | U20 | `diff-registry.mjs` (§6.3) | U18 | todo |
 | U21 | Divergence layer + seed set (§20, §20.4) | U19 | todo |
 | U22 | `gen-goldens.mjs` + `.structure.json` projections + `rule-coverage.json` (§15.2) | U19 | todo |
 | U23 | Fixtures per §15.1, minus the amount-dependent ones | U22 | todo |
 | U24 | `bundle.mjs` — esbuild IIFE, single `OppsEngine` global (§2.7) | U19 | todo |
-| U25 | Browser front-end: paste codes / drop XML → bundling table + trace + inspector. **No amount column** | U24 | todo |
+| U25 | Browser front-end: paste codes / drop XML -> bundling table + trace + inspector. **No amount column** | U24 | **deferred** |
 
 ---
 
@@ -121,3 +124,11 @@ MPPR's weight ranking (§10.5) · the 8011 date relation · the Q4 dual reading 
 | D38 | CLI `--dos` defaults to `DATA_VINTAGE_EFFECTIVE_DATE = '20260101'`, a constant traced to CLFS `effFrom` — never `Date.now()`. The engine has no clock (§2.4) and the CLI must not smuggle one in through the adapter. | §2.4, §7.5 |
 | D39 | The CLI self-relaunches through `node_modules/vite-node` (already vitest's dependency). `node --experimental-strip-types` strips types but does not do the `.js`→`.ts` specifier remap this source relies on. No new dependency added. | — |
 | D40 | A rule that a milestone **defers** must still be declared as a reserved slot with `dataRequired`, so it reports `NOT_EVALUATED`. Found by running `G0378x8 99284` with C-APC 8011 unbuilt: the answer looked complete with no hint a major packaging rule had not been considered. Applies to U15 and U17. | §9.5 |
+| D41 | **U25 (browser front-end) deferred; the CLI is the interface for now.** A design pass was offered and postponed deliberately: the hard problem in this UI is the trace's information architecture — how to show every rule considered, including non-firing ones with counterfactuals, without drowning the reader — and nobody yet knows which parts of that output a bill processor actually reads versus skips. Using the CLI on real claims first produces exactly that information. Design then build, not the reverse. | §13.1 |
+| D42 | 8011's criteria are **sourced from Ch. 4**, not paraphrased. Two of three criteria groups (observation-time documentation, physician evaluation) are medical-record facts and **not derivable from a claim at all** — 8011 can never be fully determined here. Permanent limitation, absent from every prior revision. | §9.1 |
+| D43 | "Any SI J2 present" is **exact, not a proxy**: the 13 CY2026 J2 codes are precisely the manual's named list (99281-99285, G0380-G0384, G0463, 99291, G0379). The generator asserts this per refresh so a future J2 addition fails the build rather than silently over-firing 8011. | §9.1 |
+| D44 | 8011 criterion 2a's date relation is **sourced and precise** but **inexpressible**: same-day-or-day-before for the visit codes, same-day-only for G0379. Needs a cross-line date operator; the data is already present. No longer an unverified policy — now an unimplemented one. | §19.27 |
+| D45 | `scope` must be **statically decidable from a code alone**; `statusIn`/`isExempt` removed from the scope-selector list and a claim-relational predicate in `scope` is a lint error. Rev 13 allowed them and the registry also used `isHighestBy` there, which defeated applicability mode entirely — it could decide no Q-group or J1 rule. **Registry not yet migrated; rules still carry these in `scope`.** | §4.3 |
+| D46 | Registry node form is `{op, args}`, not the single-key form earlier spec examples showed. Spec follows implementation. | §4.2 |
+| D47 | The reader-facing WHY text is **generated from rule structure**, never authored prose. `note` is developer rationale and drifted so far from the outcome that it omitted the actual reason a line bundled. Generated explanations cannot disagree with the logic; authored ones do. | §6.1 |
+| D48 | `G0379` is also SI J2 with a **higher rate** than `99284` (608,430 vs 426,300 mils), so on a claim carrying both, payment-ranking makes the direct-referral line control instead of the ED visit — backwards. **Open, flagged not fixed.** | §9.1 |

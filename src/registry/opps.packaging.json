@@ -58,6 +58,101 @@
     "note": "Claim-scoped: fires exactly once regardless of how many J1 lines are present, per §4.2's scopeTarget discipline — not once per line."
   },
   {
+    "id": "OPPS.CAPC8011.CONTROL",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 3000,
+    "order": 3100,
+    "epoch": "E1",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+    "scope": {
+      "allOf": {
+        "children": [
+          { "op": "not", "args": { "child": { "op": "isExempt", "args": {} } } },
+          {
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "isHighestBy",
+                "args": { "field": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "when": {
+      "allOf": {
+        "children": [
+          { "op": "claimContainsAny", "args": { "si": ["J2"] } },
+          { "op": "claimUnitsAtLeast", "args": { "code": "G0378", "units": 8 } },
+          { "op": "claimContainsNone", "args": { "si": ["T"] } },
+          { "op": "claimContainsNone", "args": { "si": ["J1"] } }
+        ]
+      }
+    },
+    "then": [
+      { "setStatus": { "status": "BUNDLED" } },
+      { "bundleUnder": { "highestBy": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" } }
+    ],
+    "note": "C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Mirrors OPPS.PKG.J1.CONTROL's scope pattern exactly: 'not isExempt' and 'not isHighestBy-among-J2' together select every non-exempt line except the ranked J2 itself, regardless of that line's own SI (an SI-enumerated scope cannot express this — §4.3's isExempt/not rationale). Of the six §9.1 firing conditions, four are checked here (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
+  },
+  {
+    "id": "OPPS.CAPC8011.CONTROLLING",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 3000,
+    "order": 3110,
+    "epoch": "E1",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+    "scope": {
+      "allOf": {
+        "children": [
+          { "op": "siIn", "args": { "si": ["J2"] } },
+          {
+            "op": "isHighestBy",
+            "args": { "field": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" }
+          }
+        ]
+      }
+    },
+    "when": {
+      "allOf": {
+        "children": [
+          { "op": "claimContainsAny", "args": { "si": ["J2"] } },
+          { "op": "claimUnitsAtLeast", "args": { "code": "G0378", "units": 8 } },
+          { "op": "claimContainsNone", "args": { "si": ["T"] } },
+          { "op": "claimContainsNone", "args": { "si": ["J1"] } }
+        ]
+      }
+    },
+    "then": [
+      { "setStatus": { "status": "PAID_UNPRICED" } },
+      { "setBasis": { "value": "OPPS_COMPREHENSIVE" } },
+      {
+        "flag": {
+          "code": "OPPS.8011.RATE_UNAVAILABLE",
+          "severity": "gap",
+          "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns."
+        }
+      },
+      {
+        "flag": {
+          "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+          "severity": "assumption",
+          "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check)."
+        }
+      }
+    ],
+    "note": "The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
+  },
+  {
     "id": "OPPS.PKG.Q1.COMPANION",
     "version": "2026.1",
     "effectiveFrom": "20260101",

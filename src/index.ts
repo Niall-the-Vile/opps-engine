@@ -93,3 +93,24 @@ function isEngineError(v: unknown): v is EngineError {
 
 export type { EngineResult, Determination, DeterminationLine } from './phases/adjudicate.js';
 export type { Applicability, Gate, LikelySystem } from './phases/classify.js';
+
+// U19 — the rule inspector (spec §6). `explain()`/`applicability()`/
+// `codeFacts()` and their types; see `src/inspect.ts` for the mode-by-mode
+// design notes.
+export { explain, applicability, codeFacts } from './inspect.js';
+export type {
+  CodeFacts,
+  InspectableRule,
+  ApplicabilityResult,
+  ApplicableRule,
+  ConditionalRule,
+  ReservedRule,
+  DescribedEffect,
+  UndecidablePredicate,
+  ExplainableResult,
+  ExplainableDetermination,
+  ExplainableEvaluation,
+  ExplainResult,
+  ExplainedLine,
+  ExplainedEvaluation,
+} from './inspect.js';

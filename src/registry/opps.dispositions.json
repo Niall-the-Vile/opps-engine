@@ -377,12 +377,12 @@
       "allOf": {
         "children": [
           { "op": "siIn", "args": { "si": ["J2"] } },
-          { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
+          { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED", "PAID_UNPRICED"] } } } }
         ]
       }
     },
     "then": [{ "setStatus": { "status": "PAID" } }, { "setBasis": { "value": "OPPS_APC" } }],
-    "note": "C-APC 8011 (U15) is held/not built this batch, so J2 is always 'unfired' here: it pays its own visit APC and has zero packaging power over other lines — no J2-control rule exists, by omission, matching §9.1."
+    "note": "U15: C-APC 8011 is now built (band 3000, OPPS.CAPC8011.CONTROL / OPPS.CAPC8011.CONTROLLING in opps.packaging.json). When 8011 fires, its controlling J2 is set PAID_UNPRICED/OPPS_COMPREHENSIVE at band 3000 — excluded here by the 'PAID_UNPRICED' guard, since a cross-band setStatus overwrite is a lint/runtime error (§4.3), not cosmetic. A non-controlling J2 on a fired-8011 claim is excluded by the pre-existing 'BUNDLED' guard, same as any other non-exempt line. When 8011 does not fire (any of its six conditions fails), this rule is the one that applies: J2 pays its own visit APC and has zero packaging power over other lines, matching §9.1."
   },
   {
     "id": "OPPS.DISP.Q1Q2.SURVIVOR",
@@ -468,5 +468,87 @@
       }
     ],
     "note": "SI Q3 is used as the operational proxy for 'composite-APC-eligible companion' — Q3 codes are themselves the composite-APC category, so this is the only claim-derivable signal available; see final report for why this is a judgment call, not a spec-stated rule."
+  },
+  {
+    "id": "NCCI.PTP.PAIR",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6100,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+    "scope": { "always": {} },
+    "when": { "unimplemented": { "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)" } },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "NCCI Procedure-to-Procedure edits were not applied to this claim — no PTP pair table is loaded (§9.5). This effect is structurally unreachable: 'when' is 'unimplemented', which the interpreter short-circuits to outcome NOT_EVALUATED before any then[] effect runs (including this one); it exists only to satisfy the registry schema's non-empty-effects requirement (§4.2)."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Reserved edit slot (§9.5, docs/BUILD_LOG.md D40). The spec's own §9.5 illustration writes dataRequired as a string identifying the source (\"ncci-ptp\"); this codebase's dataRequired field was already implemented as boolean-only by an earlier unit (see dsl/evaluate.ts / dsl/validate.ts) before this unit started, and changing that typed field's shape was out of this unit's granted file scope — so dataRequired is true here and the specific data-source identifier ('ncci-ptp') lives in this note instead. See the final report. Declared so every admitted line's determination reports NOT_EVALUATED for NCCI PTP rather than reporting nothing — the exact failure mode D40 documents (running G0378x8 99284 before C-APC 8011 existed produced a plausible answer with no hint a major packaging rule had never been considered)."
+  },
+  {
+    "id": "MUE.LIMIT",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6110,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "NCCI Medically Unlikely Edits (MUE) table",
+    "scope": { "always": {} },
+    "when": { "unimplemented": { "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)" } },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "Medically Unlikely Edit unit limits were not applied to this line — no MUE table is loaded (§9.5). Reuses NCCI.PTP.PAIR's flag code: both reserved slots are the same §16 non-goal (NCCI PTP and MUE evaluation), and this effect is likewise structurally unreachable — see NCCI.PTP.PAIR's then[] note."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Reserved edit slot (§9.5, D40) — see NCCI.PTP.PAIR's note for the dataRequired boolean-vs-string decision, which applies identically here (dataRequired: \"mue\" in the spec's own vocabulary, dataRequired: true plus this note in this codebase's typed field)."
+  },
+  {
+    "id": "OPPS.CLASSIFY.DELETED",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 6000,
+    "order": 6120,
+    "epoch": "E4",
+    "scopeTarget": "line",
+    "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+    "scope": { "always": {} },
+    "when": {
+      "unimplemented": {
+        "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+      }
+    },
+    "then": [
+      {
+        "flag": {
+          "code": "OPPS.DELETED.NOT_EVALUATED",
+          "severity": "gap",
+          "message": "Whether this code has since been terminated was not checked — no code in the loaded data carries a termination date (§8.1). This effect is structurally unreachable — see NCCI.PTP.PAIR's then[] note for why."
+        }
+      }
+    ],
+    "dataRequired": true,
+    "alwaysEvaluate": true,
+    "note": "Distinct from INVALID_HISTORICAL (U5, driven by the already-loaded historical-validity index that DOES drive a real determination): DELETED asks whether a code CURRENTLY present in Addendum B has since been terminated; INVALID_HISTORICAL asks whether a code ABSENT from current data was still active on the claim's date of service. Different question, different (unloaded) file — do not conflate the two when reading a trace (§8.1 is explicit about this). Reserved per §9.5's mechanism even though DELETED is an §8.1 (phase 1 / CLASSIFY) verdict in the spec's own prose: this unit's brief places all three reserved slots — including this one — in phase ADJUDICATE band 6000, matching §9.5's 'the same mechanism covers a rule that is specified but not yet built' and keeping every reserved slot in one place a reader can check in a single pass."
   }
 ]

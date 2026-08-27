@@ -1,0 +1,6535 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the pre-U19c snapshot (59025 84112, G0378x8 99284, 99205) 1`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "59025",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "59025",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "T",
+      "effectiveSI": "T",
+      "status": "PAID",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": null,
+      "basis": "OPPS_APC",
+      "flags": [
+        {
+          "code": "OPPS.T.MPPR_RANKING_UNVERIFIED",
+          "severity": "assumption",
+          "message": "MPPR ranks by relative weight (Ch.4 §10.5), not by payment (§10.4.1's Q-group survivor rule) — one reviewer's reading of the manual, not adversarially verified.",
+          "ruleId": "OPPS.DISP.T",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "lineIds": [
+            "idx:0"
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:T"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                false,
+                false,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.CAPC8011.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.DISP.T",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5110,
+          "epoch": "E3b",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "always",
+            "args": {}
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "PAID"
+              }
+            },
+            {
+              "op": "setBasis",
+              "args": {
+                "value": "OPPS_APC"
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.T.MPPR_RANKING_UNVERIFIED",
+                "severity": "assumption",
+                "message": "MPPR ranks by relative weight (Ch.4 §10.5), not by payment (§10.4.1's Q-group survivor rule) — one reviewer's reading of the manual, not adversarially verified."
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.DISP.T.MPPR_RANK",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5111,
+          "epoch": "E3b",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": 1,
+            "subjectInAmong": true,
+            "factRefs": [
+              "E3b:rank:weight#0"
+            ],
+            "detail": {
+              "ordinal": 1,
+              "subjectInAmong": true
+            }
+          },
+          "predicate": {
+            "op": "ordinalAtLeast",
+            "args": {
+              "field": "weight",
+              "among": {
+                "op": "allOf",
+                "args": {
+                  "children": [
+                    {
+                      "op": "siIn",
+                      "args": {
+                        "si": [
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "op": "not",
+                      "args": {
+                        "child": {
+                          "op": "statusIn",
+                          "args": {
+                            "status": [
+                              "BUNDLED"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc",
+              "fallbackField": "rateMils",
+              "atLeast": 2
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.DISP.T.MPPR_RANK"
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    },
+    {
+      "lineId": "idx:1",
+      "line": {
+        "procCode": "84112",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "84112",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "Q4",
+      "effectiveSI": "Q4",
+      "status": "BUNDLED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": "idx:0",
+      "basis": "NONE",
+      "flags": [],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:T"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                false,
+                false,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.CAPC8011.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.PKG.Q4.COMPANION",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 4000,
+          "order": 4200,
+          "epoch": "E2",
+          "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E2:siCensus:T"
+            ],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1",
+                "J2",
+                "S",
+                "T",
+                "V",
+                "Q1",
+                "Q2",
+                "Q3"
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "BUNDLED"
+              }
+            },
+            {
+              "op": "bundleUnder",
+              "args": {
+                "highestBy": "rateMils",
+                "among": {
+                  "op": "siIn",
+                  "args": {
+                    "si": [
+                      "J1",
+                      "J2",
+                      "S",
+                      "T",
+                      "V",
+                      "Q1",
+                      "Q2",
+                      "Q3"
+                    ]
+                  }
+                },
+                "tiebreak": "codeAsc"
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:rank:weight#0",
+        "kind": "rank",
+        "dimension": "weight",
+        "values": [
+          2.2595
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.F",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.G",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J1.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J2",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.L",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.N",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.P",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.SURVIVOR",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q3",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.R",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T.MPPR_RANK",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.U",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.V",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.STATUTORY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q1.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q2.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.COMPANION",
+      "excludedLineIds": [
+        "idx:0"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.CONVERT",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    }
+  ],
+  "counterfactuals": {
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
+    "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, and the claim contains no line with status indicator J1",
+    "OPPS.DISP.T.MPPR_RANK": "would fire if the line's rank by weight ranked among lines where status indicator is T and not (the line's status is BUNDLED) (tiebreak codeAsc) is at least 2",
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the pre-U19c snapshot (59025 84112, G0378x8 99284, 99205) 2`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "G0378",
+        "modifiers": [],
+        "units": "8",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "G0378",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "N",
+      "effectiveSI": "N",
+      "status": "BUNDLED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": "idx:1",
+      "basis": "NONE",
+      "flags": [],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:J2",
+              "E1:unitTotal:G0378",
+              "E1:codeCensus:G0378"
+            ],
+            "detail": {
+              "childResults": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "BUNDLED"
+              }
+            },
+            {
+              "op": "bundleUnder",
+              "args": {
+                "highestBy": "rateMils",
+                "among": {
+                  "op": "siIn",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                "tiebreak": "codeAsc"
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    },
+    {
+      "lineId": "idx:1",
+      "line": {
+        "procCode": "99284",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "99284",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "J2",
+      "effectiveSI": "J2",
+      "status": "PAID_UNPRICED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": null,
+      "basis": "OPPS_COMPREHENSIVE",
+      "flags": [
+        {
+          "code": "OPPS.8011.RATE_UNAVAILABLE",
+          "severity": "gap",
+          "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns.",
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "lineIds": [
+            "idx:1"
+          ]
+        },
+        {
+          "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+          "severity": "assumption",
+          "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check).",
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "lineIds": [
+            "idx:1"
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3110,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:J2",
+              "E1:unitTotal:G0378",
+              "E1:codeCensus:G0378"
+            ],
+            "detail": {
+              "childResults": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "PAID_UNPRICED"
+              }
+            },
+            {
+              "op": "setBasis",
+              "args": {
+                "value": "OPPS_COMPREHENSIVE"
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.8011.RATE_UNAVAILABLE",
+                "severity": "gap",
+                "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns."
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+                "severity": "assumption",
+                "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check)."
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROL",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.F",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.G",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J1.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J2",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.L",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.N",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.P",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.SURVIVOR",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q3",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.R",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T.MPPR_RANK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.U",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.V",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.STATUTORY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q1.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q2.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.CONVERT",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    }
+  ],
+  "counterfactuals": {
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the pre-U19c snapshot (59025 84112, G0378x8 99284, 99205) 3`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "99205",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "99205",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "B",
+      "effectiveSI": "B",
+      "status": "NOT_PAID_RECODE",
+      "disposition": "REJECTED",
+      "bundledUnder": null,
+      "basis": "NONE",
+      "flags": [
+        {
+          "code": "OPPS.CLASSIFY.RECODE",
+          "severity": "warning",
+          "message": "professional/MPFS code on a UB-04 — recode -> bill G0463 instead",
+          "ruleId": null,
+          "citation": "§8.3",
+          "lineIds": [
+            "idx:0"
+          ]
+        }
+      ],
+      "trace": []
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [],
+  "counterfactuals": {
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the snapshot (59025 84112, G0378x8 99284, 99205) 1`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "59025",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "59025",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "T",
+      "effectiveSI": "T",
+      "status": "PAID",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": null,
+      "basis": "OPPS_APC",
+      "flags": [
+        {
+          "code": "OPPS.T.MPPR_RANKING_UNVERIFIED",
+          "severity": "assumption",
+          "message": "MPPR ranks by relative weight (Ch.4 §10.5), not by payment (§10.4.1's Q-group survivor rule) — one reviewer's reading of the manual, not adversarially verified.",
+          "ruleId": "OPPS.DISP.T",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "lineIds": [
+            "idx:0"
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:T"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                false,
+                false,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.CAPC8011.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.DISP.T",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5110,
+          "epoch": "E3b",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "always",
+            "args": {}
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "PAID"
+              }
+            },
+            {
+              "op": "setBasis",
+              "args": {
+                "value": "OPPS_APC"
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.T.MPPR_RANKING_UNVERIFIED",
+                "severity": "assumption",
+                "message": "MPPR ranks by relative weight (Ch.4 §10.5), not by payment (§10.4.1's Q-group survivor rule) — one reviewer's reading of the manual, not adversarially verified."
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.DISP.T.MPPR_RANK",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5111,
+          "epoch": "E3b",
+          "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": 1,
+            "subjectInAmong": true,
+            "factRefs": [
+              "E3b:rank:weight#0"
+            ],
+            "detail": {
+              "ordinal": 1,
+              "subjectInAmong": true
+            }
+          },
+          "predicate": {
+            "op": "ordinalAtLeast",
+            "args": {
+              "field": "weight",
+              "among": {
+                "op": "allOf",
+                "args": {
+                  "children": [
+                    {
+                      "op": "siIn",
+                      "args": {
+                        "si": [
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "op": "not",
+                      "args": {
+                        "child": {
+                          "op": "statusIn",
+                          "args": {
+                            "status": [
+                              "BUNDLED"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc",
+              "fallbackField": "rateMils",
+              "atLeast": 2
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.DISP.T.MPPR_RANK"
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    },
+    {
+      "lineId": "idx:1",
+      "line": {
+        "procCode": "84112",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "84112",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "Q4",
+      "effectiveSI": "Q4",
+      "status": "BUNDLED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": "idx:0",
+      "basis": "NONE",
+      "flags": [],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:T"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                false,
+                false,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.CAPC8011.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.PKG.Q4.COMPANION",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 4000,
+          "order": 4200,
+          "epoch": "E2",
+          "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E2:siCensus:T"
+            ],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1",
+                "J2",
+                "S",
+                "T",
+                "V",
+                "Q1",
+                "Q2",
+                "Q3"
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "BUNDLED"
+              }
+            },
+            {
+              "op": "bundleUnder",
+              "args": {
+                "highestBy": "rateMils",
+                "among": {
+                  "op": "siIn",
+                  "args": {
+                    "si": [
+                      "J1",
+                      "J2",
+                      "S",
+                      "T",
+                      "V",
+                      "Q1",
+                      "Q2",
+                      "Q3"
+                    ]
+                  }
+                },
+                "tiebreak": "codeAsc"
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:rank:weight#0",
+        "kind": "rank",
+        "dimension": "weight",
+        "values": [
+          2.2595
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:siCensus:T",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "T"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:siCensus:Q4",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "Q4"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:59025",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "59025"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:59025",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:84112",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "84112"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:84112",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0"
+        ]
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.F",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.G",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J1.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J2",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.L",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.N",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.P",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.SURVIVOR",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q3",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.R",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T.MPPR_RANK",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.U",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.V",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.STATUTORY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q1.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q2.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.COMPANION",
+      "excludedLineIds": [
+        "idx:0"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.CONVERT",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    }
+  ],
+  "counterfactuals": {
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
+    "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, and the claim contains no line with status indicator J1",
+    "OPPS.DISP.T.MPPR_RANK": "would fire if the line's rank by weight ranked among lines where status indicator is T and not (the line's status is BUNDLED) (tiebreak codeAsc) is at least 2",
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the snapshot (59025 84112, G0378x8 99284, 99205) 2`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "G0378",
+        "modifiers": [],
+        "units": "8",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "G0378",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "N",
+      "effectiveSI": "N",
+      "status": "BUNDLED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": "idx:1",
+      "basis": "NONE",
+      "flags": [],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:J2",
+              "E1:unitTotal:G0378",
+              "E1:codeCensus:G0378"
+            ],
+            "detail": {
+              "childResults": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "BUNDLED"
+              }
+            },
+            {
+              "op": "bundleUnder",
+              "args": {
+                "highestBy": "rateMils",
+                "among": {
+                  "op": "siIn",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                "tiebreak": "codeAsc"
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    },
+    {
+      "lineId": "idx:1",
+      "line": {
+        "procCode": "99284",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "99284",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "J2",
+      "effectiveSI": "J2",
+      "status": "PAID_UNPRICED",
+      "disposition": "ADJUDICATED",
+      "bundledUnder": null,
+      "basis": "OPPS_COMPREHENSIVE",
+      "flags": [
+        {
+          "code": "OPPS.8011.RATE_UNAVAILABLE",
+          "severity": "gap",
+          "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns.",
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "lineIds": [
+            "idx:1"
+          ]
+        },
+        {
+          "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+          "severity": "assumption",
+          "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check).",
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "lineIds": [
+            "idx:1"
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "ruleId": "OPPS.PKG.J1.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 2000,
+          "order": 2100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {}
+          },
+          "predicate": {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROLLING",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3110,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:J2",
+              "E1:unitTotal:G0378",
+              "E1:codeCensus:G0378"
+            ],
+            "detail": {
+              "childResults": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "FIRED",
+          "effect": [
+            {
+              "op": "setStatus",
+              "args": {
+                "status": "PAID_UNPRICED"
+              }
+            },
+            {
+              "op": "setBasis",
+              "args": {
+                "value": "OPPS_COMPREHENSIVE"
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.8011.RATE_UNAVAILABLE",
+                "severity": "gap",
+                "message": "C-APC 8011 fired and this J2 line controls the claim's comprehensive packaging (all non-exempt lines bundle into it, per OPPS.CAPC8011.CONTROL), but no source in this data set carries an APC 8011 rate — Addendum B has 934 distinct APCs, none in the 8000 range, and no OPPS Addendum A file is on disk (§9.1, §16). Packaging is still applied; pricing is not — packaging and pricing are separate concerns."
+              }
+            },
+            {
+              "op": "flag",
+              "args": {
+                "code": "OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY",
+                "severity": "assumption",
+                "message": "Condition 5 of 8011's six firing conditions (the visit's line-item date of service is the same day as, or the day before, the observation service, with G0379 same day) is one reviewer's reading of Pub 100-04 Ch.4 and was never adversarially verified. It is also not mechanically enforced by this rule's 'when': the closed DSL operator set (spec §4.3) has no cross-line date-relational operator — dosOnOrAfter/dosBefore compare a line's own date of service to a fixed literal written into the rule, not to another line's date at evaluation time — so this condition cannot currently be expressed in the registry at all. This rule fires on the other five conditions (see this rule's note for condition 6, the bill-type check)."
+              }
+            }
+          ],
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "NCCI.PTP.PAIR",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6100,
+          "epoch": "E4",
+          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "MUE.LIMIT",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6110,
+          "epoch": "E4",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.CLASSIFY.DELETED",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 6000,
+          "order": 6120,
+          "epoch": "E4",
+          "citation": "spec §8.1 — DELETED is suspended; no source on disk supplies a termination date for any code in the loaded data",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "predicate": {
+            "op": "unimplemented",
+            "args": {
+              "reason": "requires HCPCS code-termination dates for the loaded codes; the on-disk HCPCS file's TERM_DT covers only 6,610 of Addendum B's 18,986 codes and none of those 6,610 carry a populated value (§8.1)"
+            }
+          },
+          "outcome": "NOT_EVALUATED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": null
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E0:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E1:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:siCensus:N",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "N"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:siCensus:J2",
+        "kind": "siCensus",
+        "dimension": "si",
+        "values": [
+          "J2"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:G0378",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "G0378"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:G0378",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          8
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:codeCensus:99284",
+        "kind": "codeCensus",
+        "dimension": "code",
+        "values": [
+          "99284"
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:unitTotal:99284",
+        "kind": "unitTotal",
+        "dimension": "units",
+        "values": [
+          1
+        ],
+        "lineIds": [
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": [
+          "idx:0"
+        ]
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": [
+          "idx:1"
+        ]
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROL",
+      "excludedLineIds": [
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.CAPC8011.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.F",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.G",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.H1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J1.CONTROLLING",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.J2",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.K1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.L",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.N",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.P",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q1Q2.SURVIVOR",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.Q3",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.R",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.S1",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.T.MPPR_RANK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.U",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.DISP.V",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.STATUTORY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q1.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q2.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.COMPANION",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    },
+    {
+      "ruleId": "OPPS.PKG.Q4.CONVERT",
+      "excludedLineIds": [
+        "idx:0",
+        "idx:1"
+      ]
+    }
+  ],
+  "counterfactuals": {
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;
+
+exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves --json output byte-identical to the snapshot (59025 84112, G0378x8 99284, 99205) 3`] = `
+"{
+  "claimId": "code-list",
+  "applicability": null,
+  "determinations": [
+    {
+      "lineId": "idx:0",
+      "line": {
+        "procCode": "99205",
+        "modifiers": [],
+        "units": "1",
+        "fromDate": "20260101",
+        "thruDate": "20260101",
+        "revenueCode": "",
+        "chargeMils": 0
+      },
+      "code": "99205",
+      "revCode": "",
+      "chargeMils": 0,
+      "resolvedSI": "B",
+      "effectiveSI": "B",
+      "status": "NOT_PAID_RECODE",
+      "disposition": "REJECTED",
+      "bundledUnder": null,
+      "basis": "NONE",
+      "flags": [
+        {
+          "code": "OPPS.CLASSIFY.RECODE",
+          "severity": "warning",
+          "message": "professional/MPFS code on a UB-04 — recode -> bill G0463 instead",
+          "ruleId": null,
+          "citation": "§8.3",
+          "lineIds": [
+            "idx:0"
+          ]
+        }
+      ],
+      "trace": []
+    }
+  ],
+  "facts": {
+    "E0": [
+      {
+        "factId": "E0:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E0:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E1": [
+      {
+        "factId": "E1:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E2": [
+      {
+        "factId": "E2:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E2:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E3a": [
+      {
+        "factId": "E3a:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3a:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E3b": [
+      {
+        "factId": "E3b:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E3b:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ],
+    "E4": [
+      {
+        "factId": "E4:allLines",
+        "kind": "allLines",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:exemptSet",
+        "kind": "exemptSet",
+        "dimension": "status",
+        "values": [
+          "EXEMPT"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:bundledSet",
+        "kind": "bundledSet",
+        "dimension": "status",
+        "values": [
+          "BUNDLED"
+        ],
+        "lineIds": []
+      },
+      {
+        "factId": "E4:liveSet",
+        "kind": "liveSet",
+        "dimension": "status",
+        "values": [],
+        "lineIds": []
+      }
+    ]
+  },
+  "disclosures": [],
+  "scopeExclusions": [],
+  "counterfactuals": {
+    "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
+  },
+  "errors": [],
+  "engineStatus": "OK",
+  "provenance": {
+    "dataVersion": {
+      "opps": "opps-cy2026-jan-addendum-b-2025-12-29",
+      "clfs": "clfs-cy2026-q2v1",
+      "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
+      "dmepos": "dmepos-cy2026-jan",
+      "mpfs": "mpfs-cy2026-jan-nonqpp",
+      "afs": "afs-cy2026-unsourced"
+    },
+    "registryVersion": "2026.1",
+    "contractVersion": null
+  },
+  "meta": {
+    "validate": "boundaries",
+    "traceLevel": "standard",
+    "build": "opps-engine@0.0.1-batch2"
+  },
+  "trace": [
+    {
+      "ruleId": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
+      "ruleVersion": "2026.1",
+      "phase": "ADJUDICATE",
+      "band": 2000,
+      "order": 2900,
+      "epoch": "E1",
+      "citation": "spec §9.1 — J1 complexity adjustment combination table not sourced",
+      "scopeTarget": "claim",
+      "examined": {
+        "subjectLineId": null,
+        "ordinal": null,
+        "subjectInAmong": null,
+        "factRefs": [],
+        "detail": {}
+      },
+      "predicate": {
+        "op": "claimLineCountAtLeast",
+        "args": {
+          "si": [
+            "J1"
+          ],
+          "count": 2
+        }
+      },
+      "outcome": "NOT_FIRED",
+      "effect": null,
+      "supersededBy": null,
+      "counterfactual": null,
+      "counterfactualRef": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED"
+    }
+  ]
+}
+"
+`;

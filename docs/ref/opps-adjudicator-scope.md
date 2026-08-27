@@ -6,6 +6,16 @@
 **Supersedes:** `OPPS_SI_Relationships_CY2026_5.html` (defective — see §17).
 **Primary deliverable:** a portable, DOM-free adjudication **engine** whose rules are data. The browser tool is one front-end over it; `837-claim-viewer` is the other.
 
+**Revision note (rev 14).** Found by building the inspector, and by reading Ch. 4 instead of paraphrasing it.
+
+- **§9.1 — the 8011 criteria are now sourced from the manual**, and two of its three criteria groups (observation-time documentation, physician evaluation) are **not derivable from a claim at all**. 8011 can never be fully determined here; a fired 8011 must say so. Absent from every prior revision.
+- **§9.1 — "any SI J2" is exact rather than a proxy.** The 13 CY2026 J2 codes are precisely the manual's named list. The generator now asserts that equivalence per refresh, so a future J2 addition fails the build instead of silently over-firing 8011.
+- **§19.27 — the date relation needs an operator, not data.** Two variants: same-day-or-day-before for the visit codes, same-day-only for `G0379`.
+**Also in rev 14.** Found by building the inspector — the feature that reads the registry rather than executing it.
+
+- **§4.3 — `scope` must be statically decidable from a code alone.** `statusIn` and `isExempt` are removed from the scope-selector list, and a claim-relational predicate in `scope` is now a lint error. Rev 13 permitted them, and the shipped registry also used `isHighestBy` in a scope, which was never listed. The consequence was that applicability mode (§6.2) could not decide **any** Q-group or J1 rule and returned an empty `admitted` list — the mode's entire purpose defeated. Moving these predicates to `when` costs nothing: they still gate firing, so they still prevent the cross-band `setStatus` error.
+- **§4.2 — node form is `{op, args}`.** The spec's examples used a single-key form; the implementation uses `{op, args}`, which is unambiguous under nesting. Spec follows implementation.
+
 **Revision note (rev 13).** Two defects found by running the CLI — the first unit whose output a human reads.
 
 - **§5.1 / §9.4 — new `PACKAGED` status.** SI `N` reported `PAID` with no basis and no amount, which says the line pays when it pays nothing separately. Backwards, not imprecise. Distinct from `BUNDLED`, which names a controlling line. This closes the vocabulary question logged as D32.
@@ -465,7 +475,7 @@ Written as control flow, a rule can be run and observed but not enumerated, coun
   "epoch": "E2",
   "scopeTarget": "line",
   "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
-  "scope":  { "siIn": ["Q4"] },
+  "scope":  { "op": "siIn", "args": { "si": ["Q4"] } },
   "when":   { "claimContainsAny": { "si": ["J1","J2","S","T","V","Q1","Q2","Q3"] } },
   "then":   [ { "setStatus": "BUNDLED" },
               { "bundleUnder": { "highestBy": "rateMils",
@@ -490,7 +500,13 @@ Every ranking selector names an explicit `tiebreak`. Because 8 rated SI T codes 
 
 Deliberately small, enumerable, describable, and reimplementable. **Adding an operator is a spec change, not an implementation detail.**
 
-**Scope selectors** (line-scoped rules): `always` · `siIn` · `codeIn` · `codePattern` · `apcIn` · `inSchedule` · `statusIn` · `isExempt` · `not`
+**Scope selectors** (line-scoped rules): `always` · `siIn` · `codeIn` · `codePattern` · `apcIn` · `not`
+
+**Scope must be statically decidable from a code alone — corrected in rev 14.** Rev 13 listed `statusIn` and `isExempt` here, and the shipped registry additionally used `isHighestBy` in a `scope`, which was never in the list at all. All three depend on claim state, and putting them in `scope` breaks applicability mode (§6.2): a query with no claim cannot decide them, so **every** Q-group and J1 rule landed in an "undecidable" bucket instead of answering the question the mode exists to answer.
+
+The division is now clean: **`scope` = what this rule can ever touch, decidable from the code and its data alone. `when` = everything claim-dependent.** A claim-relational or status-dependent predicate in `scope` is a lint error (§15.3).
+
+This costs nothing behaviourally. `not(statusIn(['BUNDLED']))` moved into `when` still gates firing, so it still prevents the cross-band `setStatus` overwrite that §4.3 makes an error — it is load-bearing and it keeps working. What changes is that applicability mode's `admitted` list becomes exact rather than empty.
 
 `not` is valid in `scope`, not only in `when`. Without it, §9.1's "all **non-exempt** lines bundle into the ranked J1" is inexpressible: enumerating "every SI except the exempt ones" is not a workaround, because §9.6's category-based exemptions and the New Technology APC rule are not SI-derivable. `isExempt` reads the E1 exempt-line fact; rev 4 had `exempt` only as an *effect*, with nothing able to test it.
 
@@ -543,6 +559,8 @@ A rule may declare `"exclusive": true`, making any later same-band write of the 
 #### 4.3.1 Operator signatures — declared, not implied
 
 **Added in rev 11.** Rev 10 gave two worked examples with different argument shapes (`"siIn": ["Q4"]` bare, `"claimContainsAny": {"si": [...]}` named) and never stated the rule connecting them. Both examples were in fact correct; what was missing was the *declaration*, without which a registry loader cannot deep-validate operator arguments at all. Found by building the validator: it rejected this document's own example rule.
+
+**Node form is `{op, args}` — recorded in rev 14 to match the implementation.** A registry node names its operator in an `op` field and its arguments in `args`, e.g. `{"op": "siIn", "args": {"si": ["Q4"]}}`. Rev 12's examples used a single-key form (`{"siIn": {...}}`); the built registry uses `{op, args}`, which is unambiguous, uniform across nesting, and trivially validatable. The spec follows the implementation here because the implementation is better.
 
 **The rule (revised in rev 13): every operator takes a named-object argument, uniformly.** `{"siIn": {"si": ["Q4"]}}`, never `{"siIn": ["Q4"]}`. Rev 11 allowed a bare payload as an authoring convenience. That is reversed, on evidence rather than taste: a rule authored per the bare-form table **passed load-time validation, faulted at evaluation, and reported itself as an unrelated failure** in the trace's counterfactual dedup, because different lines halted at different rules. Valid at load, broken at run, diagnosed somewhere else — the worst failure shape available. One uniform form removes the normalizer, removes the ambiguity between a bare array and a malformed named object, and lets the validator check payloads at load time (§12.2). The redundancy of `{"si": [...]}` under `siIn` is a small price. Signatures are part of the closed set — adding or changing one is a spec change.
 
@@ -1052,7 +1070,24 @@ Rev 3 placed the reserved-edit example at order 4500, inside the band it reserve
 
 **What pays is still unresolved and must not be guessed.** No source in §3 or §7 supplies an APC 8011 rate; Addendum B carries 934 distinct APCs and **none** in the 8000-range, and no OPPS Addendum A exists in this folder. So a fired 8011 packages the claim, and the controlling J2 line yields `PAID_UNPRICED` with basis `OPPS_COMPREHENSIVE` plus a flag naming the missing rate. Packaging and pricing are separate concerns; the missing rate does not excuse skipping the packaging. See §19.12.
 
-**All six firing conditions are evaluable.** Beyond the four above, Ch. 4 requires that the visit bear a line-item date of service on the same day as or the day before the observation service (with `G0379` same-day), and restricts 8011 to **13X bill types**. Rev 5 called bill type unavailable; it is not — `Institutional.typeOfBill` is in the §2.1 input contract, and per-line `fromDate` covers the date relation. The rule evaluates all six.
+**The 8011 criteria, sourced.** Rev 14 read Pub 100-04 Ch. 4 directly (the "Comprehensive Observation Services APC (APC 8011)" criteria list) rather than relying on a reviewer's paraphrase. The manual states three criteria groups; only some are checkable from claim data at all.
+
+| Criterion | Manual text, condensed | Checkable from a claim? |
+|---|---|---|
+| **1d** | "The number of units reported with HCPCS code `G0378` must equal or exceed 8 hours." | **yes** — built |
+| **2a** | The claim must include one of: a Type A or B ED visit (`99281`–`99285` or `G0380`–`G0384`), a clinic visit (`G0463`), critical care (`99291`), or a direct referral (`G0379`) | **yes** — built |
+| **2a date** | "The additional services … must have a line item date of service **on the same day or the day before** the date reported for observation." `G0379` is stricter: it "must be reported on the **same date of service** as the date reported for observation services." | **yes in principle, not expressible** — see below |
+| **2b** | "No procedure with a T status indicator or a J1 status indicator can be reported on the claim." | **yes** — built |
+| bill type | "Only visits, critical care and observation services that are billed on a **13X bill type**" may qualify. | **yes** — enforced at the §8.0 gate |
+| **1a–c** | Observation time documented in the medical record; billing begins at the documented clock time; ends when interventions complete. | **never** — medical-record facts |
+| **3a–b** | Beneficiary in a physician's care throughout, documented; physician explicitly assessed patient risk. | **never** — medical-record facts |
+
+**Two of the three criteria groups are not derivable from a claim, ever.** 8011 therefore can never be *fully* determined by this engine, and a fired 8011 must say so — the engine has checked the claim-data criteria and cannot see the documentation ones. This is a permanent limitation, not a milestone gap, and it was absent from every prior revision.
+
+**"Any SI J2 present" is exact, not a proxy — for CY2026.** The 13 J2 codes in CY2026 Addendum B are precisely the manual's named list: `99281`–`99285`, `G0380`–`G0384`, `G0463`, `99291`, `G0379`. SI J2 *is* CMS's encoding of criterion 2a. That equivalence is a property of the loaded data rather than a guarantee, so the generator asserts it on every refresh: if a future quarter adds a J2 code absent from the manual's list, the rule would over-fire and the build must fail rather than drift.
+
+**The date relation needs a new operator, not more data.** The dates are already present — every line carries `fromDate`. What is missing is an operator comparing *one line's date to another line's*: `dosOnOrAfter`/`dosBefore` compare a line's date to a literal baked into the rule at authoring time, and no ranking operator accepts a date field. Adding one is a deliberate change to the closed set (§4.3), and it must cover both variants — same-day-or-day-before for the visit codes, same-day-only for `G0379`. Until then 8011 fires on the criteria it can check and flags the date relation as unevaluated. §19.27.
+
 
 ### 9.2 Trigger lists differ, and the difference is real
 
@@ -1658,6 +1693,7 @@ Each is stated as an assertion a test can pass or fail.
 12. **C-APC 8011 rate source.** Not in Addendum B. Until identified, a fired 8011 is `PAID_UNPRICED` (§9.1). Is the rate in the OPPS Addendum A release, and is that file obtainable?
 13. **Q3 composite combination table.** Not on disk. Until sourced, Q3 pays its own APC with a flag (§9.2).
 25. **Bill-type conventions in this feed.** §8.0.2's routing table decodes the first two digits by the textbook reading. The rev-9 test claim carries `81A` alongside room & board and a CAH taxonomy, which do not sit together comfortably. Confirm what the feed actually puts in `type_of_bill` before §8.0.2 ships.
+27. **A cross-line date operator for 8011's criterion 2a.** The condition is now sourced exactly (§9.1) and the data is present; the closed operator set simply cannot express "this line's date is within N days of that line's date". Add an operator — it must handle same-day-or-day-before for the visit codes and same-day-only for `G0379` — or declare the date relation an explicit non-goal. It is currently neither, which is the one state to avoid.
 26. **Which MPFS total-RVU column defines membership?** `PPRRVU2026_Jan_nonQPP.csv` carries both a non-facility and a facility total. The U6 generator treats a code as MPFS-resident when **either** is non-zero, which is right for Tier 2 *membership* (§3.2 names the schedule and never prices it). If MPFS pricing ever enters scope, the **facility** column is the correct one for a facility claim, and this assumption must be revisited rather than inherited.
 - ~~**#22 The JSON input path cannot carry a UB-04 claim.**~~ **Closed, and the premise was wrong.** Institutional claims arrive as **XML**; only CMS-1500s arrive as JSON, so `jsonClaimSource`'s `'1500'`-only mapping is correct for its input rather than incomplete. The viewer has no XML support whatsoever. Resolution: the engine defines its own `ClaimInput` and owns an **XML institutional adapter**, which does not exist anywhere yet and is the first thing milestone 1.1 builds (§2.1).
 15. **CLFS `INDICATOR = L`.** 49 rows carry it with a $0.00 rate, 18 of them SI Q4 (§3.1.1). Confirm its meaning against `PUF CLFS CY2026 Q2V1.pdf` before deciding whether those codes are unpriced, contractor-priced, or non-covered.

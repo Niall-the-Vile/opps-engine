@@ -58,6 +58,7 @@ import type {
   Status,
 } from '../types.js';
 import { EPOCH_ORDER } from '../types.js';
+import { isKnownFlagCode } from '../flags.js';
 import { deepFreeze, type DeepFrozen } from './freeze.js';
 import {
   operators,
@@ -593,15 +594,27 @@ function readStringArrayField(rec: Record<string, unknown>, key: string): string
 // index within that epoch, not derived from rule identity, so two
 // different rules asking the identical (field, among) question at the same
 // epoch share one fact rather than duplicating it.
+//
+// A rank fact is only ever computed here — never eagerly for every epoch,
+// per the header note above `siCensusFactId` et al. That means it cannot be
+// folded into `computeEpochFacts`'s eager pass; instead, the *first* time a
+// given (epoch, field, among) triple is resolved, `registerFact` writes the
+// resulting `Fact` straight into the epoch's already-recorded fact set
+// (`evaluate`'s `epochFacts`/`epochFactsByIdMap`), so every `factId` this
+// function ever hands back to a caller for `examined.factRefs` is guaranteed
+// to resolve in `Result.facts` (§2.5, §5.4) — this is the fix for the
+// dangling `E3b:rank:weight#0`-style ref: the memo used to hand back an id
+// for a fact it never actually emitted anywhere.
 // ===========================================================================
 
 interface RankMemo {
   perEpoch: Map<Epoch, Map<string, { readonly factId: string; readonly ranked: readonly LineFacts[] }>>;
   countPerEpoch: Map<Epoch, number>;
+  readonly registerFact: (epoch: Epoch, fact: Fact) => void;
 }
 
-function makeRankMemo(): RankMemo {
-  return { perEpoch: new Map(), countPerEpoch: new Map() };
+function makeRankMemo(registerFact: (epoch: Epoch, fact: Fact) => void): RankMemo {
+  return { perEpoch: new Map(), countPerEpoch: new Map(), registerFact };
 }
 
 function getOrComputeRank(
@@ -624,11 +637,26 @@ function getOrComputeRank(
   }
   const existing = epochMap.get(key);
   if (existing !== undefined) return existing;
-  const ranked = rankAmongLines(claim, among, field, tiebreak, fallbackField, options, evalNode, op);
+
+  const spec: RankSpec = { field, among, tiebreak, fallbackField };
+  const { ranked, values } = rankAmong(spec, { subject: null, claim, options }, evalNode, op);
+
   const n = memo.countPerEpoch.get(epoch) ?? 0;
   memo.countPerEpoch.set(epoch, n + 1);
-  const entry = { factId: `${epoch}:rank:${field}#${n}`, ranked };
+  const factId = `${epoch}:rank:${field}#${n}`;
+  const entry = { factId, ranked };
   epochMap.set(key, entry);
+
+  // §5.4: factId, kind, dimension, values, and the contributing lineIds —
+  // in ranked order, so the trace shows the ranking itself (rank 1 first),
+  // not merely its outcome.
+  const lineIds = ranked.map((l) => l.lineId);
+  const rankValues: JsonValue[] = ranked.map((l) => {
+    const v = values.get(l.lineId);
+    return v === undefined ? null : v;
+  });
+  memo.registerFact(epoch, { factId, kind: 'rank', dimension: field, values: rankValues, lineIds });
+
   return entry;
 }
 
@@ -926,11 +954,26 @@ function recordStructuralWrite(ws: LineWorkingState, effect: StructuralEffect, c
   perLine.set(effect, { ruleId: ctx.rule.id });
 }
 
+/**
+ * U17 Part A (§12.7): "`code` [...] is enumerated in a flag manifest [...]
+ * Registry lint fails if a rule emits a code absent from the manifest."
+ * `lint-registry.mjs` doesn't exist yet (U18, still `todo` per
+ * docs/BUILD_LOG.md), so this is the one place in the engine every `flag`
+ * effect actually fires from — both the per-line path (`applyLineEffect`'s
+ * `'flag'` case) and the claim-scoped path (`runClaimScopedRule`) call this
+ * function, so checking here covers both without duplicating the check.
+ * An unregistered code throws a plain `Error`, caught by the same per-rule
+ * fault containment every other malformed effect payload already goes
+ * through (§12.8: line-local `ERRORED`, never a silent pass).
+ */
 function buildFlag(rec: Record<string, unknown>, rule: Rule, lineIds: readonly string[]): Flag {
   const code = rec['code'];
   const severity = rec['severity'];
   const message = rec['message'];
   if (typeof code !== 'string') throw new Error('flag: expected a string "code".');
+  if (!isKnownFlagCode(code)) {
+    throw new Error(`flag: code "${code}" is not registered in the flag manifest (src/flags.ts) — §12.7 requires Flag.code to come from an enumerated manifest.`);
+  }
   if (!isFlagSeverity(severity)) throw new Error(`flag: "${JSON.stringify(severity)}" is not a recognized severity.`);
   return {
     code,
@@ -966,22 +1009,44 @@ export function evaluate(input: EvaluateInput): EvaluateResult {
 
   const evalNode = makeEvalNode();
   const tracker = makeConflictTracker();
-  const rankMemo = makeRankMemo();
   const scopeExclusions = new Map<string, Set<string>>(); // ruleId -> excluded lineIds, accumulated across the whole run
   const disclosures: Flag[] = [];
   const claimTrace: Evaluation[] = [];
 
   const epochSnapshots = new Map<Epoch, DeepFrozen<ClaimFacts>>();
-  const epochFacts = new Map<Epoch, readonly Fact[]>();
-  const epochFactsByIdMap = new Map<Epoch, ReadonlyMap<string, Fact>>();
+  // Mutable per-epoch fact storage — mutable (not `readonly`) specifically
+  // so `registerRankFact` below can append an on-demand rank `Fact` into an
+  // epoch's set *after* that epoch was first recorded, the moment the fact
+  // is actually computed. `EvaluateResult.facts` is built read-only from
+  // these at the very end, once every rank fact any rule asked for has
+  // landed here.
+  const epochFacts = new Map<Epoch, Fact[]>();
+  const epochFactsByIdMap = new Map<Epoch, Map<string, Fact>>();
 
   function recordEpoch(epoch: Epoch): void {
     const snapshot = computeEpochSnapshot(states);
     epochSnapshots.set(epoch, snapshot);
-    const facts = computeEpochFacts(epoch, snapshot);
+    const facts = [...computeEpochFacts(epoch, snapshot)];
     epochFacts.set(epoch, facts);
     epochFactsByIdMap.set(epoch, new Map(facts.map((f) => [f.factId, f] as const)));
   }
+
+  function registerRankFact(epoch: Epoch, fact: Fact): void {
+    const list = epochFacts.get(epoch);
+    if (list === undefined) {
+      // Cannot happen: a rule only ever reads an epoch at or before its
+      // window's ceiling, which `recordEpoch` has always already produced
+      // by the time any rule runs (see the "Cannot happen" note below,
+      // same invariant). Kept total rather than reaching for a non-null
+      // assertion (README rule 5).
+      throw new Error(`rank fact registered for epoch "${epoch}", which has not been recorded yet.`);
+    }
+    list.push(fact);
+    const byId = epochFactsByIdMap.get(epoch);
+    if (byId !== undefined) byId.set(fact.factId, fact);
+  }
+
+  const rankMemo = makeRankMemo(registerRankFact);
 
   // E0 exists before any rule runs.
   recordEpoch('E0');
