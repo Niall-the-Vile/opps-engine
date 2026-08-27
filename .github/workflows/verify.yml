@@ -1,0 +1,81 @@
+name: verify
+
+# Runs the full gate on every push and PR. Its most important job is proving a
+# fresh clone can actually build and test: the CY2026 data generators read CMS
+# source files from OUTSIDE this repo, so if the generated data were ever
+# ignored again, this workflow is what would catch it — CI clones the repo and
+# nothing else.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # Not part of `npm run verify` yet — tools/lint-registry.mjs is unbuilt
+      # (U18). Added here as a non-blocking probe so the day it lands, CI picks
+      # it up without anyone remembering to wire it.
+      - name: Registry lint (advisory until U18 lands)
+        run: npm run lint:registry
+        continue-on-error: true
+
+      # The engine must stay free of DOM, network, filesystem, clock and RNG
+      # access (spec §2.1, §2.4) — that is what makes it portable and its traces
+      # reproducible. Acceptance criterion §18.2 asks for this scan.
+      #
+      # DOM access is NOT scanned for, deliberately: tsconfig sets
+      # lib: ["ES2022"] with types: ["node"] and no "dom", so `document.x` or a
+      # real `window.x` is already a compile error. The compiler is the better
+      # guard. Scanning for a bare `window` also produced false positives —
+      # `window` is a legitimate local name in evaluate.ts, where rules read
+      # facts through epoch *windows*. This scan therefore covers only what
+      # typechecking permits.
+      - name: Engine purity scan
+        run: |
+          set -e
+          echo "scanning src/ for forbidden host access..."
+          if grep -rnE "from '(node:)?fs'|require\('(node:)?fs'\)|\bfetch\(|XMLHttpRequest|Date\.now|new Date\(|Math\.random|\bIntl\." src/ \
+             --include='*.ts' | grep -vE '^\S+:[0-9]+:\s*(\*|//|/\*)'; then
+            echo "::error::forbidden host access found in src/ (spec §2.1/§2.4)"
+            exit 1
+          fi
+          echo "clean."
+
+      # Strict-mode escape hatches defeat the point of the strict tsconfig.
+      - name: No escape hatches
+        run: |
+          set -e
+          echo "scanning src/ for ! / any / ts-ignore..."
+          if grep -rnE '[A-Za-z0-9_\)\]]\!(\.|\[|\))|:\s*any\b|@ts-(ignore|expect-error)' src/ \
+             --include='*.ts' | grep -vE '^\S+:[0-9]+:\s*(\*|//|/\*)'; then
+            echo "::error::non-null assertion, any, or ts-ignore found in src/"
+            exit 1
+          fi
+          echo "clean."
+
+      # Proves the CLI runs from a clean checkout, and that the bundling answer
+      # a human sees is the one the tests assert.
+      - name: CLI smoke test
+        run: |
+          set -e
+          node tools/adjudicate.mjs 59025 84112 81001
+          node tools/adjudicate.mjs --file test/fixtures/inst-xml-inpatient-cah-revonly.xml

@@ -1,8 +1,8 @@
 node_modules/
 dist/
 
-# Generated data + registry mirrors (npm run gen:data).
-# Narrow patterns, NOT src/data/*.ts — that would swallow the hand-written
-# accessor layer in src/data/index.ts and leave a clone unable to compile.
-src/data/*.cy2026.ts
-src/registry/index.ts
+# Generated CY2026 data and the registry mirror are COMMITTED, deliberately.
+# The generator reads CMS source files from outside this repo, so a fresh
+# clone cannot regenerate them — ignoring them would leave a clone unable to
+# compile or test. Regenerate with `npm run gen:data` when a new CMS quarter
+# lands; the generator's census self-checks fail loudly on unexpected drift.
