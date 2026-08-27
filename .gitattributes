@@ -1,0 +1,4 @@
+# Normalize line endings so a Windows checkout does not churn the whole tree.
+* text=auto eol=lf
+*.xml text eol=lf
+*.md  text eol=lf

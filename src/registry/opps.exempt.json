@@ -1,0 +1,41 @@
+[
+  {
+    "id": "OPPS.EXEMPT.STATUTORY",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 1000,
+    "order": 1100,
+    "epoch": "E0",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4 C-APC exclusion list; spec §9.6",
+    "scope": { "siIn": { "si": ["U", "G", "H", "F", "L"] } },
+    "then": [{ "exempt": {} }],
+    "note": "Statutory C-APC exclusion set: brachytherapy (U), pass-through drugs (G), pass-through devices (H), vaccines (L), corneal tissue/CRNA/Hep B (F). 202 codes, all separately paid by statute."
+  },
+  {
+    "id": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 1000,
+    "order": 1200,
+    "epoch": "E0",
+    "scopeTarget": "line",
+    "citation": "spec §9.6 — no source on disk confirms C-APC status for S1/H1/K1",
+    "scope": { "siIn": { "si": ["S1", "H1", "K1"] } },
+    "then": [
+      { "exempt": {} },
+      {
+        "flag": {
+          "code": "OPPS.EXEMPT.UNVERIFIED_POLICY",
+          "severity": "assumption",
+          "message": "S1/H1/K1 exemption from C-APC packaging is a structural inference (skin-substitute/device/drug APC ranges paid separately by statute), not confirmed by Addendum D1 or CMS-1834-FC — neither is on disk. 316 codes affected."
+        }
+      }
+    ],
+    "note": "Direction of the error is disclosed, not guessed away: exempting these wrongly means more lines pay separately, which raises the Medicare benchmark AB pays a multiple of — the safer default to carry while unverified (§9.6)."
+  }
+]

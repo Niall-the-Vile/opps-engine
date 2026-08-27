@@ -1,0 +1,8 @@
+node_modules/
+dist/
+
+# Generated data + registry mirrors (npm run gen:data).
+# Narrow patterns, NOT src/data/*.ts — that would swallow the hand-written
+# accessor layer in src/data/index.ts and leave a clone unable to compile.
+src/data/*.cy2026.ts
+src/registry/index.ts

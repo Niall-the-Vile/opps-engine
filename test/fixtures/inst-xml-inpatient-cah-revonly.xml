@@ -1,0 +1,57 @@
+<!--
+  Fixture: real-shaped institutional XML from the clearinghouse feed.
+  PHI removed at the adapter boundary per spec §2.1 — patient, insured, MRN,
+  PCN, and provider identifiers are stripped or neutralized. Everything the
+  §8.0 gate and §9 adjudication consume is preserved verbatim.
+
+  Expected outcome: NOT_OPPS. This fixture exists to prove the gate, and it
+  trips four of its six conditions independently:
+
+    1. claim_form="ub92"        -> not a recognized outpatient form (§19.22)
+    2. type_of_bill="81A"       -> facility type 8, not 13X (§8.0)
+    3. rev_code with no proc_code on all 16 lines -> no HCPCS, no SI (§8.0.1)
+    4. rev 0110 room & board + value_code 80 = 6 covered days -> inpatient
+    5. bill_taxonomy 282NC0060X -> Critical Access Hospital, cost-based (§3.3)
+    6. hosp_from_date 2020-08-25 vs CY2026 data -> vintage mismatch (§7.5)
+
+  Also exercises: line id comes from remote_chgid -- present and unique on all
+  16 lines here, so lineIdScheme is 'feed', NOT the idx: fallback. (An earlier
+  version of this comment said otherwise; it was describing the viewer parser's
+  bug of reading `chgid`, not this adapter's output. Fixed per D11.)
+  charge_record_type carries the unit qualifier DA vs UN (§19.2); there are no
+  per-line dates, so the claim-level date fallback applies.
+
+  total_charge reconciles exactly to the sum of the 16 charge lines (9202.07),
+  which the adapter asserts as a cheap input check.
+-->
+<claims>
+  <claim claim_form="ub92"
+         payerid="61101" payer_name="HUMANA" payer_order="Primary"
+         hosp_from_date="2020-08-25"
+         accept_assign="Y" total_charge="9202.07" balance_due="9202.07"
+         diag_1="I10" diag_2="F418" admit_diag="I10"
+         bill_taxonomy="282NC0060X"
+         type_of_bill="81A" admit_type="2" admit_source="1"
+         disch_hour="15" disch_status="03"
+         cond_code_1="38"
+         occ_code_1="29" occ_date_1_date="2020-08-25"
+         occ_code_2="35" occ_date_2_date="2020-08-25"
+         value_code_1="80" value_amt_1="6.00">
+    <charge remote_chgid="129543" charge="2700.00" units="6"   rev_code="0110" charge_record_type="DA"/>
+    <charge remote_chgid="129536" charge="1273.58" units="746" rev_code="0250" charge_record_type="UN"/>
+    <charge remote_chgid="129539" charge="59.50"   units="7"   rev_code="0258" charge_record_type="UN"/>
+    <charge remote_chgid="129538" charge="63.14"   units="12"  rev_code="0270" charge_record_type="UN"/>
+    <charge remote_chgid="129540" charge="5.00"    units="1"   rev_code="0270" charge_record_type="UN"/>
+    <charge remote_chgid="129541" charge="5.00"    units="2"   rev_code="0270" charge_record_type="UN"/>
+    <charge remote_chgid="129537" charge="504.25"  units="11"  rev_code="0300" charge_record_type="UN"/>
+    <charge remote_chgid="129551" charge="645.00"  units="3"   rev_code="0301" charge_record_type="UN"/>
+    <charge remote_chgid="129550" charge="387.00"  units="3"   rev_code="0305" charge_record_type="UN"/>
+    <charge remote_chgid="129552" charge="60.00"   units="1"   rev_code="0309" charge_record_type="UN"/>
+    <charge remote_chgid="129545" charge="375.00"  units="2"   rev_code="0324" charge_record_type="UN"/>
+    <charge remote_chgid="129546" charge="1987.60" units="1"   rev_code="0350" charge_record_type="UN"/>
+    <charge remote_chgid="129547" charge="160.00"  units="2"   rev_code="0412" charge_record_type="UN"/>
+    <charge remote_chgid="129549" charge="567.00"  units="9"   rev_code="0420" charge_record_type="UN"/>
+    <charge remote_chgid="129548" charge="175.00"  units="1"   rev_code="0424" charge_record_type="UN"/>
+    <charge remote_chgid="129544" charge="235.00"  units="1"   rev_code="0730" charge_record_type="UN"/>
+  </claim>
+</claims>

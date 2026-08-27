@@ -1,0 +1,24 @@
+<!--
+  Fixture: synthetic outpatient claim, bill type 13X, with real HCPCS codes
+  on the lines. Invented for U2 test coverage only — no institutional feed
+  producing an outpatient HCPCS claim was available in this folder (see
+  docs/M1.1-input-contract.md, "Test expectations"). No patient data is
+  invented: PHI fields (pat_*, ins_*, mrn, pcn, bill_npi, bill_taxid,
+  prov_*, remote_fileid, remote_batchid) are omitted entirely rather than
+  filled with fake values.
+-->
+<claims>
+  <claim claim_form="ub92"
+         payerid="61101" payer_name="HUMANA" payer_order="Primary"
+         hosp_from_date="2026-03-10" hosp_thru_date="2026-03-10"
+         accept_assign="Y" total_charge="612.40" balance_due="612.40"
+         diag_1="Z0000"
+         bill_taxonomy="282N00000X"
+         type_of_bill="131" admit_type="3" admit_source="1"
+         cond_code_1="M2">
+    <charge remote_chgid="88001" charge="145.00" units="1" rev_code="0510" charge_record_type="UN" proc_code="G0463"/>
+    <charge remote_chgid="88002" charge="22.40"  units="1" rev_code="0300" charge_record_type="UN" proc_code="36415"/>
+    <charge remote_chgid="88003" charge="310.00" units="1" rev_code="0301" charge_record_type="UN" proc_code="84112"/>
+    <charge remote_chgid="88004" charge="135.00" units="1" rev_code="0450" charge_record_type="UN" proc_code="59025"/>
+  </claim>
+</claims>
