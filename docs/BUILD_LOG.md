@@ -53,8 +53,8 @@
 | U21 | Divergence layer + seed set (§20, §20.4) | U19 | todo |
 | U22 | `gen-goldens.mjs` + `.structure.json` projections + `rule-coverage.json` (§15.2) | U19 | todo |
 | U23 | Fixtures per §15.1, minus the amount-dependent ones | U22 | todo |
-| U24 | `bundle.mjs` — esbuild IIFE, single `OppsEngine` global (§2.7) | U19 | todo |
-| U25 | Browser front-end. **Scoped in `docs/M25-browser-interface.md`; awaiting design.** | U24 | **scoped** |
+| U24 | `bundle.mjs` — esbuild IIFE, single `OppsEngine` global (§2.7) | U19 | **done** |
+| U25 | Browser front-end. **Scoped in `docs/M25-browser-interface.md`; awaiting design.** | U24 | **done** |
 
 ---
 
@@ -133,3 +133,10 @@ MPPR's weight ranking (§10.5) · the 8011 date relation · the Q4 dual reading 
 | D47 | The reader-facing WHY text is **generated from rule structure**, never authored prose. `note` is developer rationale and drifted so far from the outcome that it omitted the actual reason a line bundled. Generated explanations cannot disagree with the logic; authored ones do. | §6.1 |
 | D48 | `G0379` is also SI J2 with a **higher rate** than `99284` (608,430 vs 426,300 mils), so on a claim carrying both, payment-ranking makes the direct-referral line control instead of the ED visit — backwards. **Open, flagged not fixed.** | §9.1 |
 | D49 | U25 scoped rather than built (`docs/M25-browser-interface.md`). The design questions are real ones — trace volume (55 rows at 10 lines, ~1,400 at the 250-line ceiling §18.29 requires), bundling as a relationship rather than a row attribute, and NOT_OPPS-with-conflicting-evidence as a first-class answer. Design first, build against it. | §13.1 |
+| D50 | Web front-end implements the user's design (`docs/ref/M25-design-reference.dc.html`) in **vanilla JS**. The design was authored as a `.dc.html` canvas using `support.js`, a React runtime needing a CDN — impossible under §2's `file://`-with-no-network constraint. Palette, layout, seven views, status/outcome/flag colour maps, and the 28px bundled-line indent all carried over faithfully. | §13.1 |
+| D51 | Google Fonts dropped: cannot load offline. The design's own `font-family` fallbacks (Georgia / system-ui / Menlo) are used. Embedding font files as base64 is the only offline alternative and was judged not worth the weight. | §2.7 |
+| D52 | **Every mock determination in the design was discarded**, not adapted — most were factually wrong. Beyond the three found in review (`36415` SI Q4 not N, `59025` SI T not S, `84112` BUNDLED not PACKAGED): `G0463` is J2 not Q3, `00100` is PACKAGED/N not ROUTED, `99284` PAID not bundled, and **all 13 invented rule ids** (`R-SI-CLASSIFY`, `R-ONE-VISIT-PER-CLAIM`, `R-ANESTHESIA-ROUTE`, …) are fictional. Real ids are `OPPS.DISP.T`, `OPPS.PKG.Q4.COMPANION`. Normal for a prototype; recorded so nobody later mistakes the design's sample text for engine behaviour. | §13.1 |
+| D53 | `why` text extracted from `tools/adjudicate.mjs` into `tools/lib/why.mjs` and shared by CLI and web, so both generate identical explanations from one source. Per D47 the explanation is generated, never authored — the design's hand-written `why` strings did not ship. | §6.1 |
+| D54 | Design gaps filled: `Status` needed 4 more values (`MALFORMED`, `INVALID`, `DELETED`, `NOT_ADJUDICATED`), `Outcome` needed 3 (`NOT_EVALUATED` — present on essentially every real claim via the reserved slots — plus `ERRORED`, `RETIRED`), and `--r-pill` was referenced by every badge but never declared. `FlagSeverity` was complete. | §5.1, §5.3 |
+| D55 | Web calls `adjudicate()` with `traceLevel: 'full'` rather than the engine default `'standard'`, so counterfactuals arrive resolved instead of as refs. Deliberate for an audit UI; means browser output is richer than a bare CLI run. | §5.3a |
+| D56 | Reference tables are generated from the registry (§13.1) — 31 real rows against the design's 7 hand-typed. Only the SI table was built: it is the only one the design drew, and the routing table **cannot** be argSpec-generated because `routing.resolve()` is imperative TypeScript rather than a declarative rule. | §13.1 |

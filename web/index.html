@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPPS Adjudicator</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="shell" id="shell">
+  <aside class="sidebar" data-noprint>
+    <div class="brand">
+      <img src="assets/AB_Logo.png" alt="Anabaptist Brotherhood" class="logo">
+      <div class="brand-title">OPPS Adjudicator</div>
+      <div class="brand-sub">Internal &mdash; bill processing</div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-heading">Claims</div>
+      <button type="button" class="nav-item" data-nav="claims">New claim</button>
+      <button type="button" class="nav-item" data-nav="inspector">Code inspector</button>
+      <button type="button" class="nav-item" data-nav="reference">Reference tables</button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-heading">Governance</div>
+      <button type="button" class="nav-item nav-item-soon" data-nav="rules">
+        <span>Rules</span><span class="soon-pill">Soon</span>
+      </button>
+      <button type="button" class="nav-item nav-item-soon" data-nav="orgs">
+        <span>Organizations</span><span class="soon-pill">Soon</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">Milestone 1 &mdash; bundling only.<br>No dollar amounts.</div>
+  </aside>
+
+  <main class="main" id="view"></main>
+</div>
+
+<!--
+  Engine first (U24's window.OppsEngine, dist/engine.bundle.js — built by
+  `npm run build:bundle`), then the front-end. Both are plain classic
+  scripts (no type="module") on purpose: this page is opened directly as a
+  file:// document with no server, and module script loading over file:// is
+  blocked by same-origin/CORS rules in Chromium-based browsers — see
+  docs/M25-browser-interface.md §2 and the build brief's "no build step for
+  web/" note.
+-->
+<script src="../dist/engine.bundle.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

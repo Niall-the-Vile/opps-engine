@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-900:#00422B; --green-800:#005839; --green-700:#006E47; --green-600:#1A8159; --green-500:#2E9A6E;
+      --green-200:#B6D9C9; --green-100:#E0EFE8; --green-50:#F0F7F3;
+      --ink:#211D18; --ink-2:#58585A; --ink-3:#8B867C; --ink-4:#B6B0A4;
+      --line:#E3DDD0; --line-2:#D2CABA; --paper:#FAF6EE; --paper-2:#F4EEE1; --paper-3:#EDE5D5; --white:#FFFFFF;
+      --gold:#9A6B2F; --gold-100:#F1E7D4; --clay:#8C4A32; --clay-100:#F0E2DA; --clay-strong:#7A3A29;
+      --serif:"Source Serif 4",Georgia,serif; --sans:"Open Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+      --r-sm:3px; --r-md:5px; --r-lg:8px;
+    }
+    body { margin:0; background:var(--paper); }
+    @media print {
+      [data-noprint] { display:none !important; }
+      body { background:var(--white); }
+      [data-printsheet] { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</helmet>
+<div style="display:grid; grid-template-columns:250px 1fr; min-height:100vh; background:var(--paper); font-family:var(--sans); color:var(--ink);" data-printsheet="1">
+
+  <div data-noprint="1" style="background:var(--white); border-right:1px solid var(--line); padding:24px 16px; display:flex; flex-direction:column; gap:28px;">
+    <div style="display:flex; flex-direction:column; gap:4px;">
+      <img src="assets/AB_Logo.png" alt="Anabaptist Brotherhood" style="width:100%; max-width:170px; object-fit:contain;" />
+      <div style="font-family:var(--serif); font-weight:600; font-size:16px; color:var(--ink); margin-top:6px;">OPPS Adjudicator</div>
+      <div style="font-family:var(--sans); font-size:11.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3);">Internal — bill processing</div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:2px;">
+      <div style="font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); padding:4px 10px 6px;">Claims</div>
+      <div onClick="{{ goToInput }}" style="position:relative; padding:10px 12px; border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center;">
+        <sc-if value="{{ navClaimsActive }}" hint-placeholder-val="{{ true }}"><div style="position:absolute; inset:0; background:var(--green-100); border-radius:var(--r-sm);"></div></sc-if>
+        <span style="position:relative; font-size:14.5px; font-weight:{{ navClaimsWeight }}; color:{{ navClaimsColor }};">New claim</span>
+      </div>
+      <div onClick="{{ goToInspector }}" style="position:relative; padding:10px 12px; border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center;">
+        <sc-if value="{{ navInspectorActive }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; inset:0; background:var(--green-100); border-radius:var(--r-sm);"></div></sc-if>
+        <span style="position:relative; font-size:14.5px; font-weight:{{ navInspectorWeight }}; color:{{ navInspectorColor }};">Code inspector</span>
+      </div>
+      <div onClick="{{ goToReference }}" style="position:relative; padding:10px 12px; border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center;">
+        <sc-if value="{{ navReferenceActive }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; inset:0; background:var(--green-100); border-radius:var(--r-sm);"></div></sc-if>
+        <span style="position:relative; font-size:14.5px; font-weight:{{ navReferenceWeight }}; color:{{ navReferenceColor }};">Reference tables</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:2px;">
+      <div style="font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); padding:4px 10px 6px;">Governance</div>
+      <div onClick="{{ goToRules }}" style="position:relative; padding:10px 12px; border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+        <sc-if value="{{ navRulesActive }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; inset:0; background:var(--green-100); border-radius:var(--r-sm);"></div></sc-if>
+        <span style="position:relative; font-size:14.5px; font-weight:{{ navRulesWeight }}; color:{{ navRulesColor }};">Rules</span>
+        <span style="position:relative; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--gold); background:var(--gold-100); padding:2px 6px; border-radius:var(--r-sm);">Soon</span>
+      </div>
+      <div onClick="{{ goToOrgs }}" style="position:relative; padding:10px 12px; border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+        <sc-if value="{{ navOrgsActive }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; inset:0; background:var(--green-100); border-radius:var(--r-sm);"></div></sc-if>
+        <span style="position:relative; font-size:14.5px; font-weight:{{ navOrgsWeight }}; color:{{ navOrgsColor }};">Organizations</span>
+        <span style="position:relative; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--gold); background:var(--gold-100); padding:2px 6px; border-radius:var(--r-sm);">Soon</span>
+      </div>
+    </div>
+
+    <div style="margin-top:auto; font-size:12px; color:var(--ink-3); line-height:1.5; border-top:1px solid var(--line); padding-top:14px;">
+      Milestone 1 — bundling only.<br />No dollar amounts.
+    </div>
+  </div>
+
+  <div style="padding:32px 32px; max-width:1180px; min-width:0; overflow:hidden;">
+
+    <sc-if value="{{ viewIsInput }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:28px;">
+        <h1 style="font-family:var(--serif); font-size:28px; font-weight:600; color:var(--ink); margin:0;">New claim</h1>
+        <p style="font-family:var(--sans); font-size:15px; color:var(--ink-2); margin:0; max-width:62ch;">Given these codes, how would Medicare OPPS bundle them, and why. Paste codes or drop a claim file — nothing here is editable, and no dollar amounts are shown.</p>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:20px;">
+        <div onClick="{{ setModePaste }}" style="padding:9px 16px; border-radius:var(--r-sm); cursor:pointer; font-size:14px; font-weight:{{ pasteTabWeight }}; color:{{ pasteTabColor }}; background:{{ pasteTabBg }}; border:1px solid {{ pasteTabBorder }};">Paste codes</div>
+        <div onClick="{{ setModeUpload }}" style="padding:9px 16px; border-radius:var(--r-sm); cursor:pointer; font-size:14px; font-weight:{{ uploadTabWeight }}; color:{{ uploadTabColor }}; background:{{ uploadTabBg }}; border:1px solid {{ uploadTabBorder }};">Upload claim file</div>
+      </div>
+
+      <sc-if value="{{ inputModeIsPaste }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--white); border:1px solid var(--line); border-radius:var(--r-lg); padding:24px; display:flex; flex-direction:column; gap:16px; max-width:760px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:13px; font-weight:600; color:var(--ink-2);">Codes</label>
+            <textarea value="{{ codesText }}" onChange="{{ onCodesChange }}" placeholder="59025 84112 81001 36415 G0463 99284 0106T 00100 J1745 99205" rows="4" style="font-family:var(--mono); font-size:14.5px; padding:12px; border:1px solid var(--line); border-radius:var(--r-sm); resize:vertical; color:var(--ink); background:var(--paper);"></textarea>
+            <div style="font-size:12px; color:var(--ink-3);">Space, comma, or newline separated. Units and modifiers: 36415x2, J1745:JW.</div>
+          </div>
+          <div style="display:flex; gap:16px; align-items:flex-end;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label style="font-size:13px; font-weight:600; color:var(--ink-2);">Date of service (optional)</label>
+              <input type="date" value="{{ dateOfService }}" onChange="{{ onDateChange }}" style="font-family:var(--mono); font-size:14px; padding:9px 10px; border:1px solid var(--line); border-radius:var(--r-sm); color:var(--ink);" />
+            </div>
+            <button onClick="{{ runPaste }}" style="padding:10px 20px; background:var(--green-700); color:var(--white); border:none; border-radius:var(--r-sm); font-size:14.5px; font-weight:600; cursor:pointer;" style-hover="background:var(--green-800);">Run adjudication</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inputModeIsUpload }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--white); border:1px dashed var(--line-2); border-radius:var(--r-lg); padding:36px; display:flex; flex-direction:column; align-items:center; gap:12px; max-width:760px; text-align:center;">
+          <div style="font-size:15px; color:var(--ink-2);">Drop an institutional claim XML, or choose a file.</div>
+          <label style="padding:10px 20px; background:var(--green-700); color:var(--white); border-radius:var(--r-sm); font-size:14px; font-weight:600; cursor:pointer;">
+            Choose file
+            <input type="file" accept=".xml" onChange="{{ onFileChange }}" style="display:none;" />
+          </label>
+          <sc-if value="{{ hasFileName }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:var(--mono); font-size:13px; color:var(--ink-2);">{{ fileName }}</div>
+          </sc-if>
+          <div style="font-size:12.5px; color:var(--ink-3); max-width:48ch;">Runs entirely in the browser. No file leaves this page — nothing is uploaded to a server.</div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:28px; display:flex; flex-direction:column; gap:8px;">
+        <div style="font-size:12.5px; font-weight:600; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em;">Sample material</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div onClick="{{ loadSampleTenLine }}" style="padding:8px 14px; border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; color:var(--green-800); cursor:pointer; background:var(--white);">10-line outpatient claim</div>
+          <div onClick="{{ loadSampleNotOpps }}" style="padding:8px 14px; border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; color:var(--green-800); cursor:pointer; background:var(--white);">Inpatient CAH claim (not OPPS)</div>
+          <div onClick="{{ loadSampleOutpatientFixture }}" style="padding:8px 14px; border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; color:var(--green-800); cursor:pointer; background:var(--white);">4-line outpatient fixture</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ viewIsResult }}" hint-placeholder-val="{{ false }}">
+      <div data-noprint="1" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+        <div>
+          <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0 0 4px;">Adjudication result</h1>
+          <div style="font-size:13.5px; color:var(--ink-3);">{{ result.sourceLabel }}</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button onClick="{{ printResult }}" style="padding:9px 16px; background:var(--white); border:1px solid var(--line-2); border-radius:var(--r-sm); font-size:13.5px; font-weight:600; color:var(--ink-2); cursor:pointer;">Print</button>
+          <button onClick="{{ goToInput }}" style="padding:9px 16px; background:var(--paper-2); border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; font-weight:600; color:var(--ink-2); cursor:pointer;">New claim</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ result.showAssumptionBanner }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--gold-100); border:1px solid var(--gold); border-radius:var(--r-md); padding:14px 18px; margin:16px 0; display:flex; gap:12px; align-items:flex-start;">
+          <div style="font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); background:var(--white); padding:3px 8px; border-radius:var(--r-sm); flex-shrink:0; margin-top:1px;">Assumption</div>
+          <div style="font-size:14px; color:var(--ink); line-height:1.5;">A code list is not a claim. The engine synthesized a 13X outpatient claim and a {{ result.assumedDate }} date of service to run this. If the real claim is inpatient, or the date of service differs, the bundling answer below may differ.</div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:12.5px; color:var(--ink-2); margin:18px 0 22px; padding:14px 18px; background:var(--paper-2); border-radius:var(--r-md);">
+        <div><span style="color:var(--ink-3);">Lines</span> {{ result.stats.lines }}</div>
+        <div><span style="color:var(--ink-3);">Trace rows</span> {{ result.stats.traceRows }}</div>
+        <div><span style="color:var(--ink-3);">Counterfactuals</span> {{ result.stats.counterfactuals }}</div>
+        <div><span style="color:var(--ink-3);">Flags</span> {{ result.stats.flags }}</div>
+        <div><span style="color:var(--ink-3);">Scope exclusions</span> {{ result.stats.scopeExclusions }}</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ result.lines }}" as="line" hint-placeholder-count="4">
+          <div style="border:1px solid var(--line); border-left:3px solid {{ line.accentColor }}; margin-left:{{ line.indentPx }}; border-radius:var(--r-md); background:var(--white); margin-bottom:8px; overflow:hidden;">
+            <div onClick="{{ line.toggle }}" style="display:grid; grid-template-columns:24px 68px minmax(0,1fr) 128px 76px auto; align-items:center; gap:8px; padding:12px 14px; cursor:pointer; min-width:0;">
+              <div style="font-family:var(--mono); font-size:12.5px; color:var(--ink-3);">{{ line.ordinal }}</div>
+              <div style="font-family:var(--mono); font-size:14px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ line.code }}</div>
+              <div style="font-size:12.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ line.bundledUnderNote }}</div>
+              <div style="min-width:0;">
+                <span style="font-size:11.5px; font-weight:700; letter-spacing:0.02em; padding:3px 8px; border-radius:var(--r-pill); background:{{ line.statusBg }}; color:{{ line.statusFg }}; white-space:nowrap;">{{ line.statusLabel }}</span>
+              </div>
+              <div style="font-family:var(--mono); font-size:11.5px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ line.basisLabel }}</div>
+              <div style="display:flex; gap:5px; justify-content:flex-end; flex-wrap:nowrap;">
+                <sc-for list="{{ line.flags }}" as="flag" hint-placeholder-count="0">
+                  <span style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:3px 7px; border-radius:var(--r-sm); background:{{ flag.bg }}; color:{{ flag.fg }}; border:1px solid {{ flag.border }};">{{ flag.severity }}</span>
+                </sc-for>
+                <span style="font-family:var(--sans); font-size:13px; color:var(--ink-3);">{{ line.expandGlyph }}</span>
+              </div>
+            </div>
+
+            <sc-if value="{{ line.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid var(--line); background:var(--paper-2); padding:18px 20px 20px;">
+                <div style="font-size:14px; color:var(--ink); line-height:1.55; margin-bottom:16px; max-width:74ch;">{{ line.whyText }}</div>
+
+                <sc-for list="{{ line.flags }}" as="lineFlag" hint-placeholder-count="0">
+                  <div style="display:flex; gap:10px; align-items:flex-start; background:{{ lineFlag.bg }}; border:1px solid {{ lineFlag.border }}; border-radius:var(--r-sm); padding:10px 12px; margin-bottom:10px;">
+                    <span style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:{{ lineFlag.fg }}; flex-shrink:0; margin-top:1px;">{{ lineFlag.severity }}</span>
+                    <span style="font-size:13.5px; color:var(--ink); line-height:1.5;">{{ lineFlag.message }}</span>
+                  </div>
+                </sc-for>
+
+                <div style="font-family:var(--sans); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-3); margin:14px 0 8px;">Rules considered, in order</div>
+                <div style="display:flex; flex-direction:column; gap:1px; background:var(--line); border-radius:var(--r-sm); overflow:hidden; border:1px solid var(--line);">
+                  <sc-for list="{{ line.trace }}" as="row" hint-placeholder-count="3">
+                    <div style="background:var(--white); padding:10px 14px; display:grid; grid-template-columns:210px 90px 1fr; gap:14px;">
+                      <div style="font-family:var(--mono); font-size:12.5px; color:var(--ink);">{{ row.ruleId }}</div>
+                      <div>
+                        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; padding:2px 7px; border-radius:var(--r-sm); background:{{ row.outcomeBg }}; color:{{ row.outcomeFg }};">{{ row.outcome }}</span>
+                      </div>
+                      <div style="font-size:13px; color:var(--ink-2); line-height:1.5;">
+                        <div>{{ row.why }}</div>
+                        <sc-if value="{{ row.hasCounterfactual }}" hint-placeholder-val="{{ false }}">
+                          <div style="margin-top:4px; color:var(--ink-3); font-style:italic;">Would fire if: {{ row.counterfactual }}</div>
+                        </sc-if>
+                        <div style="margin-top:3px; font-family:var(--mono); font-size:11.5px; color:var(--ink-4);">{{ row.citation }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ result.hasScopeExclusions }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px; padding:16px 18px; background:var(--white); border:1px solid var(--line); border-radius:var(--r-md);">
+          <div style="font-family:var(--sans); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-3); margin-bottom:10px;">Scope exclusions — claim level, considered once</div>
+          <sc-for list="{{ result.scopeExclusions }}" as="ex" hint-placeholder-count="0">
+            <div style="font-size:13px; color:var(--ink-2); padding:5px 0; border-bottom:1px solid var(--paper-3);"><span style="font-family:var(--mono); color:var(--ink);">{{ ex.ruleId }}</span> — {{ ex.note }}</div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ viewIsNotOpps }}" hint-placeholder-val="{{ false }}">
+      <div data-noprint="1" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0;">Not an OPPS claim</h1>
+        <button onClick="{{ goToInput }}" style="padding:9px 16px; background:var(--paper-2); border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; font-weight:600; color:var(--ink-2); cursor:pointer;">New claim</button>
+      </div>
+
+      <div style="background:var(--clay-100); border:1px solid var(--clay); border-radius:var(--r-lg); padding:20px 24px; margin-bottom:24px; max-width:74ch;">
+        <div style="font-size:15px; color:var(--ink); line-height:1.6;">This claim carries {{ notOpps.signals.length }} independent signals that it is not an outpatient OPPS claim. The engine reports all of them rather than picking a winner — no single indicator is treated as decisive over the others. This most likely needs a human, not a bundling answer.</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; max-width:74ch;">
+        <sc-for list="{{ notOpps.signals }}" as="signal" hint-placeholder-count="3">
+          <div style="background:var(--white); border:1px solid var(--line); border-radius:var(--r-md); padding:16px 18px;">
+            <div style="font-size:14.5px; font-weight:600; color:var(--ink); margin-bottom:4px;">{{ signal.title }}</div>
+            <div style="font-size:13.5px; color:var(--ink-2); line-height:1.5; margin-bottom:6px;">{{ signal.detail }}</div>
+            <div style="font-family:var(--mono); font-size:11.5px; color:var(--ink-4);">{{ signal.citation }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:22px; font-size:12.5px; color:var(--ink-3); max-width:74ch;">Source: {{ notOpps.sourceLabel }}</div>
+    </sc-if>
+
+    <sc-if value="{{ viewIsInspector }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;">
+        <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0;">Code inspector</h1>
+        <p style="font-family:var(--sans); font-size:15px; color:var(--ink-2); margin:0; max-width:62ch;">Given a single code, no claim required: every rule that can touch it, grouped by whether it depends on claim context.</p>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:26px;">
+        <input value="{{ inspectorCode }}" onChange="{{ onInspectorCodeChange }}" placeholder="e.g. 36415" style="font-family:var(--mono); font-size:15px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r-sm); width:200px;" />
+        <button onClick="{{ runInspector }}" style="padding:10px 20px; background:var(--green-700); color:var(--white); border:none; border-radius:var(--r-sm); font-size:14.5px; font-weight:600; cursor:pointer;">Inspect</button>
+      </div>
+
+      <sc-if value="{{ hasInspectorResult }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; max-width:820px;">
+          <sc-for list="{{ inspectorResult.groups }}" as="grp" hint-placeholder-count="3">
+            <div>
+              <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
+                <div style="font-family:var(--sans); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:{{ grp.color }};">{{ grp.label }}</div>
+                <div style="font-size:12.5px; color:var(--ink-3);">{{ grp.sublabel }}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;">
+                <sc-for list="{{ grp.rules }}" as="rule" hint-placeholder-count="1">
+                  <div style="background:var(--white); padding:12px 16px; display:grid; grid-template-columns:220px 1fr; gap:14px;">
+                    <div style="font-family:var(--mono); font-size:12.5px; color:var(--ink);">{{ rule.ruleId }}</div>
+                    <div>
+                      <div style="font-size:13.5px; color:var(--ink-2); line-height:1.5;">{{ rule.note }}</div>
+                      <div style="margin-top:3px; font-family:var(--mono); font-size:11.5px; color:var(--ink-4);">{{ rule.citation }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ viewIsReference }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;">
+        <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0;">Reference tables</h1>
+        <p style="font-family:var(--sans); font-size:15px; color:var(--ink-2); margin:0; max-width:62ch;">Sample only — the SI disposition, bundling, and routing tables are generated from the registry at runtime, not hand-authored.</p>
+      </div>
+      <div style="background:var(--white); border:1px solid var(--line); border-radius:var(--r-md); overflow:hidden; max-width:640px;">
+        <div style="display:grid; grid-template-columns:80px 1fr; background:var(--paper-2); padding:10px 16px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-3);">
+          <div>SI</div><div>Disposition</div>
+        </div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>S</div><div style="font-family:var(--sans); color:var(--ink-2);">Paid separately, no discounting</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>T</div><div style="font-family:var(--sans); color:var(--ink-2);">Paid separately, multiple-procedure discounting applies</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>N</div><div style="font-family:var(--sans); color:var(--ink-2);">Packaged — no separate payment under any circumstance</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>Q1</div><div style="font-family:var(--sans); color:var(--ink-2);">Conditionally packaged — STV-packaged based on other lines</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>Q3</div><div style="font-family:var(--sans); color:var(--ink-2);">Composite APC eligible when billed with qualifying codes</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>K</div><div style="font-family:var(--sans); color:var(--ink-2);">Paid separately — drugs, biologicals, radiopharmaceuticals</div></div>
+        <div style="display:grid; grid-template-columns:80px 1fr; padding:10px 16px; border-top:1px solid var(--paper-3); font-family:var(--mono); font-size:13.5px;"><div>C</div><div style="font-family:var(--sans); color:var(--ink-2);">Inpatient only — not paid on an outpatient claim</div></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ viewIsRules }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;">
+        <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0 0 10px;">Rules</h1>
+        <p style="font-size:15px; color:var(--ink-2); line-height:1.6;">Browsing and editing the registry — the declarative rules with citations that the interpreter runs — lands here. Not yet built.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ viewIsOrgs }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;">
+        <h1 style="font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink); margin:0 0 10px;">Organizations</h1>
+        <p style="font-size:15px; color:var(--ink-2); line-height:1.6;">Per-organization rule sets that diverge from Medicare — where a commercial payer bundles differently — land here. Advisory annotations only; they must never read as an adjudicated outcome.</p>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const STATUS_META = {
+  PAID: { label: 'Paid', bg: 'var(--green-100)', fg: 'var(--green-800)' },
+  PAID_EXEMPT: { label: 'Paid, exempt', bg: 'var(--green-100)', fg: 'var(--green-800)' },
+  PAID_UNPRICED: { label: 'Paid, unpriced', bg: 'var(--gold-100)', fg: 'var(--gold)' },
+  PACKAGED: { label: 'Packaged', bg: 'var(--paper-3)', fg: 'var(--ink-2)' },
+  BUNDLED: { label: 'Bundled', bg: 'var(--paper-3)', fg: 'var(--ink-2)' },
+  ROUTED: { label: 'Routed', bg: 'var(--green-50)', fg: 'var(--green-700)' },
+  NOT_PAID_RECODE: { label: 'Not paid — recode', bg: 'var(--clay-100)', fg: 'var(--clay)' },
+  NOT_PAID_INPT_ONLY: { label: 'Not paid — inpt only', bg: 'var(--clay-100)', fg: 'var(--clay-strong)' },
+  NOT_PAID: { label: 'Not paid', bg: 'var(--clay-100)', fg: 'var(--clay)' },
+  INVALID_HISTORICAL: { label: 'Invalid — historical', bg: 'var(--gold-100)', fg: 'var(--gold)' },
+  NO_PROCEDURE_CODE: { label: 'No procedure code', bg: 'var(--paper-3)', fg: 'var(--ink-2)' },
+};
+const OUTCOME_META = {
+  FIRED: { bg: 'var(--green-100)', fg: 'var(--green-800)' },
+  NOT_FIRED: { bg: 'var(--paper-3)', fg: 'var(--ink-3)' },
+  NOT_REACHED: { bg: 'var(--paper-3)', fg: 'var(--ink-4)' },
+  SKIPPED: { bg: 'var(--paper-3)', fg: 'var(--ink-4)' },
+};
+const FLAG_META = {
+  assumption: { bg: 'var(--gold-100)', fg: 'var(--gold)', border: 'var(--gold)' },
+  info: { bg: 'var(--green-50)', fg: 'var(--green-700)', border: 'var(--green-200)' },
+  warning: { bg: 'var(--gold-100)', fg: 'var(--gold)', border: 'var(--gold)' },
+  gap: { bg: 'var(--paper-2)', fg: 'var(--ink-2)', border: 'var(--line-2)' },
+};
+const ACCENT = { PAID: 'var(--green-600)', PAID_UNPRICED: 'var(--gold)', PACKAGED: 'var(--line-2)', BUNDLED: 'var(--line-2)', ROUTED: 'var(--green-500)', NOT_PAID_RECODE: 'var(--clay)', default: 'var(--line-2)' };
+
+// Known determinations, authored against docs/M25-browser-interface.md §3-4 and the real
+// 10-code claim (59025 84112 81001 36415 G0463 99284 0106T 00100 J1745 99205).
+const KNOWN_CODES = {
+  '59025': { status: 'PAID', basis: 'OPPS_APC', why: 'Fetal non-stress test carries status indicator S — paid separately at the full APC rate, no multiple-procedure discounting.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI S from the CY2026 addendum B lookup.' },
+      { ruleId: 'R-PACKAGE-N-STATUS', outcome: 'NOT_FIRED', citation: '§9.4', why: 'SI is not N.', counterfactual: 'the resolved SI were N' },
+      { ruleId: 'R-MULTI-PROC-DISCOUNT', outcome: 'NOT_FIRED', citation: '§10.2', why: 'S-status lines are never discounted regardless of unit count.', counterfactual: 'SI were T' },
+    ], flags: [] },
+  '84112': { status: 'PACKAGED', basis: 'NONE', why: 'Fetal lung maturity assay resolved to SI Q4 — conditionally packaged, and no separately-payable line on this claim triggered unpackaging.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI Q4.' },
+      { ruleId: 'R-CONDITIONAL-UNPACKAGE', outcome: 'NOT_FIRED', citation: '§9.4.2', why: 'No S/T/V-status line present on the same date of service to trigger unpackaging.', counterfactual: 'an S, T, or V-status line shared this line\u2019s date of service' },
+      { ruleId: 'R-CLFS-ROUTE-CHECK', outcome: 'NOT_FIRED', citation: '§11.3', why: 'Q4 packaging is evaluated before any lab-routing check runs.', counterfactual: 'the SI were not in the Q-series' },
+    ], flags: [] },
+  '81001': { status: 'PAID', basis: 'CLFS', why: 'Automated urinalysis is priced from the Clinical Laboratory Fee Schedule, not the OPPS APC table — a different schedule, paid on this claim.',
+    trace: [
+      { ruleId: 'R-CLFS-ROUTE-CHECK', outcome: 'FIRED', citation: '§11.3', why: 'HCPCS matches the CLFS code list; routed to CLFS pricing while remaining part of this claim.' },
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'NOT_FIRED', citation: '§9.1', why: 'CLFS-routed lines do not resolve an OPPS status indicator.', counterfactual: 'the code were not on the CLFS list' },
+    ], flags: [] },
+  '36415': { status: 'PACKAGED', basis: 'NONE', why: 'Venipuncture is unconditionally packaged under SI N — no circumstance makes this line pay separately.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI N.' },
+      { ruleId: 'R-PACKAGE-N-STATUS', outcome: 'FIRED', citation: '§9.4', why: 'N-status lines never pay separately, regardless of what else is on the claim.' },
+    ], flags: [] },
+  'G0463': { status: 'PAID', basis: 'OPPS_APC', bundledUnderCode: null, why: 'Hospital outpatient clinic visit — SI Q3, and the only qualifying composite-eligible line billed, so it stands as its own paid line and the controlling line for other visit-level codes on this claim.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI Q3.' },
+      { ruleId: 'R-COMPOSITE-APC-CHECK', outcome: 'NOT_FIRED', citation: '§9.6', why: 'No second composite-eligible partner code present at the required units.', counterfactual: 'a qualifying imaging or observation code shared this date of service' },
+      { ruleId: 'R-ONE-VISIT-PER-CLAIM', outcome: 'FIRED', citation: '§9.7', why: 'Designated as the controlling clinic-visit line for this claim.' },
+    ], flags: [] },
+  '99284': { status: 'BUNDLED', basis: 'NONE', bundledUnderCode: 'G0463', why: 'A second, higher-level E/M line on the same claim as a clinic visit. Only one facility visit line pays per claim; this one bundles under the controlling visit line.',
+    trace: [
+      { ruleId: 'R-ONE-VISIT-PER-CLAIM', outcome: 'FIRED', citation: '§9.7', why: 'A qualifying visit-level line already controls this claim; this line bundles under it.' },
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI Q3, same series as the controlling line.' },
+    ], flags: [{ severity: 'info', message: 'Two visit-level E/M codes were billed on one claim. Only the higher-order line was recognized as controlling; confirm this matches the actual encounter.' }] },
+  '0106T': { status: 'PAID_UNPRICED', basis: 'NONE', why: 'Category III CPT code — payable in principle, but CY2026 has no established APC rate for it. Milestone 2 pricing will still report no amount here.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI as unpriced (no rate row in the CY2026 addendum).' },
+      { ruleId: 'R-CARRIER-PRICED-CHECK', outcome: 'NOT_FIRED', citation: '§11.6', why: 'No carrier-priced fallback is loaded for Category III codes.', counterfactual: 'a carrier-priced fallback table were loaded' },
+    ], flags: [{ severity: 'gap', message: 'Category III pricing fallback is not loaded. This is a known gap, not a failure — the line is reported as unpriced rather than guessed.' }] },
+  '00100': { status: 'ROUTED', basis: 'ROUTED_UNKNOWN', why: 'Anesthesia codes are not OPPS-priced; they route to the anesthesia conversion-factor schedule, which this engine does not yet model in detail.',
+    trace: [
+      { ruleId: 'R-ANESTHESIA-ROUTE', outcome: 'FIRED', citation: '§11.5', why: 'CPT range 00100-01999 routes away from OPPS pricing entirely.' },
+    ], flags: [{ severity: 'gap', message: 'Anesthesia base/time-unit conversion is not modeled. Routed out of OPPS correctly, but no downstream price is computed.' }] },
+  'J1745': { status: 'PAID', basis: 'OPPS_DRUG_ASP', why: 'Infliximab — a separately payable drug under SI K, priced from the ASP-based drug table rather than the APC table.',
+    trace: [
+      { ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'Resolved SI K.' },
+      { ruleId: 'R-DRUG-ASP-ROUTE', outcome: 'FIRED', citation: '§11.2', why: 'K-status drugs price from the quarterly ASP table, not the APC weight.' },
+      { ruleId: 'R-MPPR-RANKING', outcome: 'NOT_FIRED', citation: '§10.4.1', why: 'MPPR ranking only applies to imaging families; this HCPCS is not in one.', counterfactual: 'the code were in a therapeutic-imaging MPPR family' },
+    ], flags: [{ severity: 'assumption', message: 'Rate loaded as an internal ranking key only per Milestone 1 (§21.2) — no dollar amount is shown or implied.' }] },
+  '99205': { status: 'NOT_PAID_RECODE', basis: 'NONE', why: 'New-patient office/outpatient E/M is a professional-fee code, not a facility code. On a synthesized outpatient facility claim it does not resolve to a payable line — an alternate facility-visit code (e.g. a G-code) would recode this correctly.',
+    trace: [
+      { ruleId: 'R-FACILITY-CODE-CHECK', outcome: 'FIRED', citation: '§8.1', why: 'CPT 99205 is not on the recognized facility-billable list for a 13X claim.' },
+      { ruleId: 'R-ONE-VISIT-PER-CLAIM', outcome: 'NOT_REACHED', citation: '§9.7', why: 'Recode determination short-circuits before visit-controlling logic runs.' },
+    ], flags: [{ severity: 'warning', message: 'This code is unusual on a facility outpatient claim. If billed by a professional, it belongs on a separate professional claim.' }] },
+};
+
+const SAMPLE_TEN_LINE = '59025 84112 81001 36415 G0463 99284 0106T 00100 J1745 99205';
+const SAMPLE_OUTPATIENT_FIXTURE = 'G0463 36415 84112 59025';
+
+const INSPECTOR_LIB = {
+  '36415': { groups: [
+    { label: 'Admitted', sublabel: 'always considered for this code', color: 'var(--green-800)', rules: [
+      { ruleId: 'R-SI-CLASSIFY', note: 'Resolves SI N from the CY2026 addendum B.', citation: '§9.1' },
+      { ruleId: 'R-PACKAGE-N-STATUS', note: 'N-status lines never pay separately, unconditionally.', citation: '§9.4' },
+    ]},
+    { label: 'Conditional', sublabel: 'depends on claim state', color: 'var(--gold)', rules: [
+      { ruleId: 'R-NCCI-COLUMN2', note: 'Would apply only if billed with a column-1 procedure on the same date — undecided without a claim.', citation: '§12.2' },
+    ]},
+    { label: 'Reserved', sublabel: 'no backing data loaded', color: 'var(--ink-3)', rules: [
+      { ruleId: 'R-MUE-CHECK', note: 'Medically unlikely edit units cap — table not yet loaded.', citation: '§12.3' },
+    ]},
+  ]},
+  'G0463': { groups: [
+    { label: 'Admitted', sublabel: 'always considered for this code', color: 'var(--green-800)', rules: [
+      { ruleId: 'R-SI-CLASSIFY', note: 'Resolves SI Q3 from the CY2026 addendum B.', citation: '§9.1' },
+      { ruleId: 'R-ONE-VISIT-PER-CLAIM', note: 'Eligible to be the controlling visit-level line on a claim.', citation: '§9.7' },
+    ]},
+    { label: 'Conditional', sublabel: 'depends on claim state', color: 'var(--gold)', rules: [
+      { ruleId: 'R-COMPOSITE-APC-CHECK', note: 'Fires only if a qualifying imaging or observation partner code shares the date of service.', citation: '§9.6' },
+    ]},
+    { label: 'Reserved', sublabel: 'no backing data loaded', color: 'var(--ink-3)', rules: [
+      { ruleId: 'R-NCCI-COLUMN2', note: 'NCCI edits against this code — not yet checked.', citation: '§12.2' },
+    ]},
+  ]},
+};
+
+function parseCodesText(text) {
+  const tokens = text.split(/[\s,]+/).map(t => t.trim()).filter(Boolean);
+  return tokens.map(tok => {
+    const m = tok.match(/^([A-Za-z0-9]{3,5})(?:x(\d+))?((?::[A-Za-z0-9]{1,2})*)$/);
+    if (!m) return { code: tok.toUpperCase(), units: 1, modifiers: [] };
+    const mods = (m[3] || '').split(':').filter(Boolean);
+    return { code: m[1].toUpperCase(), units: m[2] ? parseInt(m[2], 10) : 1, modifiers: mods };
+  });
+}
+
+function genericMock(code, i) {
+  const rotation = ['PAID', 'PACKAGED', 'NOT_PAID'];
+  let hash = 0;
+  for (let c of code) hash = (hash * 31 + c.charCodeAt(0)) % 997;
+  const status = rotation[hash % rotation.length];
+  const basis = status === 'PAID' ? 'OPPS_APC' : 'NONE';
+  return {
+    status, basis,
+    why: 'No registry entry demonstrated for this code in the prototype. Shown as a generic placeholder determination for layout purposes only.',
+    trace: [{ ruleId: 'R-SI-CLASSIFY', outcome: 'FIRED', citation: '§9.1', why: 'SI resolved from the CY2026 addendum lookup (placeholder).' }],
+    flags: [{ severity: 'gap', message: 'Not a demonstrated registry code — placeholder result.' }],
+  };
+}
+
+function buildResult(entries, sourceLabel, assumed) {
+  const codesPresent = new Set(entries.map(e => e.code));
+  const dets = entries.map((e, i) => {
+    const known = KNOWN_CODES[e.code];
+    const base = known ? JSON.parse(JSON.stringify(known)) : genericMock(e.code, i);
+    let status = base.status, bundledUnderLineId = null, bundledUnderCode = null;
+    if (base.bundledUnderCode) {
+      if (codesPresent.has(base.bundledUnderCode)) {
+        bundledUnderCode = base.bundledUnderCode;
+      } else {
+        status = 'PACKAGED';
+      }
+    }
+    return { lineId: 'idx:' + i, ordinal: i + 1, code: e.code, status, basis: base.basis, why: base.why, trace: base.trace, flags: base.flags || [], bundledUnderCode };
+  });
+  dets.forEach(d => {
+    if (d.bundledUnderCode) {
+      const ctrl = dets.find(x => x.code === d.bundledUnderCode);
+      d.bundledUnderLineId = ctrl ? ctrl.lineId : null;
+      d.bundledUnderOrdinal = ctrl ? ctrl.ordinal : null;
+    }
+  });
+  const traceRows = dets.reduce((s, d) => s + d.trace.length, 0);
+  const counterfactuals = dets.reduce((s, d) => s + d.trace.filter(r => r.counterfactual).length, 0);
+  const flagCount = dets.reduce((s, d) => s + d.flags.length, 0) + (assumed ? 1 : 0);
+  const scopeExclusions = [
+    { ruleId: 'R-INPT-ONLY-CHECK', note: 'no inpatient-only codes present on this claim' },
+    { ruleId: 'R-DEVICE-INTENSIVE-CHECK', note: 'no device-intensive procedure code present' },
+    { ruleId: 'R-COMPREHENSIVE-APC-CHECK', note: 'no J1-status primary procedure present' },
+  ];
+  return {
+    sourceLabel, showAssumptionBanner: assumed, assumedDate: 'today\u2019s',
+    stats: { lines: dets.length, traceRows, counterfactuals, flags: flagCount, scopeExclusions: scopeExclusions.length },
+    lines: dets, hasScopeExclusions: true, scopeExclusions,
+  };
+}
+
+const NOT_OPPS_FIXTURE = {
+  sourceLabel: 'test/fixtures/inst-xml-inpatient-cah-revonly.xml',
+  signals: [
+    { title: 'Bill type 81A is not a 13X outpatient type', detail: 'Facility type digit is 8 (hospital, inpatient part B or other), not the 1 that a 13X outpatient bill type requires.', citation: '§8.0' },
+    { title: 'Revenue code 0110 — room & board — present', detail: 'A room & board line paired with 6 covered days (value code 80) is an inpatient stay pattern, not an outpatient encounter.', citation: '§8.0' },
+    { title: 'All 16 lines carry a revenue code with no procedure code', detail: 'Zero HCPCS codes anywhere on the claim — nothing for OPPS status-indicator classification to work from.', citation: '§8.0.1' },
+    { title: 'Billing taxonomy 282NC0060X — Critical Access Hospital', detail: 'CAHs are reimbursed cost-based, not under OPPS, regardless of bill type or codes present.', citation: '§3.3' },
+  ],
+};
+
+class Component extends DCLogic {
+  state = {
+    view: 'input', inputMode: 'paste', codesText: '', dateOfService: '', fileName: null,
+    result: null, notOpps: null, expanded: {}, inspectorCode: '', inspectorResult: null,
+  };
+
+  goTo(view) { this.setState({ view }); }
+
+  runEntries(entries, sourceLabel, assumed) {
+    this.setState({ result: buildResult(entries, sourceLabel, assumed), view: 'result', expanded: {} });
+  }
+
+  runPaste() {
+    const entries = parseCodesText(this.state.codesText);
+    if (!entries.length) return;
+    this.runEntries(entries, 'Pasted codes' + (this.state.dateOfService ? ' \u2014 DOS ' + this.state.dateOfService : ''), true);
+  }
+
+  onFileChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    this.setState({ fileName: file.name });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || '');
+      const typeOfBill = (text.match(/type_of_bill="(\d+)/) || [])[1];
+      const taxonomy = (text.match(/bill_taxonomy="([^"]+)/) || [])[1];
+      const chargeTags = text.match(/<charge\b[^>]*\/>/g) || [];
+      const lines = chargeTags.map(tag => ({
+        proc: (tag.match(/proc_code="([^"]*)"/) || [])[1] || '',
+        rev: (tag.match(/rev_code="([^"]*)"/) || [])[1] || '',
+      }));
+      const signals = [];
+      if (typeOfBill && typeOfBill[0] !== '1') signals.push({ title: 'Bill type ' + typeOfBill + ' is not a 13X outpatient type', detail: 'Facility type digit is ' + typeOfBill[0] + ', not the 1 a 13X outpatient bill type requires.', citation: '\u00a78.0' });
+      if (taxonomy && /0060X$/.test(taxonomy)) signals.push({ title: 'Billing taxonomy ' + taxonomy + ' \u2014 Critical Access Hospital', detail: 'CAHs are reimbursed cost-based, not under OPPS.', citation: '\u00a73.3' });
+      if (lines.length && lines.every(l => !l.proc)) signals.push({ title: 'All ' + lines.length + ' lines carry a revenue code with no procedure code', detail: 'No HCPCS anywhere on the claim for OPPS status-indicator classification to work from.', citation: '\u00a78.0.1' });
+      if (lines.some(l => l.rev.startsWith('011'))) signals.push({ title: 'Revenue code 011x \u2014 room & board \u2014 present', detail: 'A room & board line is an inpatient stay pattern, not an outpatient encounter.', citation: '\u00a78.0' });
+
+      if (signals.length >= 2) {
+        this.setState({ notOpps: { sourceLabel: file.name, signals }, view: 'not_opps' });
+      } else {
+        const entries = lines.filter(l => l.proc).map(l => ({ code: l.proc.toUpperCase(), units: 1, modifiers: [] }));
+        this.runEntries(entries.length ? entries : [{ code: 'UNKNOWN', units: 1, modifiers: [] }], file.name, false);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  loadSampleTenLine() { this.setState({ codesText: SAMPLE_TEN_LINE, inputMode: 'paste' }); this.runEntries(parseCodesText(SAMPLE_TEN_LINE), '10-line sample claim', true); }
+  loadSampleOutpatientFixture() { this.setState({ codesText: SAMPLE_OUTPATIENT_FIXTURE, inputMode: 'paste' }); this.runEntries(parseCodesText(SAMPLE_OUTPATIENT_FIXTURE), 'test/fixtures/outpatient-13x-hcpcs.xml (codes only)', false); }
+  loadSampleNotOpps() { this.setState({ notOpps: NOT_OPPS_FIXTURE, view: 'not_opps' }); }
+
+  toggleLine(lineId) { this.setState(s => ({ expanded: { ...s.expanded, [lineId]: !s.expanded[lineId] } })); }
+
+  runInspector() {
+    const code = (this.state.inspectorCode || '').trim().toUpperCase();
+    const found = INSPECTOR_LIB[code];
+    this.setState({ inspectorResult: found || { groups: [
+      { label: 'Admitted', sublabel: 'always considered for this code', color: 'var(--green-800)', rules: [{ ruleId: 'R-SI-CLASSIFY', note: 'Resolves a status indicator from the CY2026 addendum B.', citation: '\u00a79.1' }] },
+      { label: 'Conditional', sublabel: 'depends on claim state', color: 'var(--gold)', rules: [{ ruleId: 'R-NCCI-COLUMN2', note: 'Depends on what else is billed \u2014 undecided without a claim.', citation: '\u00a712.2' }] },
+      { label: 'Reserved', sublabel: 'no backing data loaded', color: 'var(--ink-3)', rules: [{ ruleId: 'R-MUE-CHECK', note: 'Units cap table not yet loaded.', citation: '\u00a712.3' }] },
+    ] } });
+  }
+
+  printResult() {
+    const s = this.state;
+    if (s.result) {
+      const all = {}; s.result.lines.forEach(l => { all[l.lineId] = true; });
+      this.setState({ expanded: all }, () => setTimeout(() => window.print(), 50));
+    } else {
+      window.print();
+    }
+  }
+
+  renderVals() {
+    const s = this.state;
+    const nav = (key) => ({ active: s.view === key || (key === 'input' && (s.view === 'input' || s.view === 'result' || s.view === 'not_opps')), });
+    const weight = (active) => active ? 700 : 500;
+    const color = (active) => active ? 'var(--green-800)' : 'var(--ink-2)';
+
+    const claimsActive = s.view === 'input' || s.view === 'result' || s.view === 'not_opps';
+    const inspectorActive = s.view === 'inspector';
+    const referenceActive = s.view === 'reference';
+    const rulesActive = s.view === 'rules';
+    const orgsActive = s.view === 'orgs';
+
+    let result = null;
+    if (s.result) {
+      result = { ...s.result, lines: s.result.lines.map(line => {
+        const expanded = !!s.expanded[line.lineId];
+        const statusMeta = STATUS_META[line.status] || { label: line.status, bg: 'var(--paper-3)', fg: 'var(--ink-2)' };
+        return {
+          ...line,
+          expanded, expandGlyph: expanded ? '\u2212' : '+',
+          toggle: () => this.toggleLine(line.lineId),
+          statusLabel: statusMeta.label, statusBg: statusMeta.bg, statusFg: statusMeta.fg,
+          basisLabel: line.basis === 'NONE' ? '\u2014' : line.basis,
+          bundledUnderNote: line.bundledUnderOrdinal ? ('bundled under line ' + line.bundledUnderOrdinal) : '',
+          indentPx: line.bundledUnderOrdinal ? '28px' : '0px',
+          accentColor: ACCENT[line.status] || ACCENT.default,
+          whyText: line.why,
+          flags: line.flags.map(f => ({ ...f, ...(FLAG_META[f.severity] || FLAG_META.info) })),
+          trace: line.trace.map(row => ({ ...row, ...(OUTCOME_META[row.outcome] || OUTCOME_META.NOT_FIRED), outcomeBg: (OUTCOME_META[row.outcome] || OUTCOME_META.NOT_FIRED).bg, outcomeFg: (OUTCOME_META[row.outcome] || OUTCOME_META.NOT_FIRED).fg, hasCounterfactual: !!row.counterfactual })),
+        };
+      })};
+    }
+
+    return {
+      viewIsInput: s.view === 'input', viewIsResult: s.view === 'result', viewIsNotOpps: s.view === 'not_opps',
+      viewIsInspector: s.view === 'inspector', viewIsReference: s.view === 'reference', viewIsRules: s.view === 'rules', viewIsOrgs: s.view === 'orgs',
+      navClaimsActive: claimsActive, navClaimsWeight: weight(claimsActive), navClaimsColor: color(claimsActive),
+      navInspectorActive: inspectorActive, navInspectorWeight: weight(inspectorActive), navInspectorColor: color(inspectorActive),
+      navReferenceActive: referenceActive, navReferenceWeight: weight(referenceActive), navReferenceColor: color(referenceActive),
+      navRulesActive: rulesActive, navRulesWeight: weight(rulesActive), navRulesColor: color(rulesActive),
+      navOrgsActive: orgsActive, navOrgsWeight: weight(orgsActive), navOrgsColor: color(orgsActive),
+      goToInput: () => this.goTo('input'), goToInspector: () => this.goTo('inspector'), goToReference: () => this.goTo('reference'),
+      goToRules: () => this.goTo('rules'), goToOrgs: () => this.goTo('orgs'),
+
+      inputModeIsPaste: s.inputMode === 'paste', inputModeIsUpload: s.inputMode === 'upload',
+      setModePaste: () => this.setState({ inputMode: 'paste' }), setModeUpload: () => this.setState({ inputMode: 'upload' }),
+      pasteTabWeight: s.inputMode === 'paste' ? 700 : 500, pasteTabColor: s.inputMode === 'paste' ? 'var(--green-800)' : 'var(--ink-2)',
+      pasteTabBg: s.inputMode === 'paste' ? 'var(--green-100)' : 'var(--white)', pasteTabBorder: s.inputMode === 'paste' ? 'var(--green-200)' : 'var(--line)',
+      uploadTabWeight: s.inputMode === 'upload' ? 700 : 500, uploadTabColor: s.inputMode === 'upload' ? 'var(--green-800)' : 'var(--ink-2)',
+      uploadTabBg: s.inputMode === 'upload' ? 'var(--green-100)' : 'var(--white)', uploadTabBorder: s.inputMode === 'upload' ? 'var(--green-200)' : 'var(--line)',
+
+      codesText: s.codesText, onCodesChange: (e) => this.setState({ codesText: e.target.value }),
+      dateOfService: s.dateOfService, onDateChange: (e) => this.setState({ dateOfService: e.target.value }),
+      runPaste: () => this.runPaste(),
+      onFileChange: (e) => this.onFileChange(e), hasFileName: !!s.fileName, fileName: s.fileName,
+      loadSampleTenLine: () => this.loadSampleTenLine(), loadSampleNotOpps: () => this.loadSampleNotOpps(), loadSampleOutpatientFixture: () => this.loadSampleOutpatientFixture(),
+
+      result, printResult: () => this.printResult(),
+      notOpps: s.notOpps || { signals: [], sourceLabel: '' },
+
+      inspectorCode: s.inspectorCode, onInspectorCodeChange: (e) => this.setState({ inspectorCode: e.target.value }),
+      runInspector: () => this.runInspector(), hasInspectorResult: !!s.inspectorResult, inspectorResult: s.inspectorResult || { groups: [] },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
