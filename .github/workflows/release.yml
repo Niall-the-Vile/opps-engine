@@ -1,0 +1,103 @@
+name: release
+
+# Cuts a release when a version tag is pushed:
+#
+#   git tag v0.1.0
+#   git push origin v0.1.0
+#
+# The deliverable is ONE self-contained HTML file. Bill-processing staff
+# download it, double-click it, and it works — no install, no server, no
+# network, and nothing to extract first. See tools/package-release.mjs for
+# why a single file rather than a zip.
+#
+# The tag is the only place a version number is written down. package.json's
+# "version" is deliberately NOT the source of truth: it would have to be
+# bumped in a commit BEFORE the tag, which is exactly the step people forget,
+# and the artifact would then be stamped with the previous release's number
+# while claiming to be the new one. The tag cannot disagree with itself.
+
+on:
+  push:
+    tags: ['v*']
+  # Lets the whole path be rehearsed without cutting a real release: it
+  # builds and uploads a run artifact, but publishes nothing.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # The same gate main is held to, not a copy of it. If typecheck, tests, the
+  # purity scan or the bundle build fail, no release exists to explain later.
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  package:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      # Only this job writes, and only to create the release.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Rebuilt here rather than carried from the verify job: artifacts do not
+      # cross reusable-workflow boundaries, and a rebuild from the tagged
+      # commit is the stronger guarantee anyway — what ships is built from
+      # exactly what is tagged.
+      - name: Build engine bundle
+        run: npm run build:bundle
+
+      - name: Package single-file release
+        id: package
+        env:
+          # On a tag push GITHUB_REF_NAME is the tag (e.g. "v0.1.0"). On a
+          # manual dispatch there is no tag, so the artifact is stamped
+          # unmistakably as a rehearsal and is never published.
+          RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('dev-{0}', github.run_number) }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          set -e
+          # The workflow does not reconstruct the filename — package-release.mjs
+          # owns it and writes it to $GITHUB_OUTPUT.
+          RELEASE_DATE=$(date -u +%Y-%m-%d) npm run package:release
+
+      # Always available for download from the run page, tag or not. This is
+      # what makes `workflow_dispatch` a real rehearsal rather than a smoke test.
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: ${{ steps.package.outputs.artifact }}
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          ARTIFACT: ${{ steps.package.outputs.artifact }}
+          ARTIFACT_NAME: ${{ steps.package.outputs.name }}
+        run: |
+          set -e
+          cat > notes.md <<NOTES
+          Download **$ARTIFACT_NAME** below and open it. It is one file — no
+          install, no extracting, no network. Works offline.
+
+          Milestone 1: bundling only. No dollar amounts.
+
+          The build, the schedule vintages it was built from, and the commit
+          are printed in the sidebar and in a comment at the top of the file,
+          so any determination can be tied back to the build that produced it.
+          NOTES
+          gh release create "$TAG" "$ARTIFACT" \
+            --title "OPPS Adjudicator $TAG" \
+            --notes-file notes.md

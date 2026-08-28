@@ -39,15 +39,59 @@ web/           minimal browser front-end (file://, classic script)
 
 ## Running the interface
 
-`dist/` is generated and not committed, so build it once after cloning:
+Two ways in, for two different people.
+
+**Staff who just need to use it** open the single-file build attached to the
+latest release on the repo's Releases page. One `.html` file, ~1.5 MB. Download
+it, double-click it, done — no install, no extracting, no network. The build it
+came from, the commit, and every schedule vintage it was built against are
+printed in the sidebar and in a comment at the top of the file, so any
+determination can be traced back to the build that produced it.
+
+**Working on the engine** run it out of the tree. `dist/` is generated and not
+committed, so build it once after cloning:
 
 ```
 npm ci
 npm run build:bundle
 ```
 
-Then open `web/index.html` directly in a browser. No server, no network -- the
+Then open `web/index.html` directly in a browser. No server, no network — the
 engine, the CY2026 data and the registry are all inside the bundle.
+
+## Cutting a release
+
+Push a version tag. That is the whole procedure:
+
+```
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+`.github/workflows/release.yml` then runs the full `verify` gate against the
+tagged commit, builds the bundle, packages the single file, and publishes it as
+a GitHub release.
+
+**The tag is the only place a version number is written down.** `package.json`'s
+`version` field is deliberately not the source of truth — it would have to be
+bumped in a commit *before* the tag, which is the step people forget, and the
+artifact would then carry the previous release's number while claiming to be the
+new one. A tag cannot disagree with itself.
+
+To rehearse the whole path without publishing anything, run the workflow
+manually from the Actions tab: it builds and uploads the artifact to the run
+page and skips the release step.
+
+To build one locally:
+
+```
+npm run build:bundle
+npm run package:release
+```
+
+That writes `dist/opps-adjudicator-local.html`, stamped `local` and flagged
+`+local-changes` if the working tree is dirty — a local build is never mistaken
+for a released one.
 
 ## Commands
 

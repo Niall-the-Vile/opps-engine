@@ -2,7 +2,7 @@
   "name": "opps-engine",
   "version": "0.0.1",
   "private": true,
-  "description": "Offline OPPS bundling and adjudication engine: given a UB-04 code set, states which lines pay, which bundle and under which line, and why \u2014 with the full rule trace.",
+  "description": "Offline OPPS bundling and adjudication engine: given a UB-04 code set, states which lines pay, which bundle and under which line, and why — with the full rule trace.",
   "author": "Anabaptist Brotherhood",
   "type": "module",
   "scripts": {
@@ -16,9 +16,10 @@
     "diff:registry": "node tools/diff-registry.mjs",
     "build:engine": "tsc -p tsconfig.json",
     "build:bundle": "node tools/bundle.mjs",
-    "build": "npm run build:engine && npm run build:bundle",
+    "build": "npm run build:engine && npm run build:bundle && npm run package:release",
     "verify": "npm run typecheck && npm run lint:registry && npm test",
-    "gen:registry": "node tools/gen-registry.mjs"
+    "gen:registry": "node tools/gen-registry.mjs",
+    "package:release": "node tools/package-release.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

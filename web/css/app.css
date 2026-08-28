@@ -1055,3 +1055,16 @@ select {
     background: var(--white);
   }
 }
+
+/* Injected only into packaged releases by tools/package-release.mjs (the
+   working copy renders nothing here). A staff member reading a printed
+   determination has to be able to say which build produced it — a dispute
+   answer that cannot be tied to a build is not defensible. */
+.build-stamp {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  word-break: break-all;
+}

@@ -10,6 +10,10 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # Callable so release.yml can run this exact gate rather than keeping a
+  # second, drifting copy of it. A release must not be cuttable from a tree
+  # that would fail `verify`.
+  workflow_call:
 
 jobs:
   verify:
