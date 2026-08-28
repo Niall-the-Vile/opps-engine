@@ -6,3 +6,6 @@ dist/
 # clone cannot regenerate them — ignoring them would leave a clone unable to
 # compile or test. Regenerate with `npm run gen:data` when a new CMS quarter
 # lands; the generator's census self-checks fail loudly on unexpected drift.
+err*.txt
+out*.json
+test-*.mjs

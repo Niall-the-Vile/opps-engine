@@ -54,7 +54,7 @@
 | U22 | `gen-goldens.mjs` + `.structure.json` projections + `rule-coverage.json` (§15.2) | U19 | todo |
 | U23 | Fixtures per §15.1, minus the amount-dependent ones | U22 | todo |
 | U24 | `bundle.mjs` — esbuild IIFE, single `OppsEngine` global (§2.7) | U19 | todo |
-| U25 | Browser front-end: paste codes / drop XML -> bundling table + trace + inspector. **No amount column** | U24 | **deferred** |
+| U25 | Browser front-end. **Scoped in `docs/M25-browser-interface.md`; awaiting design.** | U24 | **scoped** |
 
 ---
 
@@ -132,3 +132,4 @@ MPPR's weight ranking (§10.5) · the 8011 date relation · the Q4 dual reading 
 | D46 | Registry node form is `{op, args}`, not the single-key form earlier spec examples showed. Spec follows implementation. | §4.2 |
 | D47 | The reader-facing WHY text is **generated from rule structure**, never authored prose. `note` is developer rationale and drifted so far from the outcome that it omitted the actual reason a line bundled. Generated explanations cannot disagree with the logic; authored ones do. | §6.1 |
 | D48 | `G0379` is also SI J2 with a **higher rate** than `99284` (608,430 vs 426,300 mils), so on a claim carrying both, payment-ranking makes the direct-referral line control instead of the ED visit — backwards. **Open, flagged not fixed.** | §9.1 |
+| D49 | U25 scoped rather than built (`docs/M25-browser-interface.md`). The design questions are real ones — trace volume (55 rows at 10 lines, ~1,400 at the 250-line ceiling §18.29 requires), bundling as a relationship rather than a row attribute, and NOT_OPPS-with-conflicting-evidence as a first-class answer. Design first, build against it. | §13.1 |
