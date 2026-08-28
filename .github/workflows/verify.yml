@@ -72,6 +72,16 @@ jobs:
           fi
           echo "clean."
 
+      # Proves the browser interface can actually be produced from a clean
+      # clone. dist/ is deliberately NOT committed: unlike the CY2026 data
+      # (which needs CMS files from outside the repo), the bundle is fully
+      # derivable from what is here, so committing it would be 1.2 MB of churn
+      # on every engine or data change. This step is what keeps that safe --
+      # if the bundle ever stops building, CI fails rather than a user
+      # discovering it.
+      - name: Build browser bundle
+        run: npm run build:bundle
+
       # Proves the CLI runs from a clean checkout, and that the bundling answer
       # a human sees is the one the tests assert.
       - name: CLI smoke test

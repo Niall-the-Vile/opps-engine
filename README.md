@@ -37,6 +37,18 @@ test/          fixtures + golden projections + rule-coverage matrix
 web/           minimal browser front-end (file://, classic script)
 ```
 
+## Running the interface
+
+`dist/` is generated and not committed, so build it once after cloning:
+
+```
+npm ci
+npm run build:bundle
+```
+
+Then open `web/index.html` directly in a browser. No server, no network -- the
+engine, the CY2026 data and the registry are all inside the bundle.
+
 ## Commands
 
 ```bash
