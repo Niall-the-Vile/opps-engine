@@ -101,17 +101,35 @@ for a released one.
 npm run verify
 ```
 
-`typecheck` → `test`.
+`typecheck` → `test` → `lint:registry`.
 
-**`lint:registry` is deliberately NOT in that chain yet.** `tools/lint-registry.mjs`
-is unbuilt (U18), so chaining it made `npm run verify` — the command this README
-called the build gate — die with `MODULE_NOT_FOUND` on every invocation. It had
-never once run. CI passed only because the workflow invokes typecheck and test as
-separate steps. Put `lint:registry` back into `verify` the day U18 lands; the
-registry lint is a real gate, not a nicety, because it is what keeps the
-counterfactuals honest. `diff:registry` (U20) and `gen:goldens` (U22) are dead
-scripts for the same reason — they are placeholders for planned tooling, not
-working commands.
+**`lint:registry` (U18) is back in the chain, and `npm run verify` is green.**
+`tools/lint-registry.mjs` lints the hand-authored `src/registry/*.json` against
+spec §15.3's gate list — duplicate `id`/`order`, missing `citation`/`scopeTarget`,
+the closed operator set (§4.3), `describe()`/`argSpec()` (§4.4), epoch-vs-sub-band
+ordering (§2.5), the §4.3 conflict-resolution rules (cross-band `setStatus`,
+second writes of `bundleUnder`/`convertSI`/`route`/`setBasis`), a ranking
+selector's `fallbackField` against whether its field is actually nullable **in
+the currently loaded data** (not merely in the TypeScript type — §15.3's own
+wording), and more — plus three gates the spec predates, two of them run as
+**ratchets** against a measured, named baseline (debt that's visible every run,
+not silently fixed or silently ignored; ratchets fail the build only if their
+count *grows*): **D45** (a claim-relational predicate in a rule's `scope` breaks
+applicability mode — baseline 21) and **D66**'s static half (a `bundleUnder`
+whose `among` cannot exclude an already-bundled line when an earlier-window
+bundler exists — baseline 2, currently `OPPS.PKG.Q1.COMPANION` and
+`OPPS.PKG.Q2.COMPANION`, believed unreachable today but deliberately not
+"fixed" by bolting a guard onto two working rules — see D66). D66's dynamic
+half (running the real interpreter over a combinatorial sweep of synthetic
+claims) and **D64** (the spec's own §4.3.1 operator-argument table must match
+`operators.ts`, derived from the code rather than hand-transcribed) are hard
+gates. Run `node tools/lint-registry.mjs --json` for machine-readable output.
+It is what keeps the counterfactuals honest — see `docs/BUILD_LOG.md` decision
+**D63** for why it was missing from `verify` for as long as it was, and the U18
+final report for the full gate list and the reasoning behind each ratchet
+baseline. `diff:registry` (U20) and `gen:goldens` (U22) remain dead scripts —
+placeholders for planned tooling,
+not working commands.
 
 ## Rules of the codebase
 
