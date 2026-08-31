@@ -89,8 +89,19 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
     "scope": {
+      "always": {}
+    },
+    "when": {
       "allOf": {
         "children": [
+          {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
           {
             "op": "not",
             "args": {
@@ -123,13 +134,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
         ]
       }
     },
-    "when": {
-      "claimContainsAny": {
-        "si": [
-          "J1"
-        ]
-      }
-    },
     "then": [
       {
         "setStatus": {
@@ -151,7 +155,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "If any J1 is present, the ranked J1 (payment desc, code asc tiebreak) controls and every non-exempt line — including other J1 lines on a multi-J1 claim — bundles into it. Scope excludes the ranked J1 itself via isNotHighestBy so it never resolves as its own bundling target; a line not a J1 member of the ranking set is never vacuously excluded (§4.3: subjectInAmong false, not an error)."
+    "note": "D45 migration: scope is 'always' (not an SI selector) because this rule's real domain is every non-exempt line regardless of SI — §4.3 explicitly forbids enumerating 'every SI except the exempt ones' as a scope workaround, since §9.6's category-based exemptions are not SI-derivable. isExempt/isHighestBy (claim-relational) moved into 'when', joined with the pre-existing claimContainsAny(J1) gate; behaviourally identical (§4.3: 'costs nothing behaviourally' — when is read against the same frozen epoch scope was). If any J1 is present, the ranked J1 (payment desc, code asc tiebreak) controls and every non-exempt line — including other J1 lines on a multi-J1 claim — bundles into it. The isNotHighestBy clause excludes the ranked J1 itself so it never resolves as its own bundling target; a line not a J1 member of the ranking set is never vacuously excluded (§4.3: subjectInAmong false, not an error)."
   },
   {
     "id": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
@@ -198,8 +202,42 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
     "scope": {
+      "always": {}
+    },
+    "when": {
       "allOf": {
         "children": [
+          {
+            "op": "claimContainsAny",
+            "args": {
+              "si": [
+                "J2"
+              ]
+            }
+          },
+          {
+            "op": "claimUnitsAtLeast",
+            "args": {
+              "code": "G0378",
+              "units": 8
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "T"
+              ]
+            }
+          },
+          {
+            "op": "claimContainsNone",
+            "args": {
+              "si": [
+                "J1"
+              ]
+            }
+          },
           {
             "op": "not",
             "args": {
@@ -232,43 +270,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
         ]
       }
     },
-    "when": {
-      "allOf": {
-        "children": [
-          {
-            "op": "claimContainsAny",
-            "args": {
-              "si": [
-                "J2"
-              ]
-            }
-          },
-          {
-            "op": "claimUnitsAtLeast",
-            "args": {
-              "code": "G0378",
-              "units": 8
-            }
-          },
-          {
-            "op": "claimContainsNone",
-            "args": {
-              "si": [
-                "T"
-              ]
-            }
-          },
-          {
-            "op": "claimContainsNone",
-            "args": {
-              "si": [
-                "J1"
-              ]
-            }
-          }
-        ]
-      }
-    },
     "then": [
       {
         "setStatus": {
@@ -290,7 +291,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Mirrors OPPS.PKG.J1.CONTROL's scope pattern exactly: 'not isExempt' and 'not isHighestBy-among-J2' together select every non-exempt line except the ranked J2 itself, regardless of that line's own SI (an SI-enumerated scope cannot express this — §4.3's isExempt/not rationale). Of the six §9.1 firing conditions, four are checked here (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
+    "note": "D45 migration: scope is 'always' for the identical reason as OPPS.PKG.J1.CONTROL — isExempt/isHighestBy are claim-relational and this rule's real domain (every non-exempt line except the ranked J2) is not SI-derivable (§4.3). isExempt/isHighestBy moved into 'when', joined with the four pre-existing claim-level gates; behaviourally unchanged (same frozen epoch backs both scope and when — dsl/evaluate.ts). C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Of the six §9.1 firing conditions, four are the claim-level gates above (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
   },
   {
     "id": "OPPS.CAPC8011.CONTROLLING",
@@ -304,31 +305,9 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "J2"
-              ]
-            }
-          },
-          {
-            "op": "isHighestBy",
-            "args": {
-              "field": "rateMils",
-              "among": {
-                "op": "siIn",
-                "args": {
-                  "si": [
-                    "J2"
-                  ]
-                }
-              },
-              "tiebreak": "codeAsc"
-            }
-          }
+      "siIn": {
+        "si": [
+          "J2"
         ]
       }
     },
@@ -364,6 +343,21 @@ export const PACKAGING_RULES: readonly unknown[] = [
               "si": [
                 "J1"
               ]
+            }
+          },
+          {
+            "op": "isHighestBy",
+            "args": {
+              "field": "rateMils",
+              "among": {
+                "op": "siIn",
+                "args": {
+                  "si": [
+                    "J2"
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc"
             }
           }
         ]
@@ -395,7 +389,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
+    "note": "D45 migration: scope stays 'siIn: [J2]' — that half was already statically decidable from the code alone — and only the claim-relational 'isHighestBy' moved into 'when', joined with the four pre-existing claim-level gates; behaviourally unchanged (same frozen epoch backs both). The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
   },
   {
     "id": "OPPS.PKG.Q1.COMPANION",
@@ -410,13 +404,22 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (STV-packaged codes)",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q1"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "claimContainsAny",
             "args": {
               "si": [
-                "Q1"
+                "S",
+                "T",
+                "V"
               ]
             }
           },
@@ -433,15 +436,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
               }
             }
           }
-        ]
-      }
-    },
-    "when": {
-      "claimContainsAny": {
-        "si": [
-          "S",
-          "T",
-          "V"
         ]
       }
     },
@@ -468,7 +462,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Scope excludes lines already bundled by J1 control (band 2000) — J1 control takes priority, and a second bundleUnder write on the same line is a lint error (§4.3)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — both read the same frozen epoch snapshot (dsl/evaluate.ts), so this is behaviourally identical, not a relaxation. Excludes lines already bundled by J1 control (band 2000) — J1 control takes priority, and a second bundleUnder write on the same line is a lint error (§4.3)."
   },
   {
     "id": "OPPS.PKG.Q2.COMPANION",
@@ -483,13 +477,20 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (T-packaged codes)",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q2"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "claimContainsAny",
             "args": {
               "si": [
-                "Q2"
+                "T"
               ]
             }
           },
@@ -506,13 +507,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
               }
             }
           }
-        ]
-      }
-    },
-    "when": {
-      "claimContainsAny": {
-        "si": [
-          "T"
         ]
       }
     },
@@ -537,7 +531,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Q2 packages against T only — it pays alongside S or V, unlike Q1. The narrower trigger list is deliberate (§9.2)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — same frozen epoch backs both, so this is behaviourally identical. Q2 packages against T only — it pays alongside S or V, unlike Q1. The narrower trigger list is deliberate (§9.2)."
   },
   {
     "id": "OPPS.PKG.Q4.COMPANION",
@@ -552,13 +546,27 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q4"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "claimContainsAny",
             "args": {
               "si": [
-                "Q4"
+                "J1",
+                "J2",
+                "S",
+                "T",
+                "V",
+                "Q1",
+                "Q2",
+                "Q3"
               ]
             }
           },
@@ -575,20 +583,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
               }
             }
           }
-        ]
-      }
-    },
-    "when": {
-      "claimContainsAny": {
-        "si": [
-          "J1",
-          "J2",
-          "S",
-          "T",
-          "V",
-          "Q1",
-          "Q2",
-          "Q3"
         ]
       }
     },
@@ -640,7 +634,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION. 'among' excludes already-BUNDLED lines because Q1.COMPANION (order 4100, subBand a) and Q2.COMPANION (order 4110, subBand a) can bundle a Q1 or Q2 line, and this rule's 'among' pool includes both SIs. A predicate guard alone is not enough, though: 'among' is ranked against this rule's declared epoch's frozen snapshot (§2.5), not live per-line state, so a subBand-a rule reading epoch E2 (the snapshot taken *before* subBand a runs) would never see Q1.COMPANION's own same-window bundling reflected in that snapshot regardless of the guard — the same hazard OPPS.PKG.Q.SURVIVOR_TIEBREAK's note describes, and the reason that rule lives in subBand b at epoch E3a rather than subBand a at epoch E2. This rule was moved to subBand b / epoch E3a for the identical reason: only a rule reading the post-subBand-a snapshot can have a guard that actually excludes lines subBand a bundled. Scope (siIn Q4, not-BUNDLED) still reads this line's own live state regardless of epoch, so moving windows does not change which Q4 line acts — only what the 'among' ranking pool can see. OPPS.PKG.Q4.CONVERT stays in subBand a: its 'when' (claimContainsNone of this rule's trigger SI set) is the exact complement of this rule's 'when' over the same SI census, which subBand a's rules never mutate for J1/J2/S/T/V/Q1/Q2/Q3 (only convertSI on this line's own Q4->A, which is on the opposite branch of the same mutual exclusion) — so the two rules cannot both fire for the same line regardless of which window either runs in."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q4]' this rule always meant. Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION. 'among' excludes already-BUNDLED lines because Q1.COMPANION (order 4100, subBand a) and Q2.COMPANION (order 4110, subBand a) can bundle a Q1 or Q2 line, and this rule's 'among' pool includes both SIs. A predicate guard alone is not enough, though: 'among' is ranked against this rule's declared epoch's frozen snapshot (§2.5), not live per-line state, so a subBand-a rule reading epoch E2 (the snapshot taken *before* subBand a runs) would never see Q1.COMPANION's own same-window bundling reflected in that snapshot regardless of the guard — the same hazard OPPS.PKG.Q.SURVIVOR_TIEBREAK's note describes, and the reason that rule lives in subBand b at epoch E3a rather than subBand a at epoch E2. This rule was moved to subBand b / epoch E3a for the identical reason: only a rule reading the post-subBand-a snapshot can have a guard that actually excludes lines subBand a bundled. Scope (siIn Q4, not-BUNDLED) still reads this line's own live state regardless of epoch, so moving windows does not change which Q4 line acts — only what the 'among' ranking pool can see. OPPS.PKG.Q4.CONVERT stays in subBand a: its 'when' (claimContainsNone of this rule's trigger SI set) is the exact complement of this rule's 'when' over the same SI census, which subBand a's rules never mutate for J1/J2/S/T/V/Q1/Q2/Q3 (only convertSI on this line's own Q4->A, which is on the opposite branch of the same mutual exclusion) — so the two rules cannot both fire for the same line regardless of which window either runs in."
   },
   {
     "id": "OPPS.PKG.Q4.CONVERT",
@@ -655,13 +649,27 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.3 — Q4 conversion is the CLFS entry point",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q4"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "claimContainsNone",
             "args": {
               "si": [
-                "Q4"
+                "J1",
+                "J2",
+                "S",
+                "T",
+                "V",
+                "Q1",
+                "Q2",
+                "Q3"
               ]
             }
           },
@@ -681,20 +689,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
         ]
       }
     },
-    "when": {
-      "claimContainsNone": {
-        "si": [
-          "J1",
-          "J2",
-          "S",
-          "T",
-          "V",
-          "Q1",
-          "Q2",
-          "Q3"
-        ]
-      }
-    },
     "then": [
       {
         "convertSI": {
@@ -705,7 +699,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         "route": {}
       }
     ],
-    "note": "An unpackaged Q4 converts to SI A and routes to CLFS via the shared resolver (§2.3). The interpreter never imports routing.ts (§4.3) — the adjudicate phase wiring calls routing.resolve(code, 'A') after this rule fires and sets the final status/basis/rate there, not in the registry."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsNone gate) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q4]' this rule always meant. An unpackaged Q4 converts to SI A and routes to CLFS via the shared resolver (§2.3). The interpreter never imports routing.ts (§4.3) — the adjudicate phase wiring calls routing.resolve(code, 'A') after this rule fires and sets the final status/basis/rate there, not in the registry."
   },
   {
     "id": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
@@ -720,15 +714,50 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (\"highest paid\" survivor rule)",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q1",
+          "Q2"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "isNotHighestBy",
             "args": {
-              "si": [
-                "Q1",
-                "Q2"
-              ]
+              "field": "rateMils",
+              "among": {
+                "op": "allOf",
+                "args": {
+                  "children": [
+                    {
+                      "op": "siIn",
+                      "args": {
+                        "si": [
+                          "Q1",
+                          "Q2"
+                        ]
+                      }
+                    },
+                    {
+                      "op": "not",
+                      "args": {
+                        "child": {
+                          "op": "statusIn",
+                          "args": {
+                            "status": [
+                              "BUNDLED"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc"
             }
           },
           {
@@ -745,41 +774,6 @@ export const PACKAGING_RULES: readonly unknown[] = [
             }
           }
         ]
-      }
-    },
-    "when": {
-      "isNotHighestBy": {
-        "field": "rateMils",
-        "among": {
-          "op": "allOf",
-          "args": {
-            "children": [
-              {
-                "op": "siIn",
-                "args": {
-                  "si": [
-                    "Q1",
-                    "Q2"
-                  ]
-                }
-              },
-              {
-                "op": "not",
-                "args": {
-                  "child": {
-                    "op": "statusIn",
-                    "args": {
-                      "status": [
-                        "BUNDLED"
-                      ]
-                    }
-                  }
-                }
-              }
-            ]
-          }
-        },
-        "tiebreak": "codeAsc"
       }
     },
     "then": [
@@ -824,7 +818,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Reads epoch E3a — the results of sub-band a's companion-packaging rules — so 'among' only ranks Q1/Q2 lines that survived companion packaging, never a line already bundled there. Sub-band b is required precisely because a single band-4000 epoch would let this rule's bundleUnder name an already-bundled line (§2.5)."
+    "note": "D45 migration: the outer not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing isNotHighestBy condition) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q1, Q2]' this rule always meant. The guard nested inside isNotHighestBy's own 'among' was already in a relational-condition position, not scope, and is unchanged. Reads epoch E3a — the results of sub-band a's companion-packaging rules — so 'among' only ranks Q1/Q2 lines that survived companion packaging, never a line already bundled there. Sub-band b is required precisely because a single band-4000 epoch would let this rule's bundleUnder name an already-bundled line (§2.5)."
   }
 ];
 
@@ -841,30 +835,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10; spec §9.4",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "S"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "S"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -879,7 +865,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI S pays 100% of its own APC, never discounted when multiple S lines are present. Guarded against a line already bundled by J1 control (§9.1: 'all non-exempt lines' bundle into a controlling J1)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [S]' this rule always meant. SI S pays 100% of its own APC, never discounted when multiple S lines are present. Guarded against a line already bundled by J1 control (§9.1: 'all non-exempt lines' bundle into a controlling J1)."
   },
   {
     "id": "OPPS.DISP.T",
@@ -893,30 +879,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "T"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "T"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -938,7 +916,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Every T line is set PAID/OPPS_APC here; this milestone computes no dollar amounts (no setAmount/multiply in the operator set — see dsl/operators.ts), so the MPPR 100%/50% split is not applied to a figure. The rank evidence needed to apply it later is captured by OPPS.DISP.T.MPPR_RANK."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [T]' this rule always meant. Every T line is set PAID/OPPS_APC here; this milestone computes no dollar amounts (no setAmount/multiply in the operator set — see dsl/operators.ts), so the MPPR 100%/50% split is not applied to a figure. The rank evidence needed to apply it later is captured by OPPS.DISP.T.MPPR_RANK."
   },
   {
     "id": "OPPS.DISP.T.MPPR_RANK",
@@ -952,14 +930,50 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.5 (MPPR)",
     "scope": {
+      "siIn": {
+        "si": [
+          "T"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "ordinalAtLeast",
             "args": {
-              "si": [
-                "T"
-              ]
+              "field": "weight",
+              "among": {
+                "op": "allOf",
+                "args": {
+                  "children": [
+                    {
+                      "op": "siIn",
+                      "args": {
+                        "si": [
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "op": "not",
+                      "args": {
+                        "child": {
+                          "op": "statusIn",
+                          "args": {
+                            "status": [
+                              "BUNDLED"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc",
+              "fallbackField": "rateMils",
+              "atLeast": 2
             }
           },
           {
@@ -978,42 +992,6 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         ]
       }
     },
-    "when": {
-      "ordinalAtLeast": {
-        "field": "weight",
-        "among": {
-          "op": "allOf",
-          "args": {
-            "children": [
-              {
-                "op": "siIn",
-                "args": {
-                  "si": [
-                    "T"
-                  ]
-                }
-              },
-              {
-                "op": "not",
-                "args": {
-                  "child": {
-                    "op": "statusIn",
-                    "args": {
-                      "status": [
-                        "BUNDLED"
-                      ]
-                    }
-                  }
-                }
-              }
-            ]
-          }
-        },
-        "tiebreak": "codeAsc",
-        "fallbackField": "rateMils",
-        "atLeast": 2
-      }
-    },
     "then": [
       {
         "flag": {
@@ -1023,7 +1001,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Records the MPPR rank in the trace (Evaluation.examined.ordinal) via ordinalAtLeast even though no amount is computed this milestone (§4.3's ordinal-recording rationale)."
+    "note": "D45 migration: the outer not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing ordinalAtLeast condition) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [T]' this rule always meant. The guard nested inside ordinalAtLeast's own 'among' was already in a relational-condition position, not scope, and is unchanged. Records the MPPR rank in the trace (Evaluation.examined.ordinal) via ordinalAtLeast even though no amount is computed this milestone (§4.3's ordinal-recording rationale)."
   },
   {
     "id": "OPPS.DISP.V",
@@ -1037,30 +1015,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.4",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "V"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "V"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1075,7 +1045,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI V pays its own visit APC."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [V]' this rule always meant. SI V pays its own visit APC."
   },
   {
     "id": "OPPS.DISP.N",
@@ -1089,30 +1059,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.4 — 2,076 codes, none carrying a rate",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "N"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "N"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1134,7 +1096,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "basis NONE, not OPPS_APC: N carries no Addendum B rate at all (consistent with packaging), so there is no rate-based basis to name. status PACKAGED, not PAID (SI N pays nothing separately — reporting PAID told a reader the line pays, the opposite of the truth) and not BUNDLED (N has no controlling line to name via bundledUnder; it is packaged by SI definition, not by a companion-packaging effect, so bundledUnder stays null)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [N]' this rule always meant. basis NONE, not OPPS_APC: N carries no Addendum B rate at all (consistent with packaging), so there is no rate-based basis to name. status PACKAGED, not PAID (SI N pays nothing separately — reporting PAID told a reader the line pays, the opposite of the truth) and not BUNDLED (N has no controlling line to name via bundledUnder; it is packaged by SI definition, not by a companion-packaging effect, so bundledUnder stays null)."
   },
   {
     "id": "OPPS.DISP.K",
@@ -1148,30 +1110,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.4 — 526 codes, all carry an Addendum B rate",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "K"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "K"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1186,7 +1140,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI K is priced — all 526 codes carry a rate."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [K]' this rule always meant. SI K is priced — all 526 codes carry a rate."
   },
   {
     "id": "OPPS.DISP.G",
@@ -1264,30 +1218,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.4 — 41 codes, all carry a rate",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "R"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "R"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1302,7 +1248,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI R (blood/blood products) is priced but not exempt from J1 packaging."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [R]' this rule always meant. SI R (blood/blood products) is priced but not exempt from J1 packaging."
   },
   {
     "id": "OPPS.DISP.P",
@@ -1316,30 +1262,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.4 — 4 codes, none rated",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "P"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "P"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1354,7 +1292,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI P is unpriced by data design (partial hospitalization per diem), not exempt from J1 packaging."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [P]' this rule always meant. SI P is unpriced by data design (partial hospitalization per diem), not exempt from J1 packaging."
   },
   {
     "id": "OPPS.DISP.H",
@@ -1560,30 +1498,22 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.1 — J1 comprehensive control",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "J1"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "J1"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1598,7 +1528,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Fires only on the ranked, unbundled J1 line — every other J1 line on a multi-J1 claim was bundled under it by OPPS.PKG.J1.CONTROL (band 2000). The 'comprehensive' character of a J1 APC is priced into the Addendum B rate itself, not a separate basis code — spec §9.1/§9.4 do not state J1's own basis explicitly; OPPS_APC is this build's judgment call (see final report)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [J1]' this rule always meant. Fires only on the ranked, unbundled J1 line — every other J1 line on a multi-J1 claim was bundled under it by OPPS.PKG.J1.CONTROL (band 2000). The 'comprehensive' character of a J1 APC is priced into the Addendum B rate itself, not a separate basis code — spec §9.1/§9.4 do not state J1's own basis explicitly; OPPS_APC is this build's judgment call (see final report)."
   },
   {
     "id": "OPPS.DISP.J2",
@@ -1612,31 +1542,23 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.1, §9.4 — J2 unfired",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "J2"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED",
-                    "PAID_UNPRICED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "J2"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED",
+              "PAID_UNPRICED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1651,7 +1573,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "U15: C-APC 8011 is now built (band 3000, OPPS.CAPC8011.CONTROL / OPPS.CAPC8011.CONTROLLING in opps.packaging.json). When 8011 fires, its controlling J2 is set PAID_UNPRICED/OPPS_COMPREHENSIVE at band 3000 — excluded here by the 'PAID_UNPRICED' guard, since a cross-band setStatus overwrite is a lint/runtime error (§4.3), not cosmetic. A non-controlling J2 on a fired-8011 claim is excluded by the pre-existing 'BUNDLED' guard, same as any other non-exempt line. When 8011 does not fire (any of its six conditions fails), this rule is the one that applies: J2 pays its own visit APC and has zero packaging power over other lines, matching §9.1."
+    "note": "D45 migration: the not-BUNDLED/PAID_UNPRICED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [J2]' this rule always meant. U15: C-APC 8011 is now built (band 3000, OPPS.CAPC8011.CONTROL / OPPS.CAPC8011.CONTROLLING in opps.packaging.json). When 8011 fires, its controlling J2 is set PAID_UNPRICED/OPPS_COMPREHENSIVE at band 3000 — excluded here by the 'PAID_UNPRICED' guard, since a cross-band setStatus overwrite is a lint/runtime error (§4.3), not cosmetic. A non-controlling J2 on a fired-8011 claim is excluded by the pre-existing 'BUNDLED' guard, same as any other non-exempt line. When 8011 does not fire (any of its six conditions fails), this rule is the one that applies: J2 pays its own visit APC and has zero packaging power over other lines, matching §9.1."
   },
   {
     "id": "OPPS.DISP.Q1Q2.SURVIVOR",
@@ -1665,31 +1587,23 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.2",
     "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "Q1",
-                "Q2"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
+      "siIn": {
+        "si": [
+          "Q1",
+          "Q2"
         ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
       }
     },
     "then": [
@@ -1704,7 +1618,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Fires on a Q1/Q2 line that survived both companion packaging (band 4000a) and the same-SI survivor tiebreak (band 4000b) unbundled."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q1, Q2]' this rule always meant. Fires on a Q1/Q2 line that survived both companion packaging (band 4000a) and the same-SI survivor tiebreak (band 4000b) unbundled."
   },
   {
     "id": "OPPS.DISP.Q3",
@@ -1718,10 +1632,69 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "scopeTarget": "line",
     "citation": "spec §9.2 — Q3 composite combination table not sourced",
     "scope": {
+      "siIn": {
+        "si": [
+          "Q3"
+        ]
+      }
+    },
+    "when": {
+      "not": {
+        "child": {
+          "op": "statusIn",
+          "args": {
+            "status": [
+              "BUNDLED"
+            ]
+          }
+        }
+      }
+    },
+    "then": [
+      {
+        "setStatus": {
+          "status": "PAID"
+        }
+      },
+      {
+        "setBasis": {
+          "value": "OPPS_APC"
+        }
+      },
+      {
+        "flag": {
+          "code": "OPPS.Q3.COMPOSITE_NOT_EVALUATED",
+          "severity": "gap",
+          "message": "Q3 is never companion-packaged, but Ch.4 §10.4.1's composite APC combination table is not on disk — this line pays its own APC without composite evaluation, a known gap, not a modeled rule."
+        }
+      }
+    ],
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q3]' this rule always meant. Q3 can still be bundled under a controlling J1 (it is not in the exempt set) — guarded accordingly."
+  },
+  {
+    "id": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
+    "version": "2026.1",
+    "effectiveFrom": "20260101",
+    "effectiveTo": null,
+    "phase": "ADJUDICATE",
+    "band": 5000,
+    "order": 5290,
+    "epoch": "E3b",
+    "scopeTarget": "line",
+    "citation": "Pub 100-04 Ch.4 §10.4.1 — STV/T-packaged codes packaged into a composite companion",
+    "scope": {
+      "siIn": {
+        "si": [
+          "Q1",
+          "Q2"
+        ]
+      }
+    },
+    "when": {
       "allOf": {
         "children": [
           {
-            "op": "siIn",
+            "op": "claimContainsAny",
             "args": {
               "si": [
                 "Q3"
@@ -1746,73 +1719,6 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     },
     "then": [
       {
-        "setStatus": {
-          "status": "PAID"
-        }
-      },
-      {
-        "setBasis": {
-          "value": "OPPS_APC"
-        }
-      },
-      {
-        "flag": {
-          "code": "OPPS.Q3.COMPOSITE_NOT_EVALUATED",
-          "severity": "gap",
-          "message": "Q3 is never companion-packaged, but Ch.4 §10.4.1's composite APC combination table is not on disk — this line pays its own APC without composite evaluation, a known gap, not a modeled rule."
-        }
-      }
-    ],
-    "note": "Q3 can still be bundled under a controlling J1 (it is not in the exempt set) — guarded accordingly."
-  },
-  {
-    "id": "OPPS.DISP.Q1Q2.COMPOSITE_FLAG",
-    "version": "2026.1",
-    "effectiveFrom": "20260101",
-    "effectiveTo": null,
-    "phase": "ADJUDICATE",
-    "band": 5000,
-    "order": 5290,
-    "epoch": "E3b",
-    "scopeTarget": "line",
-    "citation": "Pub 100-04 Ch.4 §10.4.1 — STV/T-packaged codes packaged into a composite companion",
-    "scope": {
-      "allOf": {
-        "children": [
-          {
-            "op": "siIn",
-            "args": {
-              "si": [
-                "Q1",
-                "Q2"
-              ]
-            }
-          },
-          {
-            "op": "not",
-            "args": {
-              "child": {
-                "op": "statusIn",
-                "args": {
-                  "status": [
-                    "BUNDLED"
-                  ]
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "when": {
-      "claimContainsAny": {
-        "si": [
-          "Q3"
-        ]
-      }
-    },
-    "then": [
-      {
         "flag": {
           "code": "OPPS.Q3.COMPOSITE_NOT_EVALUATED",
           "severity": "gap",
@@ -1820,7 +1726,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "SI Q3 is used as the operational proxy for 'composite-APC-eligible companion' — Q3 codes are themselves the composite-APC category, so this is the only claim-derivable signal available; see final report for why this is a judgment call, not a spec-stated rule."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q1, Q2]' this rule always meant. SI Q3 is used as the operational proxy for 'composite-APC-eligible companion' — Q3 codes are themselves the composite-APC category, so this is the only claim-derivable signal available; see final report for why this is a judgment call, not a spec-stated rule."
   },
   {
     "id": "NCCI.PTP.PAIR",

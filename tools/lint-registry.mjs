@@ -160,6 +160,150 @@ function containsNotBundledGuard(node) {
 }
 
 /**
+ * D45 FOLLOW-ON. Pre-migration, the not-BUNDLED ordering guard always lived
+ * in a rule's `scope` (D45 itself is what forced it out — a claim-relational
+ * predicate in `scope` is exactly what §4.3 forbids). The structural-conflict
+ * gates below decide "is a later/peer writer safe" by asking whether IT
+ * carries that guard, and originally only ever looked at `rule.scope` to
+ * answer that, because that was the guard's only legal home at the time.
+ * Post-migration the guard's only legal home is `when` (or `scope` AND
+ * `when`, if a future rule needs both) — §4.3 states the move "costs nothing
+ * behaviourally," and dsl/evaluate.ts confirms it structurally: `scope` and
+ * `when` are evaluated against the identical frozen epoch snapshot for a
+ * given rule (see `runLineScopedRuleForLine`'s single `scopeCtx`), so a
+ * guard's *safety argument* does not depend on which of the two positions it
+ * sits in. A helper that still only checked `scope` would report a flood of
+ * brand-new false-positive hard failures the moment D45's own fix landed —
+ * exactly the D63 mistake ("a gate that breaks the day it should be
+ * satisfied"). This checks both positions; nothing about the underlying
+ * safety argument changed, only where the guard is legally allowed to live.
+ */
+function hasNotBundledGuardAnywhere(rule) {
+  return containsNotBundledGuard(rule.scope) || containsNotBundledGuard(rule.when ?? null);
+}
+
+// ===========================================================================
+// D45 FOLLOW-ON, continued. Two more sound, narrow safety arguments that the
+// pre-migration registry never needed the lint to know, because the rules
+// they apply to (OPPS.PKG.J1.CONTROL, OPPS.CAPC8011.CONTROL,
+// OPPS.CAPC8011.CONTROLLING) had a D45-undecidable `scope` — meaning their
+// structural-effect domain was `{kind:'unresolved'}` and the pairwise checks
+// below SKIPPED them entirely (see the "N skipped" info lines this file has
+// always printed). That was a coverage gap, not a proof of safety: these
+// rules were never actually checked against anything. Making their scope
+// decidable (`always`, per D45/§4.3 — their real domain is "every non-exempt
+// line," which is not SI-derivable, so `always` is the correct selector, not
+// a lazy default) resolves their domain to `{kind:'all'}`, which now
+// legitimately enters the pairwise checks — and exposes that this tool's
+// only known "two writers are safe together" argument (the not-BUNDLED
+// ordering guard) is not the only one the registry actually relies on. Two
+// more, both real and both provable from the rules' own `when`/`scope` data:
+//
+//   (b) CLAIM-CENSUS MUTUAL EXCLUSION. OPPS.PKG.J1.CONTROL only ever fires
+//       when `claimContainsAny({J1})` — i.e. only on a claim that HAS a J1
+//       line. OPPS.CAPC8011.CONTROL/CONTROLLING only ever fire when
+//       `claimContainsNone({J1})` — only on a claim with NO J1 line. Those
+//       two conditions cannot both be true for the same claim, so on ANY
+//       given claim at most one of the two rules ever applies its effects at
+//       all — they can never write the same line twice regardless of window
+//       or epoch timing. General form: rule A requires
+//       `claimContainsAny(X)` and rule B requires `claimContainsNone(Y)`
+//       with `X subset-of Y` (checked in either direction) => A firing on a
+//       claim implies some line has an SI in X subset-of Y, contradicting B's
+//       "none of Y" — so A and B are never both true on one claim.
+//   (c) EXEMPTION DISJOINTNESS. OPPS.PKG.J1.CONTROL/OPPS.CAPC8011.CONTROL
+//       only ever fire on a line where `not(isExempt)` holds. Every SI the
+//       exempt-set rules (band 1000, `src/registry/opps.exempt.json`)
+//       unconditionally mark exempt — {U, G, H, F, L, S1, H1, K1}, computed
+//       from THOSE rules' own (decidable) scope here, never hand-copied —
+//       can therefore never satisfy `not(isExempt)`. So a rule whose own
+//       scope domain is wholly contained in that always-exempt SI set (e.g.
+//       OPPS.DISP.G's `siIn: [G]`) can never share a line with a rule that
+//       requires `not(isExempt)`, regardless of window, band, or guard.
+//
+// Both are real properties of the registry's own `when`/`scope` data, not an
+// exception carved out for these specific rule ids — a future rule with the
+// same shape gets the same, sound treatment.
+// ===========================================================================
+
+/** Collects the `si` sets of every top-level-reachable `claimContainsAny`/`claimContainsNone` node in a predicate tree (walks through allOf/anyOf/not, same as every other walker here). */
+function collectClaimSiSets(node, opName) {
+  const sets = [];
+  walkTree(node ?? null, (foundOp, args) => {
+    if (foundOp === opName && args && Array.isArray(args.si)) sets.push(new Set(args.si));
+  });
+  return sets;
+}
+
+function isSubset(small, big) {
+  for (const v of small) if (!big.has(v)) return false;
+  return true;
+}
+
+/**
+ * True if `whenA`/`whenB` (either may be `undefined`, meaning "always true")
+ * are provably mutually exclusive over SI containment: A requires
+ * `claimContainsAny(X)` and B requires `claimContainsNone(Y)` with
+ * `X subset-of Y` (or the same with A/B swapped) — see (b) above.
+ */
+function mutuallyExclusiveByClaimCensus(whenA, whenB) {
+  const aAny = collectClaimSiSets(whenA, 'claimContainsAny');
+  const aNone = collectClaimSiSets(whenA, 'claimContainsNone');
+  const bAny = collectClaimSiSets(whenB, 'claimContainsAny');
+  const bNone = collectClaimSiSets(whenB, 'claimContainsNone');
+  const excludes = (anySets, noneSets) => anySets.some((x) => noneSets.some((y) => isSubset(x, y)));
+  return excludes(aAny, bNone) || excludes(bAny, aNone);
+}
+
+/** True if `node` (a `when` tree) contains `not(isExempt)` anywhere reachable by the standard walk (allOf/anyOf/not/among). */
+function containsNotExemptGuard(node) {
+  let found = false;
+  walkTree(node ?? null, (opName, opArgs) => {
+    if (found) return;
+    if (opName === 'not') {
+      const child = normalizeNode(opArgs && opArgs.child);
+      if (child !== null && child.op === 'isExempt') found = true;
+    }
+  });
+  return found;
+}
+
+/** Computed once from the band-1000 exempt-set rules' own (decidable) `siIn` scopes — see (c) above. Never hand-maintained. */
+function computeAlwaysExemptSiSet(ruleEntries) {
+  const out = new Set();
+  for (const { rule } of ruleEntries) {
+    if (rule.band !== 1000 || !Array.isArray(rule.then)) continue;
+    const exempts = rule.then.some((e) => {
+      const n = normalizeNode(e);
+      return n !== null && n.op === 'exempt';
+    });
+    if (!exempts) continue;
+    const domain = extractSiDomain(rule.scope);
+    if (domain.kind === 'si') for (const si of domain.values) out.add(si);
+  }
+  return out;
+}
+
+function domainWhollyWithin(domain, siSet) {
+  return domain.kind === 'si' && domain.values.size > 0 && [...domain.values].every((si) => siSet.has(si));
+}
+
+/**
+ * The combined "these two writers are provably safe together" test used by
+ * both the same-window and cross-window/cross-band branches below. `a`/`b`
+ * carry `{domain, whenNode}` at minimum. Order-independent — both (b) and
+ * (c) are symmetric disjointness arguments, unlike the not-BUNDLED ordering
+ * guard (which only protects a LATER rule from an EARLIER one, and is
+ * checked separately by callers via `hasNotBundledGuardAnywhere`).
+ */
+function provablyDisjointPair(a, b, alwaysExemptSiSet) {
+  if (mutuallyExclusiveByClaimCensus(a.whenNode, b.whenNode)) return true;
+  if (containsNotExemptGuard(a.whenNode) && domainWhollyWithin(b.domain, alwaysExemptSiSet)) return true;
+  if (containsNotExemptGuard(b.whenNode) && domainWhollyWithin(a.domain, alwaysExemptSiSet)) return true;
+  return false;
+}
+
+/**
  * Domain-extraction over a scope/among predicate tree. `{kind:'all'}` =
  * matches any line; `{kind:'si', values:Set}` = matches exactly those SI
  * values; `{kind:'unresolved'}` = cannot be determined statically (contains
@@ -247,8 +391,23 @@ const D45_DISALLOWED_IN_SCOPE = new Set([
   'optionUnknown',
 ]);
 
-/** Baseline measured against this checkout of src/registry/*.json — see final report (verified, not trusted from D45's own "21"). Bump this only when the maintainer deliberately migrates rules off a disallowed scope predicate; never bump it to silence a newly introduced violation. */
-export const D45_BASELINE = 21;
+/**
+ * All 21 known D45 violations were migrated (docs/BUILD_LOG.md D45): every
+ * claim-relational predicate (`statusIn`, `isExempt`, `isHighestBy`) that
+ * lived in a rule's `scope` moved into `when`, and every rule whose `scope`
+ * would otherwise have gone empty was given the statically-decidable
+ * selector its own domain actually is (`siIn` for 19 of them; `always` for
+ * `OPPS.PKG.J1.CONTROL`/`OPPS.CAPC8011.CONTROL`, whose real domain — every
+ * non-exempt line, regardless of SI — is not SI-derivable, per §4.3's own
+ * "enumerating every SI except the exempt ones is not a workaround"). The
+ * migration's behaviour-neutrality was verified empirically, not assumed:
+ * see tools/diff-d45-migration.mjs and test/fix-d45-applicability.test.ts
+ * — 0 outcome differences (status/disposition/bundledUnder/basis/
+ * effectiveSI/flags) across a 71-claim corpus. The baseline is now the true
+ * count. Bump it only when the maintainer deliberately introduces a new,
+ * reviewed violation (there should be none); never bump it to silence one.
+ */
+export const D45_BASELINE = 0;
 
 /**
  * DEBT BASELINE, NOT AN APPROVAL. `D66_BUNDLE_UNDER_MISSING_GUARD` flags a
@@ -499,13 +658,18 @@ export function lintRules(
   // itself statically decidable (D45) — such rules are excluded from the
   // pairwise checks and counted, not silently dropped.
   function structuralConflictGates() {
+    const alwaysExemptSiSet = computeAlwaysExemptSiSet(ruleEntries);
     /** @type {{ruleId:string, band:number, subBand:string|undefined, op:string, domain:object, hasNotBundledScopeGuard:boolean, whenNode:unknown, amongNode:unknown|null, windowRank:number}[]} */
     const writers = [];
     const statusWriters = [];
     for (const { rule } of ruleEntries) {
       if (!Array.isArray(rule.then)) continue;
       const domain = extractSiDomain(rule.scope);
-      const hasNotBundledScopeGuard = containsNotBundledGuard(rule.scope);
+      // D45 follow-on: the not-BUNDLED guard's only legal home post-migration
+      // is `when` (or `scope`, if some future rule still needs it there) —
+      // see `hasNotBundledGuardAnywhere`'s header for why checking `scope`
+      // alone here would be exactly the D63 mistake.
+      const hasNotBundledScopeGuard = hasNotBundledGuardAnywhere(rule);
       const window = windowFor(rule);
       for (const entry of rule.then) {
         const n = normalizeNode(entry);
@@ -516,7 +680,7 @@ export function lintRules(
           writers.push({ ruleId: rule.id, band: rule.band, subBand: rule.subBand, op: n.op, domain, amongDomain, hasNotBundledScopeGuard, whenNode: rule.when, amongNode, windowRank: window.rank });
         }
         if (n.op === 'setStatus') {
-          statusWriters.push({ ruleId: rule.id, band: rule.band, domain, hasNotBundledScopeGuard, windowRank: window.rank });
+          statusWriters.push({ ruleId: rule.id, band: rule.band, domain, hasNotBundledScopeGuard, whenNode: rule.when, windowRank: window.rank });
         }
       }
     }
@@ -548,6 +712,7 @@ export function lintRules(
           }
           secondWriteChecked++;
           if (!overlap) continue;
+          if (provablyDisjointPair(a, b, alwaysExemptSiSet)) continue; // (b)/(c) — never both act on the same claim/line regardless of window or guard.
           if (a.windowRank !== b.windowRank) {
             const later = a.windowRank > b.windowRank ? a : b;
             const earlier = later === a ? b : a;
@@ -556,14 +721,14 @@ export function lintRules(
               'SECOND_WRITE_STRUCTURAL_EFFECT',
               '§4.3',
               later.ruleId,
-              `writes "${effect}" with a scope domain overlapping earlier-window rule "${earlier.ruleId}" (also "${effect}") and no not(statusIn(['BUNDLED'])) scope guard — first-writer-wins; a second write is an error.`,
+              `writes "${effect}" with a scope domain overlapping earlier-window rule "${earlier.ruleId}" (also "${effect}") and no not(statusIn(['BUNDLED'])) guard (scope or when) — first-writer-wins; a second write is an error.`,
             );
           } else {
             report(
               'SECOND_WRITE_STRUCTURAL_EFFECT',
               '§4.3',
               a.ruleId,
-              `writes "${effect}" in the same window as rule "${b.ruleId}" (also "${effect}") with an overlapping scope domain — same-window writes share one frozen epoch, so no guard can order them; a second write is an error.`,
+              `writes "${effect}" in the same window as rule "${b.ruleId}" (also "${effect}") with an overlapping scope domain — same-window writes share one frozen epoch, so no ordering guard can protect them, and neither rule's "when" proves the two mutually exclusive; a second write is an error.`,
             );
           }
         }
@@ -590,6 +755,7 @@ export function lintRules(
         }
         crossBandChecked++;
         if (!overlap) continue;
+        if (provablyDisjointPair(a, b, alwaysExemptSiSet)) continue; // (b)/(c) — never both act on the same claim/line regardless of band order.
         const later = a.band > b.band ? a : b;
         const earlier = later === a ? b : a;
         if (later.hasNotBundledScopeGuard) continue; // guarded against the earlier band's writer — safe.
@@ -597,7 +763,7 @@ export function lintRules(
           'CROSS_BAND_SETSTATUS',
           '§4.3',
           later.ruleId,
-          `writes setStatus in band ${later.band} with a scope domain overlapping earlier band ${earlier.band} rule "${earlier.ruleId}" and no not(statusIn(['BUNDLED'])) scope guard — a cross-band setStatus overwrite is an error.`,
+          `writes setStatus in band ${later.band} with a scope domain overlapping earlier band ${earlier.band} rule "${earlier.ruleId}" and no not(statusIn(['BUNDLED'])) guard (scope or when) — a cross-band setStatus overwrite is an error.`,
         );
       }
     }

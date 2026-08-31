@@ -10,9 +10,11 @@
     "epoch": "E1",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4 (comprehensive APC packaging)",
-    "scope": {
+    "scope": { "always": {} },
+    "when": {
       "allOf": {
         "children": [
+          { "op": "claimContainsAny", "args": { "si": ["J1"] } },
           { "op": "not", "args": { "child": { "op": "isExempt", "args": {} } } },
           {
             "op": "not",
@@ -26,12 +28,11 @@
         ]
       }
     },
-    "when": { "claimContainsAny": { "si": ["J1"] } },
     "then": [
       { "setStatus": { "status": "BUNDLED" } },
       { "bundleUnder": { "highestBy": "rateMils", "among": { "op": "siIn", "args": { "si": ["J1"] } }, "tiebreak": "codeAsc" } }
     ],
-    "note": "If any J1 is present, the ranked J1 (payment desc, code asc tiebreak) controls and every non-exempt line — including other J1 lines on a multi-J1 claim — bundles into it. Scope excludes the ranked J1 itself via isNotHighestBy so it never resolves as its own bundling target; a line not a J1 member of the ranking set is never vacuously excluded (§4.3: subjectInAmong false, not an error)."
+    "note": "D45 migration: scope is 'always' (not an SI selector) because this rule's real domain is every non-exempt line regardless of SI — §4.3 explicitly forbids enumerating 'every SI except the exempt ones' as a scope workaround, since §9.6's category-based exemptions are not SI-derivable. isExempt/isHighestBy (claim-relational) moved into 'when', joined with the pre-existing claimContainsAny(J1) gate; behaviourally identical (§4.3: 'costs nothing behaviourally' — when is read against the same frozen epoch scope was). If any J1 is present, the ranked J1 (payment desc, code asc tiebreak) controls and every non-exempt line — including other J1 lines on a multi-J1 claim — bundles into it. The isNotHighestBy clause excludes the ranked J1 itself so it never resolves as its own bundling target; a line not a J1 member of the ranking set is never vacuously excluded (§4.3: subjectInAmong false, not an error)."
   },
   {
     "id": "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED",
@@ -68,9 +69,14 @@
     "epoch": "E1",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
-    "scope": {
+    "scope": { "always": {} },
+    "when": {
       "allOf": {
         "children": [
+          { "op": "claimContainsAny", "args": { "si": ["J2"] } },
+          { "op": "claimUnitsAtLeast", "args": { "code": "G0378", "units": 8 } },
+          { "op": "claimContainsNone", "args": { "si": ["T"] } },
+          { "op": "claimContainsNone", "args": { "si": ["J1"] } },
           { "op": "not", "args": { "child": { "op": "isExempt", "args": {} } } },
           {
             "op": "not",
@@ -84,21 +90,11 @@
         ]
       }
     },
-    "when": {
-      "allOf": {
-        "children": [
-          { "op": "claimContainsAny", "args": { "si": ["J2"] } },
-          { "op": "claimUnitsAtLeast", "args": { "code": "G0378", "units": 8 } },
-          { "op": "claimContainsNone", "args": { "si": ["T"] } },
-          { "op": "claimContainsNone", "args": { "si": ["J1"] } }
-        ]
-      }
-    },
     "then": [
       { "setStatus": { "status": "BUNDLED" } },
       { "bundleUnder": { "highestBy": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" } }
     ],
-    "note": "C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Mirrors OPPS.PKG.J1.CONTROL's scope pattern exactly: 'not isExempt' and 'not isHighestBy-among-J2' together select every non-exempt line except the ranked J2 itself, regardless of that line's own SI (an SI-enumerated scope cannot express this — §4.3's isExempt/not rationale). Of the six §9.1 firing conditions, four are checked here (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
+    "note": "D45 migration: scope is 'always' for the identical reason as OPPS.PKG.J1.CONTROL — isExempt/isHighestBy are claim-relational and this rule's real domain (every non-exempt line except the ranked J2) is not SI-derivable (§4.3). isExempt/isHighestBy moved into 'when', joined with the four pre-existing claim-level gates; behaviourally unchanged (same frozen epoch backs both scope and when — dsl/evaluate.ts). C-APC 8011 firing (spec §9.1: 'the same packaging power a controlling J1 has' — rev 4's regression was specifying only that the J2 line became unpriced, leaving every other line to pay its own APC, the opposite of comprehensive payment). Of the six §9.1 firing conditions, four are the claim-level gates above (J2 present; >=8 G0378 units via claimUnitsAtLeast, which sums across lines so 4+4 split over two lines still satisfies it, §19.7; no SI T; no SI J1). Condition 5 (date relation) and condition 6 (bill type 13X) are not checked in this 'when' — see OPPS.CAPC8011.CONTROLLING's note and flag, which document both and apply to the identical 'when' this rule shares. No J1/8011 overlap is possible: the 'no SI J1' condition here is exactly what keeps this rule and OPPS.PKG.J1.CONTROL mutually exclusive."
   },
   {
     "id": "OPPS.CAPC8011.CONTROLLING",
@@ -111,24 +107,18 @@
     "epoch": "E1",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4; spec §9.1, §9.4, §12.7",
-    "scope": {
-      "allOf": {
-        "children": [
-          { "op": "siIn", "args": { "si": ["J2"] } },
-          {
-            "op": "isHighestBy",
-            "args": { "field": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" }
-          }
-        ]
-      }
-    },
+    "scope": { "siIn": { "si": ["J2"] } },
     "when": {
       "allOf": {
         "children": [
           { "op": "claimContainsAny", "args": { "si": ["J2"] } },
           { "op": "claimUnitsAtLeast", "args": { "code": "G0378", "units": 8 } },
           { "op": "claimContainsNone", "args": { "si": ["T"] } },
-          { "op": "claimContainsNone", "args": { "si": ["J1"] } }
+          { "op": "claimContainsNone", "args": { "si": ["J1"] } },
+          {
+            "op": "isHighestBy",
+            "args": { "field": "rateMils", "among": { "op": "siIn", "args": { "si": ["J2"] } }, "tiebreak": "codeAsc" }
+          }
         ]
       }
     },
@@ -150,7 +140,7 @@
         }
       }
     ],
-    "note": "The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
+    "note": "D45 migration: scope stays 'siIn: [J2]' — that half was already statically decidable from the code alone — and only the claim-relational 'isHighestBy' moved into 'when', joined with the four pre-existing claim-level gates; behaviourally unchanged (same frozen epoch backs both). The ranked (highest-rateMils, code-asc tiebreak) J2 line's own disposition when C-APC 8011 fires — mirrors OPPS.DISP.J1.CONTROLLING's role for J1. Placed at band 3000 (not band 5000, where OPPS.DISP.J2 lives) so the PAID_UNPRICED/OPPS_COMPREHENSIVE write happens before band 5000 runs; OPPS.DISP.J2's scope was updated (§4.3: setStatus is first-writer-wins-per-band, a cross-band overwrite is an error) to exclude any line already PAID_UNPRICED here, so the two rules do not collide. Condition 6 (bill type begins '13') is not re-checked in this rule's 'when': §8.0's claim-level applicability gate already rejects any claim whose typeOfBill does not begin '13' before phase 2 (ADJUDICATE) ever runs (see phases/classify.ts), so every claim reaching this rule already satisfies condition 6 structurally — re-testing it here would be dead code. That upstream gate's own textbook first-two-digits reading is itself unconfirmed against this feed (§19.25); this note carries that caveat forward since the rule itself cannot restate it in a 'when' it does not evaluate. Condition 5 is documented in the OPPS.8011.DATE_RELATION_UNVERIFIED_POLICY flag above, including why the DSL cannot check it mechanically as built — see the final report for why this is treated as a genuine spec/implementation gap rather than something this unit could resolve within its granted file scope (src/registry/*.json, src/flags.ts, src/dsl/evaluate.ts if strictly needed — adding a cross-line date operator would mean editing dsl/operators.ts, a spec change per §4.3, and out of scope here)."
   },
   {
     "id": "OPPS.PKG.Q1.COMPANION",
@@ -164,20 +154,20 @@
     "epoch": "E2",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (STV-packaged codes)",
-    "scope": {
+    "scope": { "siIn": { "si": ["Q1"] } },
+    "when": {
       "allOf": {
         "children": [
-          { "op": "siIn", "args": { "si": ["Q1"] } },
+          { "op": "claimContainsAny", "args": { "si": ["S", "T", "V"] } },
           { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
         ]
       }
     },
-    "when": { "claimContainsAny": { "si": ["S", "T", "V"] } },
     "then": [
       { "setStatus": { "status": "BUNDLED" } },
       { "bundleUnder": { "highestBy": "rateMils", "among": { "op": "siIn", "args": { "si": ["S", "T", "V"] } }, "tiebreak": "codeAsc" } }
     ],
-    "note": "Scope excludes lines already bundled by J1 control (band 2000) — J1 control takes priority, and a second bundleUnder write on the same line is a lint error (§4.3)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — both read the same frozen epoch snapshot (dsl/evaluate.ts), so this is behaviourally identical, not a relaxation. Excludes lines already bundled by J1 control (band 2000) — J1 control takes priority, and a second bundleUnder write on the same line is a lint error (§4.3)."
   },
   {
     "id": "OPPS.PKG.Q2.COMPANION",
@@ -191,20 +181,20 @@
     "epoch": "E2",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (T-packaged codes)",
-    "scope": {
+    "scope": { "siIn": { "si": ["Q2"] } },
+    "when": {
       "allOf": {
         "children": [
-          { "op": "siIn", "args": { "si": ["Q2"] } },
+          { "op": "claimContainsAny", "args": { "si": ["T"] } },
           { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
         ]
       }
     },
-    "when": { "claimContainsAny": { "si": ["T"] } },
     "then": [
       { "setStatus": { "status": "BUNDLED" } },
       { "bundleUnder": { "highestBy": "rateMils", "among": { "op": "siIn", "args": { "si": ["T"] } }, "tiebreak": "codeAsc" } }
     ],
-    "note": "Q2 packages against T only — it pays alongside S or V, unlike Q1. The narrower trigger list is deliberate (§9.2)."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — same frozen epoch backs both, so this is behaviourally identical. Q2 packages against T only — it pays alongside S or V, unlike Q1. The narrower trigger list is deliberate (§9.2)."
   },
   {
     "id": "OPPS.PKG.Q4.COMPANION",
@@ -218,15 +208,15 @@
     "epoch": "E3a",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
-    "scope": {
+    "scope": { "siIn": { "si": ["Q4"] } },
+    "when": {
       "allOf": {
         "children": [
-          { "op": "siIn", "args": { "si": ["Q4"] } },
+          { "op": "claimContainsAny", "args": { "si": ["J1", "J2", "S", "T", "V", "Q1", "Q2", "Q3"] } },
           { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
         ]
       }
     },
-    "when": { "claimContainsAny": { "si": ["J1", "J2", "S", "T", "V", "Q1", "Q2", "Q3"] } },
     "then": [
       { "setStatus": { "status": "BUNDLED" } },
       {
@@ -245,7 +235,7 @@
         }
       }
     ],
-    "note": "Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION. 'among' excludes already-BUNDLED lines because Q1.COMPANION (order 4100, subBand a) and Q2.COMPANION (order 4110, subBand a) can bundle a Q1 or Q2 line, and this rule's 'among' pool includes both SIs. A predicate guard alone is not enough, though: 'among' is ranked against this rule's declared epoch's frozen snapshot (§2.5), not live per-line state, so a subBand-a rule reading epoch E2 (the snapshot taken *before* subBand a runs) would never see Q1.COMPANION's own same-window bundling reflected in that snapshot regardless of the guard — the same hazard OPPS.PKG.Q.SURVIVOR_TIEBREAK's note describes, and the reason that rule lives in subBand b at epoch E3a rather than subBand a at epoch E2. This rule was moved to subBand b / epoch E3a for the identical reason: only a rule reading the post-subBand-a snapshot can have a guard that actually excludes lines subBand a bundled. Scope (siIn Q4, not-BUNDLED) still reads this line's own live state regardless of epoch, so moving windows does not change which Q4 line acts — only what the 'among' ranking pool can see. OPPS.PKG.Q4.CONVERT stays in subBand a: its 'when' (claimContainsNone of this rule's trigger SI set) is the exact complement of this rule's 'when' over the same SI census, which subBand a's rules never mutate for J1/J2/S/T/V/Q1/Q2/Q3 (only convertSI on this line's own Q4->A, which is on the opposite branch of the same mutual exclusion) — so the two rules cannot both fire for the same line regardless of which window either runs in."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsAny gate) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q4]' this rule always meant. Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION. 'among' excludes already-BUNDLED lines because Q1.COMPANION (order 4100, subBand a) and Q2.COMPANION (order 4110, subBand a) can bundle a Q1 or Q2 line, and this rule's 'among' pool includes both SIs. A predicate guard alone is not enough, though: 'among' is ranked against this rule's declared epoch's frozen snapshot (§2.5), not live per-line state, so a subBand-a rule reading epoch E2 (the snapshot taken *before* subBand a runs) would never see Q1.COMPANION's own same-window bundling reflected in that snapshot regardless of the guard — the same hazard OPPS.PKG.Q.SURVIVOR_TIEBREAK's note describes, and the reason that rule lives in subBand b at epoch E3a rather than subBand a at epoch E2. This rule was moved to subBand b / epoch E3a for the identical reason: only a rule reading the post-subBand-a snapshot can have a guard that actually excludes lines subBand a bundled. Scope (siIn Q4, not-BUNDLED) still reads this line's own live state regardless of epoch, so moving windows does not change which Q4 line acts — only what the 'among' ranking pool can see. OPPS.PKG.Q4.CONVERT stays in subBand a: its 'when' (claimContainsNone of this rule's trigger SI set) is the exact complement of this rule's 'when' over the same SI census, which subBand a's rules never mutate for J1/J2/S/T/V/Q1/Q2/Q3 (only convertSI on this line's own Q4->A, which is on the opposite branch of the same mutual exclusion) — so the two rules cannot both fire for the same line regardless of which window either runs in."
   },
   {
     "id": "OPPS.PKG.Q4.CONVERT",
@@ -259,17 +249,17 @@
     "epoch": "E2",
     "scopeTarget": "line",
     "citation": "spec §9.3 — Q4 conversion is the CLFS entry point",
-    "scope": {
+    "scope": { "siIn": { "si": ["Q4"] } },
+    "when": {
       "allOf": {
         "children": [
-          { "op": "siIn", "args": { "si": ["Q4"] } },
+          { "op": "claimContainsNone", "args": { "si": ["J1", "J2", "S", "T", "V", "Q1", "Q2", "Q3"] } },
           { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
         ]
       }
     },
-    "when": { "claimContainsNone": { "si": ["J1", "J2", "S", "T", "V", "Q1", "Q2", "Q3"] } },
     "then": [{ "convertSI": { "to": "A" } }, { "route": {} }],
-    "note": "An unpackaged Q4 converts to SI A and routes to CLFS via the shared resolver (§2.3). The interpreter never imports routing.ts (§4.3) — the adjudicate phase wiring calls routing.resolve(code, 'A') after this rule fires and sets the final status/basis/rate there, not in the registry."
+    "note": "D45 migration: the not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing claimContainsNone gate) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q4]' this rule always meant. An unpackaged Q4 converts to SI A and routes to CLFS via the shared resolver (§2.3). The interpreter never imports routing.ts (§4.3) — the adjudicate phase wiring calls routing.resolve(code, 'A') after this rule fires and sets the final status/basis/rate there, not in the registry."
   },
   {
     "id": "OPPS.PKG.Q.SURVIVOR_TIEBREAK",
@@ -283,27 +273,28 @@
     "epoch": "E3a",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4.1 (\"highest paid\" survivor rule)",
-    "scope": {
+    "scope": { "siIn": { "si": ["Q1", "Q2"] } },
+    "when": {
       "allOf": {
         "children": [
-          { "op": "siIn", "args": { "si": ["Q1", "Q2"] } },
+          {
+            "op": "isNotHighestBy",
+            "args": {
+              "field": "rateMils",
+              "among": {
+                "op": "allOf",
+                "args": {
+                  "children": [
+                    { "op": "siIn", "args": { "si": ["Q1", "Q2"] } },
+                    { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
+                  ]
+                }
+              },
+              "tiebreak": "codeAsc"
+            }
+          },
           { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
         ]
-      }
-    },
-    "when": {
-      "isNotHighestBy": {
-        "field": "rateMils",
-        "among": {
-          "op": "allOf",
-          "args": {
-            "children": [
-              { "op": "siIn", "args": { "si": ["Q1", "Q2"] } },
-              { "op": "not", "args": { "child": { "op": "statusIn", "args": { "status": ["BUNDLED"] } } } }
-            ]
-          }
-        },
-        "tiebreak": "codeAsc"
       }
     },
     "then": [
@@ -324,6 +315,6 @@
         }
       }
     ],
-    "note": "Reads epoch E3a — the results of sub-band a's companion-packaging rules — so 'among' only ranks Q1/Q2 lines that survived companion packaging, never a line already bundled there. Sub-band b is required precisely because a single band-4000 epoch would let this rule's bundleUnder name an already-bundled line (§2.5)."
+    "note": "D45 migration: the outer not-BUNDLED status guard moved from 'scope' into 'when' (joined with the pre-existing isNotHighestBy condition) — same frozen epoch backs both, so this is behaviourally identical; scope is now the bare 'siIn: [Q1, Q2]' this rule always meant. The guard nested inside isNotHighestBy's own 'among' was already in a relational-condition position, not scope, and is unchanged. Reads epoch E3a — the results of sub-band a's companion-packaging rules — so 'among' only ranks Q1/Q2 lines that survived companion packaging, never a line already bundled there. Sub-band b is required precisely because a single band-4000 epoch would let this rule's bundleUnder name an already-bundled line (§2.5)."
   }
 ]

@@ -80,24 +80,28 @@ describe('codeFacts (mode 3)', () => {
 // ===========================================================================
 
 describe('applicability (mode 2) — prospective, code alone, no claim', () => {
-  it('84112 (SI Q4) names the Q4 companion-packaging rule and the Q4->A conversion rule, each with a described condition — no claim constructed anywhere in this test', () => {
+  it('84112 (SI Q4) names the Q4 companion-packaging rule and the Q4->A conversion rule, each with a described condition, both ADMITTED (D45 fixed) — no claim constructed anywhere in this test', () => {
     const result = applicability('84112', BUNDLED_RULES);
 
     expect(result.code).toBe('84112');
     expect(result.facts.si).toBe('Q4');
 
-    // Every rule actually admitting a Q4 line in the shipped registry guards
-    // itself with `not(statusIn(["BUNDLED"]))` (a cross-band, cross-line
-    // dependency — see this file's header and the final report), so both
-    // land in `conditional`, not `admitted`. The test asserts on presence
-    // and content, not on which bucket, since that grouping is exactly the
-    // documented, deliberate design decision.
-    const allSeen = [...result.admitted, ...result.conditional];
-    const q4Companion = allSeen.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION');
-    const q4Convert = allSeen.find((r) => r.ruleId === 'OPPS.PKG.Q4.CONVERT');
+    // Post-D45-migration: OPPS.PKG.Q4.COMPANION/CONVERT's `scope` is the bare
+    // `siIn: [Q4]` — statically decidable from the code alone — with the
+    // not(statusIn(['BUNDLED'])) guard relocated into `when` (§4.3, D45).
+    // Both therefore land in `admitted`, not `conditional`: this is the
+    // exact defect this migration fixes (docs/BUILD_LOG.md D45) — before the
+    // fix, both landed in `conditional` naming `statusIn` as undecidable,
+    // and `admitted` was empty for every Q-group/J1 code (see
+    // test/fix-d45-applicability.test.ts for the broader, data-driven
+    // regression coverage).
+    const q4Companion = result.admitted.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION');
+    const q4Convert = result.admitted.find((r) => r.ruleId === 'OPPS.PKG.Q4.CONVERT');
 
     expect(q4Companion).toBeDefined();
     expect(q4Convert).toBeDefined();
+    expect(result.conditional.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION')).toBeUndefined();
+    expect(result.conditional.find((r) => r.ruleId === 'OPPS.PKG.Q4.CONVERT')).toBeUndefined();
     expect(q4Companion?.firesWhen.length).toBeGreaterThan(0);
     expect(q4Convert?.firesWhen.length).toBeGreaterThan(0);
     expect(q4Companion?.firesWhen).toContain('J1');
@@ -147,11 +151,11 @@ describe('applicability (mode 2) — prospective, code alone, no claim', () => {
     expect(entry?.undecidable[0]?.description.length).toBeGreaterThan(0);
   });
 
-  it('the conditional group is also populated for a rule scoped on statusIn, naming statusIn', () => {
+  it('D45 fixed: no shipped rule scoped on Q4 is undecidable on statusIn any more — OPPS.PKG.Q4.COMPANION is ADMITTED, not conditional', () => {
     const result = applicability('84112', BUNDLED_RULES);
-    const q4Companion = result.conditional.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION');
+    const q4Companion = result.admitted.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION');
     expect(q4Companion).toBeDefined();
-    expect(q4Companion?.undecidable.some((u) => u.op === 'statusIn')).toBe(true);
+    expect(result.conditional.find((r) => r.ruleId === 'OPPS.PKG.Q4.COMPANION')).toBeUndefined();
   });
 
   it('a rule whose scope statically rejects the code (mismatched SI) never appears in any group', () => {

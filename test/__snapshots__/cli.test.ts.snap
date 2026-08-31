@@ -51,14 +51,59 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectLineId": "idx:0",
             "ordinal": null,
             "subjectInAmong": null,
-            "factRefs": [],
-            "detail": {}
+            "factRefs": [
+              "E1:exemptSet",
+              "E1:rank:rateMils#0"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                true,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsAny",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1"
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J1"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -82,13 +127,17 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "ordinal": null,
             "subjectInAmong": null,
             "factRefs": [
-              "E1:siCensus:T"
+              "E1:siCensus:T",
+              "E1:exemptSet",
+              "E1:rank:rateMils#1"
             ],
             "detail": {
               "childResults": [
                 false,
                 false,
                 false,
+                true,
+                true,
                 true
               ]
             }
@@ -127,6 +176,35 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
                       "J1"
                     ]
                   }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J2"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -151,11 +229,22 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "ordinal": null,
             "subjectInAmong": null,
             "factRefs": [],
-            "detail": {}
+            "detail": {
+              "childFired": false
+            }
           },
           "predicate": {
-            "op": "always",
-            "args": {}
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "statusIn",
+                "args": {
+                  "status": [
+                    "BUNDLED"
+                  ]
+                }
+              }
+            }
           },
           "outcome": "FIRED",
           "effect": [
@@ -195,51 +284,73 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:0",
-            "ordinal": 1,
-            "subjectInAmong": true,
+            "ordinal": null,
+            "subjectInAmong": null,
             "factRefs": [
               "E3b:rank:weight#0"
             ],
             "detail": {
-              "ordinal": 1,
-              "subjectInAmong": true
+              "childResults": [
+                false,
+                true
+              ]
             }
           },
           "predicate": {
-            "op": "ordinalAtLeast",
+            "op": "allOf",
             "args": {
-              "field": "weight",
-              "among": {
-                "op": "allOf",
-                "args": {
-                  "children": [
-                    {
-                      "op": "siIn",
+              "children": [
+                {
+                  "op": "ordinalAtLeast",
+                  "args": {
+                    "field": "weight",
+                    "among": {
+                      "op": "allOf",
                       "args": {
-                        "si": [
-                          "T"
+                        "children": [
+                          {
+                            "op": "siIn",
+                            "args": {
+                              "si": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "op": "not",
+                            "args": {
+                              "child": {
+                                "op": "statusIn",
+                                "args": {
+                                  "status": [
+                                    "BUNDLED"
+                                  ]
+                                }
+                              }
+                            }
+                          }
                         ]
                       }
                     },
-                    {
-                      "op": "not",
+                    "tiebreak": "codeAsc",
+                    "fallbackField": "rateMils",
+                    "atLeast": 2
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "statusIn",
                       "args": {
-                        "child": {
-                          "op": "statusIn",
-                          "args": {
-                            "status": [
-                              "BUNDLED"
-                            ]
-                          }
-                        }
+                        "status": [
+                          "BUNDLED"
+                        ]
                       }
                     }
-                  ]
+                  }
                 }
-              },
-              "tiebreak": "codeAsc",
-              "fallbackField": "rateMils",
-              "atLeast": 2
+              ]
             }
           },
           "outcome": "NOT_FIRED",
@@ -375,14 +486,59 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectLineId": "idx:1",
             "ordinal": null,
             "subjectInAmong": null,
-            "factRefs": [],
-            "detail": {}
+            "factRefs": [
+              "E1:exemptSet",
+              "E1:rank:rateMils#0"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                true,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsAny",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1"
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J1"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -406,13 +562,17 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "ordinal": null,
             "subjectInAmong": null,
             "factRefs": [
-              "E1:siCensus:T"
+              "E1:siCensus:T",
+              "E1:exemptSet",
+              "E1:rank:rateMils#1"
             ],
             "detail": {
               "childResults": [
                 false,
                 false,
                 false,
+                true,
+                true,
                 true
               ]
             }
@@ -451,6 +611,35 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
                       "J1"
                     ]
                   }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J2"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -477,20 +666,45 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "factRefs": [
               "E2:siCensus:T"
             ],
-            "detail": {}
+            "detail": {
+              "childResults": [
+                false,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsNone",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1",
-                "J2",
-                "S",
-                "T",
-                "V",
-                "Q1",
-                "Q2",
-                "Q3"
+              "children": [
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1",
+                      "J2",
+                      "S",
+                      "T",
+                      "V",
+                      "Q1",
+                      "Q2",
+                      "Q3"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "statusIn",
+                      "args": {
+                        "status": [
+                          "BUNDLED"
+                        ]
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -516,20 +730,45 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "factRefs": [
               "E3a:siCensus:T"
             ],
-            "detail": {}
+            "detail": {
+              "childResults": [
+                true,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsAny",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1",
-                "J2",
-                "S",
-                "T",
-                "V",
-                "Q1",
-                "Q2",
-                "Q3"
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J1",
+                      "J2",
+                      "S",
+                      "T",
+                      "V",
+                      "Q1",
+                      "Q2",
+                      "Q3"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "statusIn",
+                      "args": {
+                        "status": [
+                          "BUNDLED"
+                        ]
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -892,6 +1131,20 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
           "idx:0",
           "idx:1"
         ]
+      },
+      {
+        "factId": "E1:rank:rateMils#0",
+        "kind": "rank",
+        "dimension": "rateMils",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:rank:rateMils#1",
+        "kind": "rank",
+        "dimension": "rateMils",
+        "values": [],
+        "lineIds": []
       }
     ],
     "E2": [
@@ -1535,10 +1788,10 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
     }
   ],
   "counterfactuals": {
-    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
-    "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, and the claim contains no line with status indicator J1",
-    "OPPS.DISP.T.MPPR_RANK": "would fire if the line's rank by weight ranked among lines where status indicator is T and not (the line's status is BUNDLED) (tiebreak codeAsc) is at least 2",
-    "OPPS.PKG.Q4.CONVERT": "would fire if the claim contains no line with status indicator J1, J2, S, T, V, Q1, Q2, or Q3",
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J1 (tiebreak codeAsc))",
+    "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, the claim contains no line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J2 (tiebreak codeAsc))",
+    "OPPS.DISP.T.MPPR_RANK": "would fire if the line's rank by weight ranked among lines where status indicator is T and not (the line's status is BUNDLED) (tiebreak codeAsc) is at least 2 and not (the line's status is BUNDLED)",
+    "OPPS.PKG.Q4.CONVERT": "would fire if the claim contains no line with status indicator J1, J2, S, T, V, Q1, Q2, or Q3 and not (the line's status is BUNDLED)",
     "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
   },
   "errors": [],
@@ -1637,14 +1890,59 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectLineId": "idx:0",
             "ordinal": null,
             "subjectInAmong": null,
-            "factRefs": [],
-            "detail": {}
+            "factRefs": [
+              "E1:exemptSet",
+              "E1:rank:rateMils#0"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                true,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsAny",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1"
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J1"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -1670,10 +1968,14 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "factRefs": [
               "E1:siCensus:J2",
               "E1:unitTotal:G0378",
-              "E1:codeCensus:G0378"
+              "E1:codeCensus:G0378",
+              "E1:exemptSet",
+              "E1:rank:rateMils#1"
             ],
             "detail": {
               "childResults": [
+                true,
+                true,
                 true,
                 true,
                 true,
@@ -1715,6 +2017,35 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
                       "J1"
                     ]
                   }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J2"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -1746,6 +2077,43 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
           "supersededBy": null,
           "counterfactual": null,
           "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.DISP.N",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5130,
+          "epoch": "E3b",
+          "citation": "spec §9.4 — 2,076 codes, none carrying a rate",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:0",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "childFired": true
+            }
+          },
+          "predicate": {
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "statusIn",
+                "args": {
+                  "status": [
+                    "BUNDLED"
+                  ]
+                }
+              }
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.DISP.N"
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
@@ -1895,14 +2263,59 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectLineId": "idx:1",
             "ordinal": null,
             "subjectInAmong": null,
-            "factRefs": [],
-            "detail": {}
+            "factRefs": [
+              "E1:exemptSet",
+              "E1:rank:rateMils#0"
+            ],
+            "detail": {
+              "childResults": [
+                false,
+                true,
+                true
+              ]
+            }
           },
           "predicate": {
-            "op": "claimContainsAny",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1"
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J1"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -1911,6 +2324,110 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
           "supersededBy": null,
           "counterfactual": null,
           "counterfactualRef": "OPPS.PKG.J1.CONTROL"
+        },
+        {
+          "ruleId": "OPPS.CAPC8011.CONTROL",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 3000,
+          "order": 3100,
+          "epoch": "E1",
+          "citation": "Pub 100-04 Ch.4 §10.4 (C-APC comprehensive packaging); spec §9.1",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [
+              "E1:siCensus:J2",
+              "E1:unitTotal:G0378",
+              "E1:codeCensus:G0378",
+              "E1:exemptSet",
+              "E1:rank:rateMils#1"
+            ],
+            "detail": {
+              "childResults": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+              ]
+            }
+          },
+          "predicate": {
+            "op": "allOf",
+            "args": {
+              "children": [
+                {
+                  "op": "claimContainsAny",
+                  "args": {
+                    "si": [
+                      "J2"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimUnitsAtLeast",
+                  "args": {
+                    "code": "G0378",
+                    "units": 8
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "T"
+                    ]
+                  }
+                },
+                {
+                  "op": "claimContainsNone",
+                  "args": {
+                    "si": [
+                      "J1"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isExempt",
+                      "args": {}
+                    }
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "isHighestBy",
+                      "args": {
+                        "field": "rateMils",
+                        "among": {
+                          "op": "siIn",
+                          "args": {
+                            "si": [
+                              "J2"
+                            ]
+                          }
+                        },
+                        "tiebreak": "codeAsc"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.CAPC8011.CONTROL"
         },
         {
           "ruleId": "OPPS.CAPC8011.CONTROLLING",
@@ -1928,10 +2445,12 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "factRefs": [
               "E1:siCensus:J2",
               "E1:unitTotal:G0378",
-              "E1:codeCensus:G0378"
+              "E1:codeCensus:G0378",
+              "E1:rank:rateMils#1"
             ],
             "detail": {
               "childResults": [
+                true,
                 true,
                 true,
                 true,
@@ -1973,6 +2492,21 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
                       "J1"
                     ]
                   }
+                },
+                {
+                  "op": "isHighestBy",
+                  "args": {
+                    "field": "rateMils",
+                    "among": {
+                      "op": "siIn",
+                      "args": {
+                        "si": [
+                          "J2"
+                        ]
+                      }
+                    },
+                    "tiebreak": "codeAsc"
+                  }
                 }
               ]
             }
@@ -2011,6 +2545,44 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
           "supersededBy": null,
           "counterfactual": null,
           "counterfactualRef": null
+        },
+        {
+          "ruleId": "OPPS.DISP.J2",
+          "ruleVersion": "2026.1",
+          "phase": "ADJUDICATE",
+          "band": 5000,
+          "order": 5260,
+          "epoch": "E3b",
+          "citation": "spec §9.1, §9.4 — J2 unfired",
+          "scopeTarget": "line",
+          "examined": {
+            "subjectLineId": "idx:1",
+            "ordinal": null,
+            "subjectInAmong": null,
+            "factRefs": [],
+            "detail": {
+              "childFired": true
+            }
+          },
+          "predicate": {
+            "op": "not",
+            "args": {
+              "child": {
+                "op": "statusIn",
+                "args": {
+                  "status": [
+                    "BUNDLED",
+                    "PAID_UNPRICED"
+                  ]
+                }
+              }
+            }
+          },
+          "outcome": "NOT_FIRED",
+          "effect": null,
+          "supersededBy": null,
+          "counterfactual": null,
+          "counterfactualRef": "OPPS.DISP.J2"
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
@@ -2314,6 +2886,24 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
         "values": [],
         "lineIds": [
           "idx:0",
+          "idx:1"
+        ]
+      },
+      {
+        "factId": "E1:rank:rateMils#0",
+        "kind": "rank",
+        "dimension": "rateMils",
+        "values": [],
+        "lineIds": []
+      },
+      {
+        "factId": "E1:rank:rateMils#1",
+        "kind": "rank",
+        "dimension": "rateMils",
+        "values": [
+          426300
+        ],
+        "lineIds": [
           "idx:1"
         ]
       }
@@ -2750,12 +3340,6 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
   "disclosures": [],
   "scopeExclusions": [
     {
-      "ruleId": "OPPS.CAPC8011.CONTROL",
-      "excludedLineIds": [
-        "idx:1"
-      ]
-    },
-    {
       "ruleId": "OPPS.CAPC8011.CONTROLLING",
       "excludedLineIds": [
         "idx:0"
@@ -2799,8 +3383,7 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
     {
       "ruleId": "OPPS.DISP.J2",
       "excludedLineIds": [
-        "idx:0",
-        "idx:1"
+        "idx:0"
       ]
     },
     {
@@ -2827,7 +3410,6 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
     {
       "ruleId": "OPPS.DISP.N",
       "excludedLineIds": [
-        "idx:0",
         "idx:1"
       ]
     },
@@ -2959,7 +3541,10 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
     }
   ],
   "counterfactuals": {
-    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1",
+    "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J1 (tiebreak codeAsc))",
+    "OPPS.DISP.N": "would fire if not (the line's status is BUNDLED)",
+    "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, the claim contains no line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J2 (tiebreak codeAsc))",
+    "OPPS.DISP.J2": "would fire if not (the line's status is BUNDLED or PAID_UNPRICED)",
     "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
   },
   "errors": [],
