@@ -35,12 +35,17 @@ jobs:
       - name: Test
         run: npm test
 
-      # Not part of `npm run verify` yet — tools/lint-registry.mjs is unbuilt
-      # (U18). Added here as a non-blocking probe so the day it lands, CI picks
-      # it up without anyone remembering to wire it.
-      - name: Registry lint (advisory until U18 lands)
+      # U18 landed (D72), so this is blocking now — the probe did its job.
+      # It is also inside `npm run verify` again; kept as its own step so a
+      # lint failure is legible in the run summary rather than buried in a
+      # chained command's output.
+      #
+      # Two gates are RATCHETS, not walls (D73): D45 sits at 21 known scope
+      # violations and the D66 guard at 2. They fail only if the count rises.
+      # If CI fails here on one of them, someone added a new violation —
+      # do not raise the baseline to make it pass.
+      - name: Registry lint
         run: npm run lint:registry
-        continue-on-error: true
 
       # The engine must stay free of DOM, network, filesystem, clock and RNG
       # access (spec §2.1, §2.4) — that is what makes it portable and its traces
