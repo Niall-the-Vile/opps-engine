@@ -546,9 +546,9 @@ export const PACKAGING_RULES: readonly unknown[] = [
     "effectiveTo": null,
     "phase": "ADJUDICATE",
     "band": 4000,
-    "subBand": "a",
-    "order": 4200,
-    "epoch": "E2",
+    "subBand": "b",
+    "order": 4350,
+    "epoch": "E3a",
     "scopeTarget": "line",
     "citation": "Pub 100-04 Ch.4 §10.4; IOCE conditional packaging",
     "scope": {
@@ -602,17 +602,37 @@ export const PACKAGING_RULES: readonly unknown[] = [
         "bundleUnder": {
           "highestBy": "rateMils",
           "among": {
-            "op": "siIn",
+            "op": "allOf",
             "args": {
-              "si": [
-                "J1",
-                "J2",
-                "S",
-                "T",
-                "V",
-                "Q1",
-                "Q2",
-                "Q3"
+              "children": [
+                {
+                  "op": "siIn",
+                  "args": {
+                    "si": [
+                      "J1",
+                      "J2",
+                      "S",
+                      "T",
+                      "V",
+                      "Q1",
+                      "Q2",
+                      "Q3"
+                    ]
+                  }
+                },
+                {
+                  "op": "not",
+                  "args": {
+                    "child": {
+                      "op": "statusIn",
+                      "args": {
+                        "status": [
+                          "BUNDLED"
+                        ]
+                      }
+                    }
+                  }
+                }
               ]
             }
           },
@@ -620,7 +640,7 @@ export const PACKAGING_RULES: readonly unknown[] = [
         }
       }
     ],
-    "note": "Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION."
+    "note": "Q4's trigger list includes J2 even when C-APC 8011 did not fire; Q1's does not. On a bare G0463 claim a Q4 lab bundles while a Q1 line pays. This asymmetry is correct — see OPPS.PKG.Q1.COMPANION. 'among' excludes already-BUNDLED lines because Q1.COMPANION (order 4100, subBand a) and Q2.COMPANION (order 4110, subBand a) can bundle a Q1 or Q2 line, and this rule's 'among' pool includes both SIs. A predicate guard alone is not enough, though: 'among' is ranked against this rule's declared epoch's frozen snapshot (§2.5), not live per-line state, so a subBand-a rule reading epoch E2 (the snapshot taken *before* subBand a runs) would never see Q1.COMPANION's own same-window bundling reflected in that snapshot regardless of the guard — the same hazard OPPS.PKG.Q.SURVIVOR_TIEBREAK's note describes, and the reason that rule lives in subBand b at epoch E3a rather than subBand a at epoch E2. This rule was moved to subBand b / epoch E3a for the identical reason: only a rule reading the post-subBand-a snapshot can have a guard that actually excludes lines subBand a bundled. Scope (siIn Q4, not-BUNDLED) still reads this line's own live state regardless of epoch, so moving windows does not change which Q4 line acts — only what the 'among' ranking pool can see. OPPS.PKG.Q4.CONVERT stays in subBand a: its 'when' (claimContainsNone of this rule's trigger SI set) is the exact complement of this rule's 'when' over the same SI census, which subBand a's rules never mutate for J1/J2/S/T/V/Q1/Q2/Q3 (only convertSI on this line's own Q4->A, which is on the opposite branch of the same mutual exclusion) — so the two rules cannot both fire for the same line regardless of which window either runs in."
   },
   {
     "id": "OPPS.PKG.Q4.CONVERT",

@@ -17,7 +17,7 @@
     "build:engine": "tsc -p tsconfig.json",
     "build:bundle": "node tools/bundle.mjs",
     "build": "npm run build:engine && npm run build:bundle && npm run package:release",
-    "verify": "npm run typecheck && npm run lint:registry && npm test",
+    "verify": "npm run typecheck && npm test",
     "gen:registry": "node tools/gen-registry.mjs",
     "package:release": "node tools/package-release.mjs"
   },

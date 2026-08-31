@@ -270,15 +270,55 @@ interface NormalizedCode {
   readonly peeledModifier: string | null;
 }
 
+const MODIFIER_CHAR_SHAPE = /^[A-Z0-9]{2}$/;
+
+/**
+ * Fix for the silent-alteration defect described in this unit's task: a
+ * trailing 2-character pair used to be accepted as "the modifier" purely
+ * because it was 2 alphanumeric characters — which every 2-character
+ * substring of any byte is, virtually always. That made peeling
+ * unconditional for any 7-character token with a valid 5-character prefix,
+ * which is precisely the case §8.1 calls MALFORMED ("more than 5 characters
+ * after normalization — stray modifier or concatenation").
+ *
+ * There is no CPT/HCPCS modifier reference table anywhere in this repo, so
+ * this function CANNOT and does not attempt to validate that a pair is an
+ * *assigned* modifier (e.g. confirm "59" is real and "61" is not) — that
+ * would require a data file this repo does not have, and hard-coding a
+ * partial list of "the modifiers I remember" would be worse than the bug
+ * it replaces (an authoritative-looking guess). What it DOES check is a
+ * single structural boundary of the modifier grammar that holds regardless
+ * of vintage and needs no reference table: CPT Level I's numeric modifiers
+ * start at 22 (AMA CPT Appendix 1) — there has never been a modifier "00"
+ * through "19". A numeric trailing pair below that floor cannot be a real
+ * modifier under any CPT/HCPCS revision, so it is rejected on shape alone,
+ * not on a value lookup.
+ *
+ * This is a floor, not a validator. A shape-plausible pair that is not
+ * actually assigned (an invented alpha pair, or a numeric pair in-range but
+ * unassigned) still passes here and still peels — silent alteration for
+ * that broader case is prevented separately, by the
+ * OPPS.CLASSIFY.MODIFIER_PEELED disclosure flag `classifyLine` always
+ * raises when a peel happens, not by this function pretending to know more
+ * than it can.
+ */
+function looksLikeModifierShape(pair: string): boolean {
+  if (!MODIFIER_CHAR_SHAPE.test(pair)) return false;
+  if (/^\d{2}$/.test(pair) && Number(pair) < 20) return false;
+  return true;
+}
+
 /**
  * §8.1 normalization: uppercase; strip whitespace, hyphens, non-printable
  * bytes; peel a trailing 2-character modifier into its own field. Does NOT
  * auto-pad a 4-digit token to 5 (ambiguous with a revenue code — flagged as
- * MALFORMED instead, never silently invented).
+ * MALFORMED instead, never silently invented). The trailing pair must also
+ * pass {@link looksLikeModifierShape} — see that function for why a shape
+ * check, not a value lookup.
  */
 function normalizeProcCode(raw: string): NormalizedCode {
   const stripped = stripNonPrintable(raw).toUpperCase().replace(/[\s-]/g, '');
-  if (stripped.length === 7 && isValidShape(stripped.slice(0, 5)) && /^[A-Z0-9]{2}$/.test(stripped.slice(5))) {
+  if (stripped.length === 7 && isValidShape(stripped.slice(0, 5)) && looksLikeModifierShape(stripped.slice(5))) {
     return { code: stripped.slice(0, 5), peeledModifier: stripped.slice(5) };
   }
   return { code: stripped, peeledModifier: null };
@@ -422,6 +462,28 @@ function classifyLine(line: ClaimLineInput): ClassifiedLine {
 
   const { code, peeledModifier } = normalizeProcCode(rawProc);
   const modifiers = peeledModifier !== null ? [...line.modifiers, peeledModifier] : line.modifiers;
+
+  // Disclosure for the silent-alteration defect: normalizeProcCode() just
+  // reinterpreted the submitted token as two separate pieces of data (a
+  // shorter code, plus a modifier that was not delimited in the input).
+  // determination.line still echoes rawProc verbatim (D37) and this flag is
+  // the ONLY place in the output that says the split happened at all — so
+  // it fires every time a peel happens, independent of what the line goes
+  // on to adjudicate as. Severity 'assumption', not 'info' or 'warning':
+  // the engine is not reporting a fact about the data (info) or a recovered
+  // parse problem (warning) — it made an interpretive choice about how to
+  // read ambiguous submitted data, which is exactly what 'assumption' means
+  // elsewhere in this manifest (see e.g. OPPS.EXEMPT.UNVERIFIED_POLICY).
+  if (peeledModifier !== null) {
+    flags.push({
+      code: 'OPPS.CLASSIFY.MODIFIER_PEELED',
+      severity: 'assumption',
+      message: `line ${line.lineId}: submitted procedure token ${JSON.stringify(rawProc)} was split into code ${code} + modifier ${JSON.stringify(peeledModifier)} — no delimiter separated them in the input, and no modifier reference table is loaded to confirm ${JSON.stringify(peeledModifier)} is an assigned modifier; adjudication proceeds against ${code}`,
+      ruleId: null,
+      citation: '§8.1',
+      lineIds: [line.lineId],
+    });
+  }
 
   if (!isValidShape(code)) {
     flags.push({

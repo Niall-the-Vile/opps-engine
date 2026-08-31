@@ -21,7 +21,7 @@ import { classify, type Applicability, type ClassifiedLine } from './classify.js
 import { evaluate, type AdmittedLine, type Rule } from '../dsl/evaluate.js';
 import { TraceJournal, getLine, type AssembledEvaluation, type TraceLevel } from '../trace.js';
 import { resolve as resolveRoute } from '../routing.js';
-import { DATA_VERSION } from '../data/index.js';
+import { DATA_VERSION, lookupClfs } from '../data/index.js';
 import type { OptionsFacts } from '../dsl/operators.js';
 import { REGISTRY_VERSION } from '../registry/loader.js';
 
@@ -331,12 +331,42 @@ function buildDetermination(
     // interpreter (§4.3) — this is the one place §9.3's criterion ("the
     // mechanism, not just the verdict") is satisfied.
     const route = resolveRoute(cl.admitted.code, det.effectiveSI);
-    // basis is CLFS unconditionally for a Q4 conversion (§9.3: "never
-    // OPPS_APC") — forced here rather than trusting whatever
-    // routing.resolve() happens to return, because resolve() has no way to
-    // distinguish "known CLFS-family code missing a rate row" from "no fee
-    // schedule match anywhere" and degrades the former to ROUTED_UNKNOWN.
-    // See the final report.
+    // §9.3 guarantees a Q4 conversion is "never OPPS_APC" — that is NOT
+    // the same claim as "always CLFS", and an earlier version of this
+    // branch conflated the two by forcing `basis: 'CLFS'` unconditionally.
+    // That was truthful for the ~1,340 CY2026 Q4 codes that actually carry
+    // a CLFS row (including the 18 present at RATE 0.00/INDICATOR L, which
+    // stay CLFS + PAID_UNPRICED per §9.3) but fabricated provenance for
+    // the 6 Q4 codes with NO row in CLFS — or any other loaded fee
+    // schedule — at all: `routing.resolve()` correctly falls through to
+    // `ROUTED_UNKNOWN` for those, and this branch used to overwrite that
+    // truthful answer with a fee-schedule claim the data does not
+    // support. `lookupClfs` (§3.4's CLFS-membership check — the same
+    // accessor `resolve()` and `codeFacts()` both use) is exactly the
+    // signal this branch was missing: it distinguishes "known CLFS code,
+    // no usable rate row" (basis stays CLFS) from "no fee schedule match
+    // anywhere" (report whatever `resolve()` actually found, and disclose
+    // it). The never-OPPS_APC guarantee holds regardless of which path is
+    // taken — `resolve()`'s OPPS_APC branch requires `paysOwnApc(effectiveSI)`,
+    // which is false for every Q4 conversion's effective SI `'A'`
+    // (routing.ts) — but it is asserted defensively below rather than
+    // trusted silently, since a future registry change is the kind of
+    // thing that could route a `route` effect through a different SI.
+    const clfsPresent = lookupClfs(cl.admitted.code, '') !== undefined;
+    const basis: Basis = clfsPresent ? 'CLFS' : route.basis === 'OPPS_APC' ? 'ROUTED_UNKNOWN' : route.basis;
+    const extraFlags: Flag[] =
+      !clfsPresent && route.schedule === null
+        ? [
+            {
+              code: 'OPPS.Q4.NO_SCHEDULE_MATCH',
+              severity: 'gap',
+              message: `code ${cl.admitted.code} converted from Q4 to SI A (§9.3) but has no CLFS row and matched no other loaded fee schedule (CLFS/DMEPOS/AFS/MPFS); basis reports ${basis} rather than a fabricated CLFS claim`,
+              ruleId: null,
+              citation: '§9.3',
+              lineIds: [cl.lineId],
+            },
+          ]
+        : [];
     const status: Status = route.rateMils !== null ? 'PAID' : 'PAID_UNPRICED';
     return {
       lineId: cl.lineId,
@@ -349,8 +379,8 @@ function buildDetermination(
       status,
       disposition: 'ADJUDICATED',
       bundledUnder: null,
-      basis: 'CLFS',
-      flags,
+      basis,
+      flags: [...flags, ...extraFlags],
       trace,
     };
   }

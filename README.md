@@ -2,7 +2,7 @@
 
 Offline OPPS bundling and adjudication engine for Anabaptist Brotherhood, Plan ID 4350.
 
-**Spec:** `docs/ref/opps-adjudicator-scope.md` (rev 12). That document is normative; this README only orients.
+**Spec:** `docs/ref/opps-adjudicator-scope.md` (rev 15). That document is normative; this README only orients.
 **Architecture edit plan:** `docs/ref/opps-architecture-edit-plan.md` — Tiers C/D still unapplied.
 
 ## What it answers
@@ -27,10 +27,12 @@ src/
   phases/      classify · adjudicate · benchmark · contract · divergence
   registry/    declarative rules as JSON — the reviewable source of truth
   data/        generated CY2026 tables (do not hand-edit)
+  adapters/    institutional XML + pasted-code-list → ClaimInput (PHI allow-list)
   routing.ts   shared fee-schedule resolver (leaf; imports data only)
   trace.ts     append-only journal + canonical serializer
   inspect.ts   explain · applicability · registry diff
-  errors.ts    EngineError + flag manifest
+  types.ts     ClaimInput + the Status/Basis/Outcome vocabularies
+  flags.ts     EngineError + flag manifest
   index.ts     public API + ENGINE_CONTRACT_VERSION
 tools/         build-time only — never shipped
 test/          fixtures + golden projections + rule-coverage matrix
@@ -99,7 +101,17 @@ for a released one.
 npm run verify
 ```
 
-`typecheck` → `lint:registry` → `test`. The registry lint is a build gate, not a nicety: it is what keeps the counterfactuals honest.
+`typecheck` → `test`.
+
+**`lint:registry` is deliberately NOT in that chain yet.** `tools/lint-registry.mjs`
+is unbuilt (U18), so chaining it made `npm run verify` — the command this README
+called the build gate — die with `MODULE_NOT_FOUND` on every invocation. It had
+never once run. CI passed only because the workflow invokes typecheck and test as
+separate steps. Put `lint:registry` back into `verify` the day U18 lands; the
+registry lint is a real gate, not a nicety, because it is what keeps the
+counterfactuals honest. `diff:registry` (U20) and `gen:goldens` (U22) are dead
+scripts for the same reason — they are placeholders for planned tooling, not
+working commands.
 
 ## Rules of the codebase
 

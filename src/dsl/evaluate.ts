@@ -1146,13 +1146,33 @@ function runLineScopedRuleForLine(
   scopeExclusions: Map<string, Set<string>>,
 ): void {
   if (ws.haltReason === 'fault' || (ws.haltReason === 'stop' && rule.alwaysEvaluate !== true)) {
+    // A halt reason is per-LINE (which line halted, and at which rule), not
+    // a function of this rule's own "when" clause — so it can never be this
+    // evaluation's `counterfactual` (§5.3a: collectCounterfactuals dedupes
+    // by ruleId and requires every recorded string for a given rule to be
+    // identical; a halt string varies line to line and would collide with
+    // this same rule's ordinary would-fire counterfactual on a line that
+    // never halted). The halt is still fully recoverable from this line's
+    // own evaluation list without it: the halting rule already recorded its
+    // own ERRORED (haltWithFault) or FIRED-with-stop evaluation on this same
+    // line, naming itself via `ruleId`; `examined.detail` here just points
+    // at it so a reader doesn't have to search.
     ws.evaluations.push(
       makeEvaluation(rule, {
-        examined: emptyExamined(ws.admitted.lineId),
+        examined: {
+          subjectLineId: ws.admitted.lineId,
+          ordinal: null,
+          subjectInAmong: null,
+          factRefs: [],
+          detail: {
+            haltReason: ws.haltReason,
+            haltedByRuleId: ws.haltedByRuleId,
+          },
+        },
         predicate: rule.when ?? ALWAYS_NODE,
         outcome: 'SKIPPED',
         effect: null,
-        counterfactual: `halted by an earlier ${ws.haltReason === 'fault' ? 'engine fault' : 'stop'}${ws.haltedByRuleId !== null ? ` (rule ${ws.haltedByRuleId})` : ''} in this phase`,
+        counterfactual: null,
       }),
     );
     return;

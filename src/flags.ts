@@ -68,11 +68,19 @@ const EMITTED_CODES: Readonly<Record<string, FlagManifestEntry>> = {
     severity: 'warning',
     meaning: 'An SI B (not OPPS-recognized) code was billed on a UB-04; names the facility-equivalent recode target when known (§8.3).',
   },
+  'OPPS.CLASSIFY.MODIFIER_PEELED': {
+    severity: 'assumption',
+    meaning: 'A 7-character procedure token with no delimiter was split into a 5-character code plus a trailing 2-character modifier; names the raw token, the adjudicated code, and the peeled modifier so the split is never silent (§8.1).',
+  },
 
   // src/phases/adjudicate.ts (orchestration / containment, §8.0, §12.8)
   'OPPS.CLASSIFY.NOT_OPPS': {
     severity: 'info',
     meaning: 'The §8.0 claim-level applicability gate rejected the whole claim as not adjudicable under OPPS; no phase-2 determinations were produced.',
+  },
+  'OPPS.Q4.NO_SCHEDULE_MATCH': {
+    severity: 'gap',
+    meaning: 'An unpackaged Q4 line converted to SI A (§9.3) but the code has no CLFS row and matched no other loaded fee schedule (DMEPOS/AFS/MPFS) either — `basis` reports whatever routing.resolve() actually found (typically ROUTED_UNKNOWN) rather than a fabricated `CLFS` claim. A data gap on a real code, not a claim defect.',
   },
   'ENGINE.CLASSIFY_FAULT': {
     severity: 'gap',

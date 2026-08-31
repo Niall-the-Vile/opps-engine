@@ -6,6 +6,14 @@
 **Supersedes:** `OPPS_SI_Relationships_CY2026_5.html` (defective — see §17).
 **Primary deliverable:** a portable, DOM-free adjudication **engine** whose rules are data. The browser tool is one front-end over it; `837-claim-viewer` is the other.
 
+**Revision note (rev 15).** Found by a review pass that read the operator table against `operators.ts` line by line instead of trusting it.
+
+- **§4.3.1's argument table was still rev 11's bare-payload form**, three revisions after rev 13 reversed that decision — 15 operators documented as taking bare `string`/`number`/`string[]` where the code requires a named object, plus `optionIs`/`optionAtLeast` naming a `value` field the code calls `equals`/`atLeast`, and `flag` marking a required `message` optional. The table is now derived from the implementation. This mattered more than a typo: authoring a rule from the old table produces one that **passes load-time validation, faults at evaluation, and reports itself as an unrelated failure** — the exact incident rev 13 existed to prevent, still reachable from the document that caused it.
+- **§4.3.1's `normalizeArgs` paragraph described a mechanism that has never existed** and is now removed. `src/registry/loader.ts` already documented its absence; the spec did not.
+- **§4.3 gained `statusIn`**, implemented and load-bearing but absent from every category list, so by §4.3's own rule it was not formally in the closed set.
+- **The money-bearing operators are now marked deferred** (`chargeAtLeast`, `claimMoneyAtLeast`, `claimDayCountAtLeast`, and the phase-4 effects). They were offered by the spec and omitted by `operators.ts` with no marker, so a rule authored against one fails to load with no hint the gap was deliberate — the failure shape §9.5 forbids.
+- **§9.3 — a Q4 conversion's basis is `CLFS` only when the code is actually CLFS-present, not unconditionally.** Rev 12's fix ("forced `CLFS`, never trust `routing.resolve()`") overcorrected: it was right that `resolve()` degrades the 18 CLFS-present-but-unrated codes to `ROUTED_UNKNOWN` and that forcing `CLFS` for those is correct, but it also forced `CLFS` onto the 6 codes (`0602T`, `0603T`, `81099`, `84999`, `85999`, `88749`) that have no CLFS row **or any other fee-schedule match at all** — fabricating provenance CMS's own data does not support. The phase now checks CLFS membership directly (`lookupClfs`, §3.4) before deciding whether to trust `resolve()`'s basis; the 6 unmatched codes report `ROUTED_UNKNOWN` and raise `OPPS.Q4.NO_SCHEDULE_MATCH` (§12.7, severity `gap`) instead. The never-`OPPS_APC` guarantee is unchanged.
+
 **Revision note (rev 14).** Found by building the inspector, and by reading Ch. 4 instead of paraphrasing it.
 
 - **§9.1 — the 8011 criteria are now sourced from the manual**, and two of its three criteria groups (observation-time documentation, physician evaluation) are **not derivable from a claim at all**. 8011 can never be fully determined here; a fired 8011 must say so. Absent from every prior revision.
@@ -512,11 +520,15 @@ This costs nothing behaviourally. `not(statusIn(['BUNDLED']))` moved into `when`
 
 **Claim-scope selectors** (valid only when `scopeTarget` is `"claim"`): `claimAlways` · `claimContainsAny` · `claimContainsNone` · `claimContainsCode` · `claimUnitsAtLeast` · `claimLineCountAtLeast` · `claimMoneyAtLeast` · `optionIs` · `optionAtLeast` · `optionUnknown`
 
-**Line-local conditions:** `always` · `siIs` · `siIn` · `codeIn` · `hasModifier` · `unitsAtLeast` · `hasRate` · `hasWeight` · `inSchedule` · `isExempt` · `chargeAtLeast`
+**Line-local conditions:** `always` · `siIs` · `siIn` · `codeIn` · `statusIn` · `hasModifier` · `unitsAtLeast` · `hasRate` · `hasWeight` · `inSchedule` · `isExempt` · `chargeAtLeast`†
+
+`statusIn` was listed in §4.3.1's argument table but in none of these category lists until rev 15, even though it is implemented and load-bearing — per §4.3's own rule that adding an operator is a spec change, an operator absent from every category list is not formally in the closed set at all. It belongs here, in `when`, never in `scope` (see the rev-14 note above).
 
 `always` evaluates true — the rule fires on scope alone, which §9.4's `N` and `S` dispositions and §9.2's Q3 flag all require. Rev 4 listed `always` only as a scope selector, leaving no unconditional predicate.
 
-**Claim-level conditions** (read from the declared epoch): `claimContainsAny` · `claimContainsNone` · `claimContainsCode` · `claimUnitsAtLeast` · `claimLineCountAtLeast` · `claimMoneyAtLeast` · `claimDayCountAtLeast`
+**Claim-level conditions** (read from the declared epoch): `claimContainsAny` · `claimContainsNone` · `claimContainsCode` · `claimUnitsAtLeast` · `claimLineCountAtLeast` · `claimMoneyAtLeast`† · `claimDayCountAtLeast`†
+
+† **Declared but not implemented in milestone 1 — recorded in rev 15.** `chargeAtLeast`, `claimMoneyAtLeast` and `claimDayCountAtLeast` are money-bearing, and milestone 1 reports no dollar amounts (§1.2), so `operators.ts` deliberately omits them and says so in its header. They are listed here because they are part of the intended closed set, and marked because **a rule authored against them will fail validation today.** Per §9.5's own principle — a deferred rule must still declare itself rather than be silently absent — an operator the spec offers and the engine does not implement has to be visibly marked, or the next author to reach for one discovers the gap as a load-time error with no hint it was intentional. The same applies to `setAmount`, `multiply`, `setCoinsurance`, `carveOut`, `exclusion` and `lesserOfCandidates` wherever later sections name them.
 
 `claimUnitsAtLeast: {code?: string, si?: string[], units: int}` — sums `units` across all lines matching `code` or `si` at the read epoch; exactly one of `code`/`si` is required. Rev 4 listed the name with no argument shape, so 8011's "≥8 units of `G0378`" leg was unwritable.
 
@@ -564,14 +576,25 @@ A rule may declare `"exclusive": true`, making any later same-band write of the 
 
 **The rule (revised in rev 13): every operator takes a named-object argument, uniformly.** `{"siIn": {"si": ["Q4"]}}`, never `{"siIn": ["Q4"]}`. Rev 11 allowed a bare payload as an authoring convenience. That is reversed, on evidence rather than taste: a rule authored per the bare-form table **passed load-time validation, faulted at evaluation, and reported itself as an unrelated failure** in the trace's counterfactual dedup, because different lines halted at different rules. Valid at load, broken at run, diagnosed somewhere else — the worst failure shape available. One uniform form removes the normalizer, removes the ambiguity between a bare array and a malformed named object, and lets the validator check payloads at load time (§12.2). The redundancy of `{"si": [...]}` under `siIn` is a small price. Signatures are part of the closed set — adding or changing one is a spec change.
 
-**Normalization belongs to `operators.ts`, not to the loader.** At runtime every operator receives a named-args object; the bare form is an authoring convenience. Each operator exports its own `normalizeArgs(raw)` accepting either form, and the registry loader simply calls it. Putting the expansion in the loader would re-encode every operator's argument shape a second time, outside the one module §4.4 designates as owning that knowledge — and two encodings of one shape is exactly the drift this design exists to prevent. Registry lint (§15.3) fails on an argument neither form accepts.
+**There is no bare form and no normalizer — corrected in rev 15.** Earlier revisions described a per-operator `normalizeArgs(raw)` accepting either the bare or the named form, called by the registry loader. **That mechanism was never implemented and no longer should be:** `normalizeArgs` does not exist anywhere in `operators.ts`, and every operator's `evaluate`/`describe`/`argSpec` accepts ONLY the named-object form. `dsl/validate.ts` enforces exactly that at load time, raising `REGISTRY_SCHEMA_INVALID` on a bare or otherwise malformed payload, checked through each operator's own `argSpec()`. `src/registry/loader.ts` documents this too. Argument-shape knowledge therefore lives in exactly one place — `operators.ts` — which is what the deleted paragraph was trying to achieve by a more complicated route.
 
 | Operator | Argument |
 |---|---|
 | `always` · `claimAlways` · `isExempt` · `hasRate` · `hasWeight` · `exempt` · `stop` · `route` | `{}` — no arguments |
-| `siIs` · `codePattern` · `setStatus` · `optionUnknown` · `dosOnOrAfter` · `dosBefore` | `string` |
-| `unitsAtLeast` · `claimLineCountAtLeast` | `number` |
-| `siIn` · `codeIn` · `apcIn` · `statusIn` · `inSchedule` · `hasModifier` · `claimContainsCode` | `string[]` |
+| `siIs` | `{si: string}` |
+| `codePattern` | `{pattern: string}` |
+| `setStatus` | `{status: Status}` |
+| `optionUnknown` | `{option: string}` |
+| `dosOnOrAfter` · `dosBefore` | `{date: string}` |
+| `unitsAtLeast` | `{units: number}` |
+| `claimLineCountAtLeast` | `{count: number}` |
+| `siIn` | `{si: string[]}` |
+| `codeIn` | `{code: string[]}` |
+| `apcIn` | `{apc: string[]}` |
+| `statusIn` | `{status: string[]}` |
+| `inSchedule` | `{schedule: string[]}` |
+| `hasModifier` | `{modifier: string}` — one modifier, not an array |
+| `claimContainsCode` | `{code: string}` — one code, not an array |
 | `not` | a condition node |
 | `allOf` · `anyOf` | an array of condition nodes |
 | `claimContainsAny` · `claimContainsNone` | `{si?: string[], code?: string[]}` — at least one required |
@@ -579,13 +602,13 @@ A rule may declare `"exclusive": true`, making any later same-band write of the 
 | `isHighestBy` · `isNotHighestBy` | `{field, among, tiebreak, fallbackField?}` |
 | `ordinalIs` | `{field, among, tiebreak, fallbackField?, equals: number}` |
 | `ordinalAtLeast` | `{field, among, tiebreak, fallbackField?, atLeast: number}` |
-| `optionIs` | `{option: string, value: string \| boolean}` |
-| `optionAtLeast` | `{option: string, value: number}` |
+| `optionIs` | `{option: string, equals: JsonValue}` — the field is `equals`, not `value` |
+| `optionAtLeast` | `{option: string, atLeast: number}` — the field is `atLeast`, not `value` |
 | `unimplemented` | `{reason: string}` |
 | `bundleUnder` | `{highestBy, among, tiebreak, fallbackField?}` |
 | `convertSI` | `{to: string}` |
 | `setBasis` | `{value: Basis}` |
-| `flag` | `{code: string, severity: FlagSeverity, message?: string}` |
+| `flag` | `{code: string, severity: FlagSeverity, message: string}` — `message` is required |
 
 **`route` takes no arguments.** A rule cannot name a target schedule, because per §3.4 the schedule is *computed* from `(code, effectiveSI)` by `routing.resolve()`. A rule that could force a schedule would reintroduce exactly the stale-derived-value problem rev 11 removed.
 
@@ -1110,9 +1133,11 @@ Rev 3 placed the reserved-edit example at order 4500, inside the band it reserve
 
 ### 9.3 Q4 conversion is the CLFS entry point
 
-An unpackaged Q4 converts to SI A and prices under CLFS (§3.1.1). Its `basis` is `CLFS` **by construction of the conversion**, not by whatever `routing.resolve()` returns — never `OPPS_APC`. That distinction is load-bearing for the 6 Q4 codes with no CLFS row at all: the resolver falls through to `ROUTED_UNKNOWN` for them, so a phase trusting the resolver's basis would contradict this section. The phase sets `CLFS` because the line converted, and calls the resolver only for the rate. Criterion §18.6 asserts the mechanism, not just the verdict, because reaching the right answer through a phase-1 SI A peel-off would be wrong for a right-looking reason.
+An unpackaged Q4 converts to SI A and prices under CLFS **when the code actually has a CLFS row** (§3.1.1). Its `basis` is `CLFS` because the code is CLFS-present — checked directly via `lookupClfs` (§3.4), not inferred from whatever `routing.resolve()` returns — never `OPPS_APC`. `resolve()`'s own guard already makes `OPPS_APC` structurally unreachable here (its `OPPS_APC` branch requires `paysOwnApc(effectiveSI)`, false for every Q4 conversion's post-conversion SI `A`), and the phase asserts that defensively rather than trusting it silently.
 
-Twenty-four Q4 codes have no usable CLFS rate and resolve to `PAID_UNPRICED` — 6 absent from CLFS entirely, 18 present at `RATE = 0.00` / `INDICATOR = L` (§3.1.1). Never `$0.00`.
+**Corrected in rev 15** (found reviewing rev 12's own fix): forcing `basis: 'CLFS'` unconditionally for *every* Q4 conversion — including the 6 codes absent from CLFS entirely — was itself wrong, not merely a resolver limitation to route around. Those 6 codes (`0602T`, `0603T`, `81099`, `84999`, `85999`, `88749`) match no row in CLFS **or any other loaded fee schedule**; `routing.resolve()`'s `ROUTED_UNKNOWN` for them is the honest answer, and claiming `CLFS` fabricates provenance CMS's own data does not support — the resolver was never actually wrong for these 6, only for the 18 CLFS-present-but-unrated codes it also degrades to `ROUTED_UNKNOWN`. The phase now checks CLFS presence directly: present (whether or not it carries a usable rate) → `basis: CLFS`; absent, and no match in DMEPOS/AFS/MPFS either → report whatever `resolve()` found (`ROUTED_UNKNOWN` for these 6) and raise `OPPS.Q4.NO_SCHEDULE_MATCH` (§12.7 manifest, severity `gap`) disclosing the data gap. The never-`OPPS_APC` guarantee is unaffected either way.
+
+Twenty-four Q4 codes have no usable CLFS rate and resolve to `PAID_UNPRICED` — 6 absent from CLFS entirely (basis `ROUTED_UNKNOWN`, flagged, as of rev 15), 18 present at `RATE = 0.00` / `INDICATOR = L` (basis `CLFS`, §3.1.1). Never `$0.00`.
 
 ### 9.4 Standard disposition
 
