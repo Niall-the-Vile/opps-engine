@@ -188,6 +188,26 @@ select {
   background: transparent;
 }
 
+/* Settings — debugging-mode toggle. Same nav-item pattern as the rest of
+   the sidebar; the pill mirrors .soon-pill's shape but flips colour to
+   signal on/off rather than "not built yet". */
+.debug-pill {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--paper-3);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+}
+
+.debug-pill-on {
+  color: var(--green-800);
+  background: var(--green-100);
+}
+
 .sidebar-footer {
   margin-top: auto;
   font-size: 12px;
@@ -515,6 +535,11 @@ select {
   color: var(--ink-3);
 }
 
+.stat-hint {
+  color: var(--ink-4);
+  font-size: 11px;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Result lines                                                            */
 /* ---------------------------------------------------------------------- */
@@ -536,7 +561,7 @@ select {
 
 .line-row {
   display: grid;
-  grid-template-columns: 24px 68px minmax(0, 1fr) 150px 90px auto;
+  grid-template-columns: 24px 68px 66px minmax(0, 1fr) 150px 90px auto;
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
@@ -574,6 +599,35 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Status indicator — shown on every row (M25 item 1), the vocabulary the
+   reader reasons in. `.line-si-transition` is the Q4 -> A case: resolvedSI
+   stays full weight, the arrow is muted, and the effective SI is coloured
+   like the ROUTED status (green) — the same visual cue for "this left OPPS
+   for another fee schedule" wherever it appears. */
+.line-si {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-si-none {
+  font-weight: 400;
+  color: var(--ink-4);
+}
+
+.line-si .si-arrow {
+  font-weight: 400;
+  color: var(--ink-4);
+}
+
+.line-si .si-effective {
+  color: var(--green-700);
 }
 
 .status-badge {
@@ -693,14 +747,16 @@ select {
   background: var(--white);
   padding: 10px 14px;
   display: grid;
-  grid-template-columns: 210px 90px 1fr;
+  grid-template-columns: 90px 1fr;
   gap: 14px;
 }
 
+/* SI-first, rule id secondary (M25 item 3): the why-text leads, the rule id
+   is folded into the citation line at the bottom — small, mono, muted. It
+   is never removed, only de-emphasised; it is how a determination traces
+   back to the registry, not the headline. */
 .trace-rule-id {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  color: var(--ink);
+  font-weight: 600;
 }
 
 .outcome-badge {
@@ -958,57 +1014,32 @@ select {
 /* Reference tables                                                        */
 /* ---------------------------------------------------------------------- */
 
-.ref-table-wrap {
+/* Reference tables — grouped by SI (M25 item 3), reusing the Code
+   Inspector's group-head / rule-table pattern verbatim (.inspector-groups /
+   .inspector-group-head / .inspector-rule-table below) rather than a
+   separate idiom. Within each group, disposition leads and the rule id +
+   citation trail underneath, matching the same lead/secondary split used
+   in the per-line trace rows above. */
+.ref-rule-row {
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  max-width: 820px;
+  padding: 12px 16px;
 }
 
-.ref-table-head {
-  display: grid;
-  grid-template-columns: 90px 200px 1fr;
-  background: var(--paper-2);
-  padding: 10px 16px;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ink-3);
-}
-
-.ref-table-row {
-  display: grid;
-  grid-template-columns: 90px 200px 1fr;
-  padding: 10px 16px;
-  border-top: 1px solid var(--paper-3);
+.ref-rule-disposition {
   font-size: 13.5px;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.ref-table-row .ref-si {
-  font-family: var(--mono);
-  font-weight: 600;
-}
-
-.ref-table-row .ref-rule {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink-3);
-}
-
-.ref-table-row .ref-disposition {
   color: var(--ink-2);
+  line-height: 1.5;
 }
 
-.ref-table-row .ref-disposition .ref-citation {
-  display: block;
+.ref-rule-meta {
+  margin-top: 4px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--ink-4);
-  margin-top: 2px;
+}
+
+.ref-rule-meta .ref-rule-id {
+  font-weight: 600;
 }
 
 /* ---------------------------------------------------------------------- */

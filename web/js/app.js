@@ -236,6 +236,32 @@
   // State.
   // -------------------------------------------------------------------------
 
+  // -------------------------------------------------------------------------
+  // Debugging-mode preference. A UI toggle only — no PHI, no provider
+  // identifier, no claim data (§14 forbids persisting those; a boolean
+  // display preference is fine). Wrapped in try/catch throughout: localStorage
+  // can throw under file:// in some browser/profile configurations, and the
+  // UI must render correctly either way (falls back to "off").
+  // -------------------------------------------------------------------------
+
+  var DEBUG_MODE_KEY = 'oppsAdjudicator.debugMode';
+
+  function loadDebugMode() {
+    try {
+      return window.localStorage.getItem(DEBUG_MODE_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function saveDebugMode(on) {
+    try {
+      window.localStorage.setItem(DEBUG_MODE_KEY, on ? '1' : '0');
+    } catch (e) {
+      // Non-fatal — a UI preference not persisting is not worth surfacing.
+    }
+  }
+
   var state = {
     view: 'input', // input | result | not_opps | inspector | reference | rules | orgs
     inputMode: 'paste', // paste | upload
@@ -247,6 +273,7 @@
     expanded: {}, // lineId -> bool
     inspectorCode: '',
     inspectorResult: null, // view-model built by buildInspectorViewModel()
+    debugMode: loadDebugMode(), // sidebar Settings toggle — gates scope exclusions
   };
 
   // -------------------------------------------------------------------------
@@ -347,6 +374,17 @@
       var sm = statusMeta(d.status);
       var bundledUnderOrdinal = d.bundledUnder !== null ? displayIndexByLineId.get(d.bundledUnder) : undefined;
 
+      // SI is the vocabulary the reader thinks in (M25 item 1) — shown on
+      // every row, not just behind the expander. resolvedSI (Addendum B)
+      // and effectiveSI (post-conversion, e.g. §9.3's Q4 -> A) can differ;
+      // when they do, that difference IS the answer (the line left OPPS for
+      // another fee schedule), so it is shown as a compact transition
+      // rather than picking one value to display. Both fields are read
+      // defensively — a determination is not guaranteed to carry either.
+      var resolvedSI = d.resolvedSI !== null && d.resolvedSI !== undefined && d.resolvedSI !== '' ? String(d.resolvedSI) : null;
+      var effectiveSIRaw = d.effectiveSI !== null && d.effectiveSI !== undefined && d.effectiveSI !== '' ? String(d.effectiveSI) : null;
+      var siTransition = resolvedSI !== null && effectiveSIRaw !== null && effectiveSIRaw !== resolvedSI;
+
       var trace = d.trace.map(function (ev) {
         var why = buildTraceRowWhy(ev, result, factsIndex, displayIndexByLineId);
         // dsl/evaluate.ts's own counterfactual text already reads "would
@@ -379,6 +417,9 @@
         statusLabel: sm.label,
         statusBg: sm.bg,
         statusFg: sm.fg,
+        resolvedSI: resolvedSI,
+        effectiveSI: siTransition ? effectiveSIRaw : null,
+        siTransition: siTransition,
         basisLabel: d.basis === 'NONE' ? '—' : d.basis,
         bundledUnderOrdinal: bundledUnderOrdinal || null,
         bundledUnderNote: bundledUnderOrdinal ? 'bundled under line ' + bundledUnderOrdinal : '',
@@ -501,8 +542,25 @@
     }
   }
 
-  function buildReferenceRows() {
-    var rows = [];
+  /**
+   * SI-first reference data (M25 item 3): an SI does not name a single rule
+   * — 13 SIs map to more than one (Q1/Q2 each map to four), and 6 rules are
+   * SI-agnostic (no SI in their scope at all, e.g. NCCI.PTP.PAIR, MUE.LIMIT).
+   * The old shape here was one row per rule with an SI list; that both
+   * listed rules flat under a rule-id-first header (backwards from what the
+   * reader reasons in) AND silently dropped every SI-agnostic rule from the
+   * table entirely (`if (siSet.size === 0) return;`) — SI-agnostic rules are
+   * real applicable rules, not table noise, and belong in an explicit "any
+   * SI" group rather than disappearing. This version groups the other way:
+   * by SI first, each with its rule(s) as the audit layer underneath, plus
+   * one explicit group for the rules that apply regardless of SI. Still
+   * §13.1-generated — every value here still comes from `argSpec()` /
+   * `describe()` at runtime, nothing is hand-typed.
+   */
+  function buildReferenceGroups() {
+    var bySi = new Map(); // SI value -> rule entries
+    var agnostic = [];
+
     Engine.registry.forEach(function (rule) {
       var scopeOp = Engine.operators[rule.scope.op];
       if (!scopeOp) return;
@@ -514,7 +572,6 @@
       }
       var siSet = new Set();
       collectSiValues(argSpec, siSet);
-      if (siSet.size === 0) return;
 
       var effects = rule.then.map(function (eff) {
         var eop = Engine.operators[eff.op];
@@ -525,19 +582,37 @@
         }
       });
 
-      rows.push({
-        si: Array.from(siSet).sort(),
+      var entry = {
         ruleId: rule.id,
         band: rule.band,
         order: rule.order,
         citation: rule.citation,
         disposition: effects.join('; '),
+      };
+
+      if (siSet.size === 0) {
+        agnostic.push(entry);
+        return;
+      }
+      siSet.forEach(function (si) {
+        if (!bySi.has(si)) bySi.set(si, []);
+        bySi.get(si).push(entry);
       });
     });
-    rows.sort(function (a, b) {
-      return a.band - b.band || a.order - b.order;
-    });
-    return rows;
+
+    function byBandOrder(list) {
+      return list.slice().sort(function (a, b) {
+        return a.band - b.band || a.order - b.order;
+      });
+    }
+
+    var siGroups = Array.from(bySi.keys())
+      .sort()
+      .map(function (si) {
+        return { si: si, rules: byBandOrder(bySi.get(si)) };
+      });
+
+    return { siGroups: siGroups, agnostic: byBandOrder(agnostic) };
   }
 
   // -------------------------------------------------------------------------
@@ -615,16 +690,37 @@
   }
 
   function renderTraceRow(row) {
+    // SI-first, rule id secondary (M25 item 3): the rule id is provenance —
+    // how the outcome traces back to the registry — not the headline. It
+    // stays visible on every row (never removed), but small and muted,
+    // folded into the citation line rather than leading the row.
     var html = '<div class="trace-row">';
-    html += '<div class="trace-rule-id">' + esc(row.ruleId) + '</div>';
     html += '<div><span class="outcome-badge" style="background:' + row.outcomeBg + ';color:' + row.outcomeFg + '">' + esc(row.outcome) + '</span></div>';
     html += '<div class="trace-why"><div>' + esc(row.why) + '</div>';
     if (row.hasCounterfactual) {
       html += '<div class="trace-counterfactual">Would fire if: ' + esc(row.counterfactual) + '</div>';
     }
-    html += '<div class="trace-citation">' + esc(row.citation) + '</div></div>';
+    html += '<div class="trace-citation"><span class="trace-rule-id">' + esc(row.ruleId) + '</span> &middot; ' + esc(row.citation) + '</div></div>';
     html += '</div>';
     return html;
+  }
+
+  /** SI cell for a result row (M25 item 1) — resolvedSI alone, or the compact `Q4 → A` transition when effectiveSI diverges (§9.3). */
+  function renderSiCell(line) {
+    if (line.resolvedSI === null) {
+      return '<span class="line-si line-si-none">&mdash;</span>';
+    }
+    if (!line.siTransition) {
+      return '<span class="line-si">' + esc(line.resolvedSI) + '</span>';
+    }
+    var title = esc(line.resolvedSI) + ' resolved by Addendum B, converted to ' + esc(line.effectiveSI) + ' per §9.3 &mdash; this line left OPPS for another fee schedule.';
+    return (
+      '<span class="line-si line-si-transition" title="' + title + '">' +
+      esc(line.resolvedSI) +
+      '<span class="si-arrow"> &rarr; </span>' +
+      '<span class="si-effective">' + esc(line.effectiveSI) + '</span>' +
+      '</span>'
+    );
   }
 
   function renderLine(line) {
@@ -634,6 +730,7 @@
     html += '<button type="button" class="line-row" data-toggle-line="' + esc(line.lineId) + '">';
     html += '<span class="line-ordinal">' + line.ordinal + '</span>';
     html += '<span class="line-code">' + esc(line.code) + '</span>';
+    html += renderSiCell(line);
     html += '<span class="line-note">' + esc(line.bundledUnderNote) + '</span>';
     html += '<span><span class="status-badge" style="background:' + line.statusBg + ';color:' + line.statusFg + '">' + esc(line.statusLabel) + '</span></span>';
     html += '<span class="basis-label">' + esc(line.basisLabel) + '</span>';
@@ -691,7 +788,11 @@
     html += '<div><span class="stat-label">Trace rows</span> ' + vm.stats.traceRows + '</div>';
     html += '<div><span class="stat-label">Counterfactuals</span> ' + vm.stats.counterfactuals + '</div>';
     html += '<div><span class="stat-label">Flags</span> ' + vm.stats.flags + '</div>';
-    html += '<div><span class="stat-label">Scope exclusions</span> ' + vm.stats.scopeExclusions + '</div>';
+    html += '<div><span class="stat-label">Scope exclusions</span> ' + vm.stats.scopeExclusions;
+    if (vm.stats.scopeExclusions > 0 && !state.debugMode) {
+      html += ' <span class="stat-hint">(debugging mode)</span>';
+    }
+    html += '</div>';
     html += '</div>';
 
     html += '<div class="lines">';
@@ -700,7 +801,13 @@
     });
     html += '</div>';
 
-    if (vm.hasScopeExclusions) {
+    // Folded up by default (M25 item 2) — 20-30 rows of "rule X requires SI
+    // Y, not true here" is audit detail, not the answer a bill processor
+    // reads. Kept reachable (never deleted, §5.3's auditability requirement)
+    // behind the sidebar's debugging-mode toggle, which also governs print —
+    // this block simply is not in the HTML when the toggle is off, so a
+    // printed exhibit inherits the same behavior for free.
+    if (vm.hasScopeExclusions && state.debugMode) {
       html += '<div class="scope-exclusions"><div class="section-label">Scope exclusions — claim level, considered once</div>';
       vm.scopeExclusions.forEach(function (ex) {
         html += '<div class="scope-exclusion-row"><span class="rid">' + esc(ex.ruleId) + '</span> — ' + esc(ex.note) + '</div>';
@@ -791,21 +898,45 @@
     return html;
   }
 
+  /** One rule under a reference-table SI group. Disposition leads (what happens); rule id + citation trail underneath, small and muted — the audit layer, not the headline (M25 item 3). */
+  function renderReferenceRuleRow(r) {
+    return (
+      '<div class="ref-rule-row">' +
+      '<div class="ref-rule-disposition">' + esc(r.disposition) + '</div>' +
+      '<div class="ref-rule-meta"><span class="ref-rule-id">' + esc(r.ruleId) + '</span> &middot; ' + esc(r.citation) + '</div>' +
+      '</div>'
+    );
+  }
+
   function renderReference() {
     var html = '';
     html += '<div class="page-head"><h1>Reference tables</h1>';
-    html += '<p>The SI disposition table below is generated from the registry at runtime via each rule’s and operator’s own <code>argSpec()</code>/<code>describe()</code> — not hand-authored. A table that could disagree with the engine is worse than no table.</p></div>';
+    html +=
+      '<p>Generated from the registry at runtime via each rule’s and operator’s own <code>argSpec()</code>/<code>describe()</code> — not hand-authored. Grouped by status indicator, since that is the vocabulary a determination reads in; some SIs share several rules, some rules apply to every SI, and no rule id is left out.</p></div>';
 
-    var rows = buildReferenceRows();
-    html += '<div class="ref-table-wrap">';
-    html += '<div class="ref-table-head"><div>SI</div><div>Rule</div><div>Disposition</div></div>';
-    rows.forEach(function (r) {
-      html += '<div class="ref-table-row">';
-      html += '<div class="ref-si">' + esc(r.si.join(', ')) + '</div>';
-      html += '<div class="ref-rule">' + esc(r.ruleId) + '</div>';
-      html += '<div class="ref-disposition">' + esc(r.disposition) + '<span class="ref-citation">' + esc(r.citation) + '</span></div>';
-      html += '</div>';
+    var groups = buildReferenceGroups();
+    html += '<div class="inspector-groups">';
+    groups.siGroups.forEach(function (g) {
+      html += '<div><div class="inspector-group-head">';
+      html += '<div class="inspector-group-label" style="color:var(--green-800)">SI ' + esc(g.si) + '</div>';
+      html += '<div class="inspector-group-sublabel">' + g.rules.length + ' rule' + (g.rules.length === 1 ? '' : 's') + '</div></div>';
+      html += '<div class="inspector-rule-table">';
+      g.rules.forEach(function (r) {
+        html += renderReferenceRuleRow(r);
+      });
+      html += '</div></div>';
     });
+
+    if (groups.agnostic.length > 0) {
+      html += '<div><div class="inspector-group-head">';
+      html += '<div class="inspector-group-label" style="color:var(--ink-3)">Any SI</div>';
+      html += '<div class="inspector-group-sublabel">applies to every line regardless of status indicator</div></div>';
+      html += '<div class="inspector-rule-table">';
+      groups.agnostic.forEach(function (r) {
+        html += renderReferenceRuleRow(r);
+      });
+      html += '</div></div>';
+    }
     html += '</div>';
     return html;
   }
@@ -861,6 +992,23 @@
 
   function goTo(view) {
     state.view = view;
+    render();
+  }
+
+  /** Sidebar Settings toggle lives outside #view (it must survive every render() of the main content), so it is synced by id rather than rebuilt by render(). */
+  function syncDebugToggleUI() {
+    var btn = document.getElementById('debug-toggle');
+    var pill = document.getElementById('debug-pill');
+    if (!btn || !pill) return;
+    btn.classList.toggle('active', state.debugMode);
+    pill.textContent = state.debugMode ? 'On' : 'Off';
+    pill.classList.toggle('debug-pill-on', state.debugMode);
+  }
+
+  function toggleDebugMode() {
+    state.debugMode = !state.debugMode;
+    saveDebugMode(state.debugMode);
+    syncDebugToggleUI();
     render();
   }
 
@@ -976,6 +1124,11 @@
   // -------------------------------------------------------------------------
 
   document.addEventListener('click', function (e) {
+    var debugBtn = e.target.closest('[data-action="toggle-debug"]');
+    if (debugBtn) {
+      toggleDebugMode();
+      return;
+    }
     var navBtn = e.target.closest('[data-nav]');
     if (navBtn) {
       var target = navBtn.getAttribute('data-nav');
@@ -1037,5 +1190,6 @@
   // Init.
   // -------------------------------------------------------------------------
 
+  syncDebugToggleUI();
   render();
 })();
