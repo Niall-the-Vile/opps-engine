@@ -1,5 +1,9 @@
 # M25 — Browser interface scope
 
+> **SUPERSEDED by `UI_SCOPE.md`.** Kept for the record of what was asked for before the UI existed.
+> Its measured volumes are stale — it reported 169 facts where the engine now returns 6 — and its
+> open questions have partly been answered in use. Design against `UI_SCOPE.md`.
+
 Scope for the browser front-end (unit **U25**). **This is not a design.** It states what the engine produces, what the interface must do with it, and which problems are genuinely hard — so the design work is against real material rather than a guessed-at claims screen.
 
 Spec references (§n) are to `ref/opps-adjudicator-scope.md` rev 14.
