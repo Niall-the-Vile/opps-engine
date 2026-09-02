@@ -94,6 +94,14 @@ function isEngineError(v: unknown): v is EngineError {
 export type { EngineResult, Determination, DeterminationLine } from './phases/adjudicate.js';
 export type { Applicability, Gate, LikelySystem } from './phases/classify.js';
 
+// U2b — the current institutional adapter (JSON has superseded XML on the
+// live feed; see src/adapters/instJson.ts's own header). Exported here
+// (unlike parseInstitutionalXml, which stays a direct import from its own
+// module in tools/adjudicate.mjs / tools/bundleEntry.mjs) because this is
+// now the primary institutional input path, not a legacy one.
+export { parseInstitutionalJson } from './adapters/instJson.js';
+export type { ParseInstJsonOptions, ParsedInstClaim } from './adapters/instJson.js';
+
 // U19 — the rule inspector (spec §6). `explain()`/`applicability()`/
 // `codeFacts()` and their types; see `src/inspect.ts` for the mode-by-mode
 // design notes.

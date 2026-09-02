@@ -1,6 +1,19 @@
 /**
  * U2 — institutional XML feed adapter (spec §2.1, §5.1, §19.14; docs/M1.1).
  *
+ * LEGACY PATH. `docs/M1.1-input-contract.md` recorded "institutional claims
+ * arrive as XML; only CMS-1500s arrive as JSON" — that was wrong, and per
+ * the maintainer JSON has since superseded XML on the live feed. The
+ * current institutional adapter is `src/adapters/instJson.ts`; new
+ * institutional claims should go through it, not this file. This file is
+ * kept, not deleted, and stays fully working: its fixture
+ * (`test/fixtures/inst-xml-inpatient-cah-revonly.xml`) is the real
+ * three-conflicting-signals §8.0.2 case (hospice bill type, inpatient room
+ * & board, and a Critical Access Hospital taxonomy all on one claim), which
+ * remains valuable test coverage regardless of which serialization the
+ * feed uses going forward. `tools/adjudicate.mjs --file` sniffs JSON vs XML
+ * content and routes to whichever adapter applies.
+ *
  * Institutional claims arrive as XML with attributes flat on `<claim>` and
  * repeating `<charge>` children — isomorphic to the JSON feed's flat-plus-
  * array shape, differently serialized. This is where PHI stops: only the

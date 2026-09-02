@@ -50,6 +50,11 @@ export { operators } from '../src/dsl/operators.js';
 // engine's own adapter, not a second, divergent copy in web/js/app.js).
 export { parseCodeList, CODE_LIST_SYNTAX } from '../src/adapters/codeList.js';
 export { parseInstitutionalXml } from '../src/adapters/instXml.js';
+// U2b — the current institutional adapter (JSON has superseded XML on the
+// live feed). Exposed the same way as its legacy XML sibling above, so the
+// browser front-end can accept a dropped/pasted institutional JSON claim,
+// not only an XML one.
+export { parseInstitutionalJson } from '../src/adapters/instJson.js';
 
 import { operators } from '../src/dsl/operators.js';
 import { loadRegistry } from '../src/registry/loader.js';

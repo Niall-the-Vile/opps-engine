@@ -93,6 +93,7 @@ if (process.env.OPPS_CLI_VIA_VITE_NODE !== '1') {
 const { adjudicate } = await import('../src/index.ts');
 const { parseCodeList, CODE_LIST_SYNTAX } = await import('../src/adapters/codeList.ts');
 const { parseInstitutionalXml } = await import('../src/adapters/instXml.ts');
+const { parseInstitutionalJson } = await import('../src/adapters/instJson.ts');
 
 // U19c — --why's human-readable rewrite needs two things the engine's
 // per-line trace does not itself carry: a rule's authored `note` (only
@@ -554,13 +555,25 @@ function printWhy(result, whyFilter, verbose) {
 // Main.
 // ---------------------------------------------------------------------------
 
+// U2b — the feed now sends institutional claims as JSON (JSON has
+// superseded XML; src/adapters/instJson.ts's own header). --file must
+// sniff which one it was handed rather than assuming XML, so the CLI can
+// still read a --file pointed at the legacy fixture format too. Sniffed
+// on content, not the path's extension: a real feed drop is not
+// guaranteed to carry a `.json`/`.xml` suffix, and content sniffing is
+// exactly as reliable either way for these two formats (JSON always
+// starts with `{` or `[`; this feed's XML always starts with `<`).
+function looksLikeJson(text) {
+  return /^\s*[{[]/.test(text);
+}
+
 function readClaims(args) {
   if (args.file !== null) {
     if (args.dos !== null) {
       console.error('note: --dos is ignored with --file — dates come from the feed.');
     }
-    const xml = readFileSync(args.file, 'utf8');
-    const parsed = parseInstitutionalXml(xml);
+    const raw = readFileSync(args.file, 'utf8');
+    const parsed = looksLikeJson(raw) ? parseInstitutionalJson(raw) : parseInstitutionalXml(raw);
     return parsed.map((p) => ({ claim: p.claim, flags: p.flags }));
   }
   const input = args.positional.join(' ');

@@ -108,6 +108,7 @@ const REQUIRED_GLOBAL_KEYS = [
   'parseCodeList',
   'CODE_LIST_SYNTAX',
   'parseInstitutionalXml',
+  'parseInstitutionalJson',
 ];
 
 /** Loads `bundlePath` in a bare vm sandbox (no require, no fs) and runs one real adjudication, asserting the shape and content a browser page needs. Throws with a descriptive message on any failure — this is a build gate, not a soft warning. */
