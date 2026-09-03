@@ -55,7 +55,12 @@ describe('adjudicate.mjs CLI — --why human-readable explanation (U19c)', () =>
   it('prints the reserved/NOT_EVALUATED rules exactly once for the whole report, not once per line', () => {
     const stdout = runCli(['--why', '59025', '84112']);
     expect(stdout).toContain('NOT CHECKED ON ANY LINE');
-    for (const ruleId of ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
+    // NCCI.PTP.PAIR is excluded here as of U28 — it is no longer a
+    // reserved/NOT_EVALUATED rule folded into the shared footer; it now
+    // evaluates per line like any other rule (see the previous test's
+    // comment), so it legitimately appears once per line, not once for
+    // the whole report.
+    for (const ruleId of ['MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
       const occurrences = stdout.split(ruleId).length - 1;
       expect(occurrences).toBe(1);
     }
@@ -161,7 +166,16 @@ describe('adjudicate.mjs CLI — WHY generates the reason instead of printing th
       .split('\n')
       .slice(1)
       .filter((l) => l.trim() !== '');
-    const ruleIds = ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED'];
+    // NCCI.PTP.PAIR is deliberately absent from this list as of U28: it is
+    // no longer a reserved/NOT_EVALUATED rule (it evaluates a real
+    // condition against the loaded PTP table now — see
+    // src/registry/opps.dispositions.json), so for this fixture (which has
+    // no active PTP conflict between 59025/84112) it reports a normal
+    // NOT_FIRED outcome and correctly does NOT appear in the "not checked
+    // on any line" footer at all. MUE.LIMIT and OPPS.CLASSIFY.DELETED
+    // remain genuinely reserved (§19.2/units semantics and no termination
+    // dates on disk, respectively), so they still belong here.
+    const ruleIds = ['MUE.LIMIT', 'OPPS.CLASSIFY.DELETED'];
     const startIndices = ruleIds.map((id) => footerLines.findIndex((l) => l.includes(id)));
     for (const [i, start] of startIndices.entries()) {
       expect(start).toBeGreaterThan(-1);
@@ -171,8 +185,8 @@ describe('adjudicate.mjs CLI — WHY generates the reason instead of printing th
     }
     // The full multi-line reason + citation this footer used to always
     // print by default now live behind --why-verbose only.
-    expect(stdout).not.toContain('NCCI Policy Manual, Chapter I');
+    expect(stdout).not.toContain('NCCI Medically Unlikely Edits (MUE) table');
     const verbose = runCli(['--why-verbose', '59025', '84112']);
-    expect(verbose).toContain('NCCI Policy Manual, Chapter I');
+    expect(verbose).toContain('NCCI Medically Unlikely Edits (MUE) table');
   });
 });

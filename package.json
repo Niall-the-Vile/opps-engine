@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "adjudicate": "node tools/adjudicate.mjs",
     "gen:data": "node tools/gen-data.mjs && node tools/gen-registry.mjs",
+    "gen:ncci": "node tools/gen-ncci-ptp.mjs && node tools/gen-ncci-mue.mjs && node tools/gen-registry.mjs",
     "gen:goldens": "node tools/gen-goldens.mjs",
     "lint:registry": "node tools/lint-registry.mjs",
     "diff:registry": "node tools/diff-registry.mjs",

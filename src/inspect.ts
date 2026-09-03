@@ -335,6 +335,7 @@ function subjectFactsFor(code: string, facts: CodeFacts): LineFacts {
     chargeMils: 0,
     isExempt: false,
     dos: '',
+    ncciPtp: null,
   };
 }
 

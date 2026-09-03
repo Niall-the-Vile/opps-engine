@@ -142,6 +142,13 @@ const EMITTED_CODES: Readonly<Record<string, FlagManifestEntry>> = {
     severity: 'gap',
     meaning: 'A Q3 line (or a Q1/Q2 line alongside a Q3 companion) pays without composite-APC evaluation — the Ch.4 §10.4.1 combination table is not on disk (§9.2, §16).',
   },
+
+  // U28 — NCCI.PTP.PAIR (src/registry/opps.dispositions.json), now live
+  // against the loaded facility-outpatient PTP table.
+  'NCCI.PTP.BUNDLED': {
+    severity: 'warning',
+    meaning: 'This line\'s code is the Column 2 (bundled) member of an active NCCI PTP edit against another code on this claim, and the edit is not bypassed (CCMI 0, or CCMI 1 with no NCCI PTP-associated modifier present) — NCCI Policy Manual I-14. Disclosure only: this build does not deny or bundle the line under this finding (band 6000 cannot legally overwrite a status a band-5000 rule already set, per §4.3\'s cross-band setStatus rule — see this rule\'s "note" in the registry).',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -155,7 +162,7 @@ const EMITTED_CODES: Readonly<Record<string, FlagManifestEntry>> = {
 const NON_GOAL_CODES: Readonly<Record<string, FlagManifestEntry>> = {
   'OPPS.NCCI_MUE.NOT_EVALUATED': {
     severity: 'gap',
-    meaning: '§16 non-goal 1/15 (NCCI PTP and MUE evaluation): reserved slots NCCI.PTP.PAIR and MUE.LIMIT report NOT_EVALUATED — no NCCI/MUE file on disk (§9.5).',
+    meaning: '§16 non-goal 1/15 (NCCI PTP and MUE evaluation). As of U28, NCCI.PTP.PAIR is no longer reserved — it evaluates against the loaded PTP table and emits NCCI.PTP.BUNDLED instead when it fires (see that code). Only MUE.LIMIT remains reserved under this code: the MUE table is loaded and queryable (U30), but comparing a line\'s actual units against it is blocked on spec §19.2 (unit semantics), still open (D89) — not a missing file.',
   },
   'OPPS.DELETED.NOT_EVALUATED': {
     severity: 'gap',

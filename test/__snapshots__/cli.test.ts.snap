@@ -361,12 +361,12 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6100,
           "epoch": "E4",
-          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "citation": "NCCI Policy Manual I-14 — Procedure-to-Procedure (PTP) edit tables and the Correct Coding Modifier Indicator (CCMI)",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:0",
@@ -374,29 +374,27 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+              "ncciPtp": null
             }
           },
           "predicate": {
-            "op": "unimplemented",
-            "args": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
-            }
+            "op": "ncciPtpBundled",
+            "args": {}
           },
-          "outcome": "NOT_EVALUATED",
+          "outcome": "NOT_FIRED",
           "effect": null,
           "supersededBy": null,
           "counterfactual": null,
-          "counterfactualRef": null
+          "counterfactualRef": "NCCI.PTP.PAIR"
         },
         {
           "ruleId": "MUE.LIMIT",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6110,
           "epoch": "E4",
-          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table, NCCI Policy Manual I-28/I-29/I-31/I-34",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:0",
@@ -404,13 +402,13 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "predicate": {
             "op": "unimplemented",
             "args": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "outcome": "NOT_EVALUATED",
@@ -829,12 +827,12 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6100,
           "epoch": "E4",
-          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "citation": "NCCI Policy Manual I-14 — Procedure-to-Procedure (PTP) edit tables and the Correct Coding Modifier Indicator (CCMI)",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:1",
@@ -842,29 +840,27 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+              "ncciPtp": null
             }
           },
           "predicate": {
-            "op": "unimplemented",
-            "args": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
-            }
+            "op": "ncciPtpBundled",
+            "args": {}
           },
-          "outcome": "NOT_EVALUATED",
+          "outcome": "NOT_FIRED",
           "effect": null,
           "supersededBy": null,
           "counterfactual": null,
-          "counterfactualRef": null
+          "counterfactualRef": "NCCI.PTP.PAIR"
         },
         {
           "ruleId": "MUE.LIMIT",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6110,
           "epoch": "E4",
-          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table, NCCI Policy Manual I-28/I-29/I-31/I-34",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:1",
@@ -872,13 +868,13 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "predicate": {
             "op": "unimplemented",
             "args": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "outcome": "NOT_EVALUATED",
@@ -1791,6 +1787,7 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
     "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J1 (tiebreak codeAsc))",
     "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, the claim contains no line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J2 (tiebreak codeAsc))",
     "OPPS.DISP.T.MPPR_RANK": "would fire if the line's rank by weight ranked among lines where status indicator is T and not (the line's status is BUNDLED) (tiebreak codeAsc) is at least 2 and not (the line's status is BUNDLED)",
+    "NCCI.PTP.PAIR": "would fire if this line is bundled into another claim line under an active NCCI PTP edit not bypassed by any modifier (CCMI 0, or CCMI 1 without an NCCI PTP-associated modifier present)",
     "OPPS.PKG.Q4.CONVERT": "would fire if the claim contains no line with status indicator J1, J2, S, T, V, Q1, Q2, or Q3 and not (the line's status is BUNDLED)",
     "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
   },
@@ -1803,7 +1800,9 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
       "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
       "dmepos": "dmepos-cy2026-jan",
       "mpfs": "mpfs-cy2026-jan-nonqpp",
-      "afs": "afs-cy2026-unsourced"
+      "afs": "afs-cy2026-unsourced",
+      "ncciPtp": "ncci-ptp-facility-oph-v32.3-eff-2026-10-01",
+      "ncciMue": "ncci-mue-facility-oph-eff-2026-10-01"
     },
     "registryVersion": "2026.1",
     "contractVersion": null
@@ -2117,12 +2116,12 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6100,
           "epoch": "E4",
-          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "citation": "NCCI Policy Manual I-14 — Procedure-to-Procedure (PTP) edit tables and the Correct Coding Modifier Indicator (CCMI)",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:0",
@@ -2130,29 +2129,27 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+              "ncciPtp": null
             }
           },
           "predicate": {
-            "op": "unimplemented",
-            "args": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
-            }
+            "op": "ncciPtpBundled",
+            "args": {}
           },
-          "outcome": "NOT_EVALUATED",
+          "outcome": "NOT_FIRED",
           "effect": null,
           "supersededBy": null,
           "counterfactual": null,
-          "counterfactualRef": null
+          "counterfactualRef": "NCCI.PTP.PAIR"
         },
         {
           "ruleId": "MUE.LIMIT",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6110,
           "epoch": "E4",
-          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table, NCCI Policy Manual I-28/I-29/I-31/I-34",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:0",
@@ -2160,13 +2157,13 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "predicate": {
             "op": "unimplemented",
             "args": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "outcome": "NOT_EVALUATED",
@@ -2586,12 +2583,12 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
         },
         {
           "ruleId": "NCCI.PTP.PAIR",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6100,
           "epoch": "E4",
-          "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+          "citation": "NCCI Policy Manual I-14 — Procedure-to-Procedure (PTP) edit tables and the Correct Coding Modifier Indicator (CCMI)",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:1",
@@ -2599,29 +2596,27 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
+              "ncciPtp": null
             }
           },
           "predicate": {
-            "op": "unimplemented",
-            "args": {
-              "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
-            }
+            "op": "ncciPtpBundled",
+            "args": {}
           },
-          "outcome": "NOT_EVALUATED",
+          "outcome": "NOT_FIRED",
           "effect": null,
           "supersededBy": null,
           "counterfactual": null,
-          "counterfactualRef": null
+          "counterfactualRef": "NCCI.PTP.PAIR"
         },
         {
           "ruleId": "MUE.LIMIT",
-          "ruleVersion": "2026.1",
+          "ruleVersion": "2026.2",
           "phase": "ADJUDICATE",
           "band": 6000,
           "order": 6110,
           "epoch": "E4",
-          "citation": "NCCI Medically Unlikely Edits (MUE) table",
+          "citation": "NCCI Medically Unlikely Edits (MUE) table, NCCI Policy Manual I-28/I-29/I-31/I-34",
           "scopeTarget": "line",
           "examined": {
             "subjectLineId": "idx:1",
@@ -2629,13 +2624,13 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
             "subjectInAmong": null,
             "factRefs": [],
             "detail": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "predicate": {
             "op": "unimplemented",
             "args": {
-              "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+              "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
             }
           },
           "outcome": "NOT_EVALUATED",
@@ -3543,6 +3538,7 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
   "counterfactuals": {
     "OPPS.PKG.J1.CONTROL": "would fire if the claim also contains a line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J1 (tiebreak codeAsc))",
     "OPPS.DISP.N": "would fire if not (the line's status is BUNDLED)",
+    "NCCI.PTP.PAIR": "would fire if this line is bundled into another claim line under an active NCCI PTP edit not bypassed by any modifier (CCMI 0, or CCMI 1 without an NCCI PTP-associated modifier present)",
     "OPPS.CAPC8011.CONTROL": "would fire if the claim also contains a line with status indicator J2, the claim's lines matching code G0378 sum to at least 8 units, the claim contains no line with status indicator T, the claim contains no line with status indicator J1, not (the line is on the exempt set), and not (the line has the highest rateMils ranked among lines where status indicator is J2 (tiebreak codeAsc))",
     "OPPS.DISP.J2": "would fire if not (the line's status is BUNDLED or PAID_UNPRICED)",
     "OPPS.PKG.J1.COMPLEXITY_NOT_APPLIED": "would fire if the claim has at least 2 lines with status indicator J1"
@@ -3556,7 +3552,9 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
       "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
       "dmepos": "dmepos-cy2026-jan",
       "mpfs": "mpfs-cy2026-jan-nonqpp",
-      "afs": "afs-cy2026-unsourced"
+      "afs": "afs-cy2026-unsourced",
+      "ncciPtp": "ncci-ptp-facility-oph-v32.3-eff-2026-10-01",
+      "ncciMue": "ncci-mue-facility-oph-eff-2026-10-01"
     },
     "registryVersion": "2026.1",
     "contractVersion": null
@@ -3863,7 +3861,9 @@ exports[`adjudicate.mjs CLI — --why human-readable explanation (U19c) > leaves
       "hcpcsTerm": "hcpcs-cy2026-jan-anweb-2026-01-12",
       "dmepos": "dmepos-cy2026-jan",
       "mpfs": "mpfs-cy2026-jan-nonqpp",
-      "afs": "afs-cy2026-unsourced"
+      "afs": "afs-cy2026-unsourced",
+      "ncciPtp": "ncci-ptp-facility-oph-v32.3-eff-2026-10-01",
+      "ncciMue": "ncci-mue-facility-oph-eff-2026-10-01"
     },
     "registryVersion": "2026.1",
     "contractVersion": null

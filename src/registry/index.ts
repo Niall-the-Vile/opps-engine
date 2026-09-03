@@ -1730,7 +1730,7 @@ export const DISPOSITION_RULES: readonly unknown[] = [
   },
   {
     "id": "NCCI.PTP.PAIR",
-    "version": "2026.1",
+    "version": "2026.2",
     "effectiveFrom": "20260101",
     "effectiveTo": null,
     "phase": "ADJUDICATE",
@@ -1738,31 +1738,27 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "order": 6100,
     "epoch": "E4",
     "scopeTarget": "line",
-    "citation": "NCCI Policy Manual, Chapter I — Procedure-to-Procedure (PTP) edit tables",
+    "citation": "NCCI Policy Manual I-14 — Procedure-to-Procedure (PTP) edit tables and the Correct Coding Modifier Indicator (CCMI)",
     "scope": {
       "always": {}
     },
     "when": {
-      "unimplemented": {
-        "reason": "requires the NCCI PTP pair edit table — no NCCI file is on disk (§3.5, §9.5)"
-      }
+      "ncciPtpBundled": {}
     },
     "then": [
       {
         "flag": {
-          "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
-          "severity": "gap",
-          "message": "NCCI Procedure-to-Procedure edits were not applied to this claim — no PTP pair table is loaded (§9.5). This effect is structurally unreachable: 'when' is 'unimplemented', which the interpreter short-circuits to outcome NOT_EVALUATED before any then[] effect runs (including this one); it exists only to satisfy the registry schema's non-empty-effects requirement (§4.2)."
+          "code": "NCCI.PTP.BUNDLED",
+          "severity": "warning",
+          "message": "This line's code is the Column 2 (bundled) member of an active NCCI PTP edit against another code on this claim, and the edit is not bypassed. CCMI 0 is never bypassable; CCMI 1 is bypassed only by the exact NCCI PTP-associated modifier set (I-14: anatomic E1-E4/FA/F1-F9/TA/T1-T9/LT/RT/LC/LD/RC/LM/RI; global surgery 24/25/57/58/78/79; other 27/59/91/XE/XS/XP/XU). Modifiers 22, 76, and 77 are explicitly NOT in that set and do NOT bypass this edit (I-14) — this is the exact near-miss a hand-written rule is warned to get wrong, and `ncciPtpBundled`'s underlying `lineBypassesPtpEdit` (src/data/ncciPolicy.ts) checks membership in the closed modifier set, never generic modifier presence, so a line carrying only 22/76/77 still fires this flag."
         }
       }
     ],
-    "dataRequired": true,
-    "alwaysEvaluate": true,
-    "note": "Reserved edit slot (§9.5, docs/BUILD_LOG.md D40). The spec's own §9.5 illustration writes dataRequired as a string identifying the source (\"ncci-ptp\"); this codebase's dataRequired field was already implemented as boolean-only by an earlier unit (see dsl/evaluate.ts / dsl/validate.ts) before this unit started, and changing that typed field's shape was out of this unit's granted file scope — so dataRequired is true here and the specific data-source identifier ('ncci-ptp') lives in this note instead. See the final report. Declared so every admitted line's determination reports NOT_EVALUATED for NCCI PTP rather than reporting nothing — the exact failure mode D40 documents (running G0378x8 99284 before C-APC 8011 existed produced a plausible answer with no hint a major packaging rule had never been considered)."
+    "note": "U27/U28 — live against the loaded facility Outpatient Hospital PTP table (ccioph-v323r0-f1..f4, v32.3, active edits only — see src/data/ncciPtp.ncci2026oct.ts). DISCLOSURE ONLY, not enforcement: this rule never calls setStatus/bundleUnder to actually deny or bundle the line. That is a real, disclosed architecture limit, not an oversight — this rule sits at band 6000/epoch E4, downstream of every standard disposition rule (band 5000). §4.3's setStatus conflict-resolution rule is 'last-writer-wins by order, within a band only' and 'a cross-band overwrite is a lint error' (enforced by tools/lint-registry.mjs's CROSS_BAND_SETSTATUS check), so a band-6000 rule structurally cannot overwrite a status a band-5000 rule already wrote for the same line — see docs/ref/opps-architecture-edit-plan.md Tier C1, which names this exact problem and proposes moving reserved edit slots to a new band 1500 ahead of packaging/disposition; that re-banding is a re-epoching of phases 2-3 and a regeneration of every golden trace, out of scope for this unit. So 'goes live' here means: the interpreter genuinely evaluates a real PTP condition against real data (no longer 'unimplemented'/NOT_EVALUATED on every line regardless of whether a conflict exists), and discloses a real finding via `flag` when one exists — but it does not (and structurally cannot, without the re-banding above) change a line's paid/denied status. `dataRequired`/`unimplemented` are removed because they are only legal together (§4.3, dsl/evaluate.ts) and this rule's `when` is no longer `unimplemented`. `alwaysEvaluate` is also removed: it existed only to make the always-fire NOT_EVALUATED gap visible on every line even past a `stop`; a real conditional rule does not need it, and a line with no PTP conflict now correctly shows a normal NOT_MET trace entry instead of a gap flag, which is a strictly more honest disclosure than before (previously every line reported the edit family as uniformly unchecked, regardless of whether a conflict existed). Multiple simultaneous controlling-code matches: `computeNcciPtpFacts` (src/phases/classify.ts) takes the first bundled match by claim-line order — the manual and the spec are both silent on tie-break among several controlling codes, and this build does not invent one; the flag message is deliberately generic (does not name the specific controlling line) so this is not load-bearing. The `mod1`/`mod2` feed ceiling (D68/D89) still applies: PTP bypass reads `subject.modifiers`, whatever the feed actually populates there — if the feed caps at two modifiers, a line legitimately carrying a third bypass modifier will be wrongly reported as bundled, a real, disclosed limitation, not silently absorbed."
   },
   {
     "id": "MUE.LIMIT",
-    "version": "2026.1",
+    "version": "2026.2",
     "effectiveFrom": "20260101",
     "effectiveTo": null,
     "phase": "ADJUDICATE",
@@ -1770,13 +1766,13 @@ export const DISPOSITION_RULES: readonly unknown[] = [
     "order": 6110,
     "epoch": "E4",
     "scopeTarget": "line",
-    "citation": "NCCI Medically Unlikely Edits (MUE) table",
+    "citation": "NCCI Medically Unlikely Edits (MUE) table, NCCI Policy Manual I-28/I-29/I-31/I-34",
     "scope": {
       "always": {}
     },
     "when": {
       "unimplemented": {
-        "reason": "requires the per-code MUE unit-limit table — no MUE file is on disk (§3.5, §9.5)"
+        "reason": "the per-code MUE unit-limit table IS on disk and queryable (lookupNcciMue, src/data/index.ts, U30) as of 2026.2, but comparing a claim line's actual reported units against it correctly requires spec §19.2 (unit semantics), which remains open (D89) — see this rule's note"
       }
     },
     "then": [
@@ -1784,13 +1780,13 @@ export const DISPOSITION_RULES: readonly unknown[] = [
         "flag": {
           "code": "OPPS.NCCI_MUE.NOT_EVALUATED",
           "severity": "gap",
-          "message": "Medically Unlikely Edit unit limits were not applied to this line — no MUE table is loaded (§9.5). Reuses NCCI.PTP.PAIR's flag code: both reserved slots are the same §16 non-goal (NCCI PTP and MUE evaluation), and this effect is likewise structurally unreachable — see NCCI.PTP.PAIR's then[] note."
+          "message": "Medically Unlikely Edit unit limits were not applied to this line. The MUE table itself is loaded (U30), but comparing this line's units against it correctly is not yet implemented — see this rule's note (§9.5, §19.2, D89). This effect is structurally unreachable: 'when' is 'unimplemented', which the interpreter short-circuits to outcome NOT_EVALUATED before any then[] effect runs (including this one); it exists only to satisfy the registry schema's non-empty-effects requirement (§4.2)."
         }
       }
     ],
     "dataRequired": true,
     "alwaysEvaluate": true,
-    "note": "Reserved edit slot (§9.5, D40) — see NCCI.PTP.PAIR's note for the dataRequired boolean-vs-string decision, which applies identically here (dataRequired: \"mue\" in the spec's own vocabulary, dataRequired: true plus this note in this codebase's typed field)."
+    "note": "U29/U30 — DATA LAYER IS LIVE, RULE IS NOT. `lookupNcciMue()` (src/data/index.ts) is fully queryable against the real facility-outpatient MUE table (15,162 codes; MAI distribution 1:42/2:6148/3:8972; 1,392 codes carry MUE 0). What blocks this specific rule from following NCCI.PTP.PAIR live is NOT a missing file — it is that a correct MUE determination requires comparing a claim line's ACTUAL REPORTED UNITS (MAI 1: per line; MAI 2/3: summed across all lines for that code and date of service, per I-28/I-29) against `mueValue`, and this build has never settled how claim-line units are read/aggregated for this purpose (spec §19.2, still open per D89 — the same open question the milestone-1/2 boundary in docs/NCCI_INTEGRATION.md §5 names as MUE's actual gate, not PTP's). Shipping a comparison here without that settled would be exactly the kind of guessed unit semantics the build brief warned against — better to keep reporting NOT_EVALUATED honestly than to fabricate a plausible-looking MUE denial. The one MUE fact this build DOES assert without needing §19.2 at all is §4.4's 'MUE 0 means not payable, not no-limit' (see `mueZeroMeansNotPayable` in src/data/ncciPolicy.ts and its accessor-level test) — that is a property of the value alone, not a units comparison, so it needed no rule to be true and correct today; it just is not wired into a `then` effect here because doing so ONLY for the MUE-0 case while leaving every other MAI un-evaluated would selectively deny some lines and not others under the same nominally-reserved slot, which is a worse disclosure than reporting the whole slot NOT_EVALUATED uniformly. See NCCI.PTP.PAIR's note for the dataRequired boolean-vs-string decision, which applies identically here."
   },
   {
     "id": "OPPS.CLASSIFY.DELETED",

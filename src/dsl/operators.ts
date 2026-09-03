@@ -49,6 +49,22 @@ export type JsonValue = string | number | boolean | null | JsonValue[] | { [key:
 // declares the shape it needs to read.
 // ---------------------------------------------------------------------------
 
+/**
+ * U28 — the outcome of checking this line against every other line on the
+ * claim for an active NCCI PTP edit, precomputed once in the phase layer
+ * (`src/phases/classify.ts`, which may import `src/data/index.ts` — this
+ * file may not, see the module header). `bundled` is `true` only when an
+ * edit actually applies AND is not bypassed: CCMI `0` (never bypassable)
+ * or CCMI `1` with none of the NCCI PTP-associated modifiers present on
+ * this line. `null` means no active PTP edit names this line as the
+ * Column 2 (bundled) member of a pair with any other code on the claim.
+ */
+export interface LineNcciPtp {
+  readonly bundled: boolean;
+  readonly controllingCode: string;
+  readonly ccmi: string;
+}
+
 /** Per-line facts as seen by an operator. Money is integer mils. */
 export interface LineFacts {
   readonly lineId: string;
@@ -66,6 +82,15 @@ export interface LineFacts {
   readonly isExempt: boolean;
   /** YYYYMMDD. */
   readonly dos: string;
+  /**
+   * See {@link LineNcciPtp}. `null`/absent if no active PTP pair names
+   * this line's code as Column 2 against any other line's code on this
+   * claim. Optional (rather than a required field every fixture across
+   * the whole test suite must carry) because most lines and most tests
+   * have no PTP context at all — `ncciPtpBundled`'s own `evaluate()`
+   * treats a missing key the same as an explicit `null`.
+   */
+  readonly ncciPtp?: LineNcciPtp | null;
 }
 
 export interface ClaimFacts {
@@ -613,6 +638,33 @@ export const hasModifier: ConditionOperator = {
     const rec = requireRecord(args, 'hasModifier');
     return makeArgSpec({ kind: 'linePredicate', dimension: 'modifier', values: [requireString(rec, 'modifier', 'hasModifier')] });
   },
+};
+
+/**
+ * U28 — true iff this line is the Column 2 (bundled) member of an active
+ * NCCI PTP edit against some other code on the claim, and that edit is not
+ * bypassed (CCMI `0` is never bypassable; CCMI `1` is bypassed only by the
+ * exact NCCI PTP-associated modifier set — see `src/data/ncciPolicy.ts`).
+ * Reads only `subject.ncciPtp`, a fact precomputed in the phase layer
+ * (this file has zero imports and cannot itself call `lookupNcciPtp`).
+ * No args.
+ */
+export const ncciPtpBundled: ConditionOperator = {
+  name: 'ncciPtpBundled',
+  role: 'condition',
+  evaluate: (args, ctx) => {
+    requireRecord(args, 'ncciPtpBundled');
+    const subject = requireSubject(ctx, 'ncciPtpBundled');
+    const ncciPtp = subject.ncciPtp ?? null;
+    if (ncciPtp === null) return { fired: false, examined: { ncciPtp: null } };
+    return {
+      fired: ncciPtp.bundled,
+      examined: { ncciPtp: { bundled: ncciPtp.bundled, controllingCode: ncciPtp.controllingCode, ccmi: ncciPtp.ccmi } },
+    };
+  },
+  describe: () =>
+    'this line is bundled into another claim line under an active NCCI PTP edit not bypassed by any modifier (CCMI 0, or CCMI 1 without an NCCI PTP-associated modifier present)',
+  argSpec: () => makeArgSpec({ kind: 'linePredicate', dimension: 'code', values: [] }),
 };
 
 export const unitsAtLeast: ConditionOperator = {
@@ -1410,6 +1462,7 @@ Object.assign(operatorRegistry, {
   isExempt,
   siIs,
   hasModifier,
+  ncciPtpBundled,
   unitsAtLeast,
   hasRate,
   hasWeight,

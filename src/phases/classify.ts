@@ -29,9 +29,11 @@
  */
 
 import type { ClaimInput, ClaimLineInput, Flag, Status } from '../types.js';
-import { getHcpcsTermDate, isAfs, isDmepos, isMpfs, lookupClfs, lookupOpps } from '../data/index.js';
+import { getHcpcsTermDate, isAfs, isDmepos, isMpfs, lookupClfs, lookupNcciPtp, lookupOpps } from '../data/index.js';
+import { lineBypassesPtpEdit } from '../data/ncciPolicy.js';
 import { resolve as resolveRoute, type RouteResult } from '../routing.js';
 import type { AdmittedLine } from '../dsl/evaluate.js';
+import type { LineNcciPtp } from '../dsl/operators.js';
 
 // ===========================================================================
 // §8.0 — claim-level applicability gate
@@ -587,8 +589,57 @@ function classifyLine(line: ClaimLineInput): ClassifiedLine {
     weight: oppsRecord.weight,
     chargeMils: line.chargeMils,
     dos: line.fromDate,
+    // Cross-line, so it cannot be known from this line alone — computed in
+    // a second pass over all ADMITTED lines by `computeNcciPtpFacts` below,
+    // once every other admitted line's code is known. `null` here is a
+    // placeholder overwritten before `classify()` returns, never the final
+    // "no active edit" answer for a claim with more than one admitted line.
+    ncciPtp: null,
   };
   return { kind: 'ADMITTED', lineId: line.lineId, resolvedSI: si, admitted, flags };
+}
+
+// ===========================================================================
+// U28 — NCCI PTP cross-line fact (§9.5, docs/NCCI_INTEGRATION.md §4.1/§4.2)
+// ===========================================================================
+
+/**
+ * For every ADMITTED line, checks every *other* ADMITTED line on the same
+ * claim as a potential Column 1 (controlling) code against this line's
+ * code as Column 2 (bundled). O(n^2) in admitted line count, bounded by
+ * the engine's claim-line ceiling — acceptable for a once-per-claim pass
+ * (contrast with `dsl/operators.ts`'s own O(rules x lines^2) warning,
+ * which is about doing this per *rule* per *line*, not once per claim).
+ *
+ * If more than one other line's code forms an active edit against this
+ * line's code, the first match by claim-line order wins — the spec and
+ * the manual are both silent on tie-break among multiple simultaneous
+ * controlling codes, and this build does not attempt to invent one; the
+ * message on `NCCI.PTP.PAIR`'s flag is deliberately generic (does not name
+ * a specific controlling line) so this arbitrary-first-match choice is not
+ * load-bearing on anything a reader would treat as a citable determination.
+ */
+function computeNcciPtpFacts(lines: readonly ClassifiedLine[]): readonly ClassifiedLine[] {
+  const admittedCodes: string[] = [];
+  for (const l of lines) {
+    if (l.kind === 'ADMITTED') admittedCodes.push(l.admitted.code);
+  }
+  if (admittedCodes.length < 2) return lines;
+
+  return lines.map((l): ClassifiedLine => {
+    if (l.kind !== 'ADMITTED') return l;
+    let ncciPtp: LineNcciPtp | null = null;
+    for (const otherCode of admittedCodes) {
+      if (otherCode === l.admitted.code) continue;
+      const edit = lookupNcciPtp(otherCode, l.admitted.code);
+      if (edit === undefined) continue;
+      const bundled = edit.ccmi === '0' || (edit.ccmi === '1' && !lineBypassesPtpEdit(l.admitted.modifiers));
+      ncciPtp = { bundled, controllingCode: otherCode, ccmi: edit.ccmi };
+      if (bundled) break; // an unbypassed match is decisive; keep looking only while every match so far was bypassed
+    }
+    if (ncciPtp === null) return l;
+    return { ...l, admitted: { ...l.admitted, ncciPtp } };
+  });
 }
 
 // ===========================================================================
@@ -609,5 +660,5 @@ export function classify(claim: ClaimInput): ClassifyResult {
       return { kind: 'FAULTED', lineId: line.lineId, detail };
     }
   });
-  return { applicability: null, lines };
+  return { applicability: null, lines: computeNcciPtpFacts(lines) };
 }

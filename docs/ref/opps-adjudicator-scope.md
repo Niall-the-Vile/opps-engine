@@ -520,7 +520,9 @@ This costs nothing behaviourally. `not(statusIn(['BUNDLED']))` moved into `when`
 
 **Claim-scope selectors** (valid only when `scopeTarget` is `"claim"`): `claimAlways` · `claimContainsAny` · `claimContainsNone` · `claimContainsCode` · `claimUnitsAtLeast` · `claimLineCountAtLeast` · `claimMoneyAtLeast` · `optionIs` · `optionAtLeast` · `optionUnknown`
 
-**Line-local conditions:** `always` · `siIs` · `siIn` · `codeIn` · `statusIn` · `hasModifier` · `unitsAtLeast` · `hasRate` · `hasWeight` · `inSchedule` · `isExempt` · `chargeAtLeast`†
+**Line-local conditions:** `always` · `siIs` · `siIn` · `codeIn` · `statusIn` · `hasModifier` · `ncciPtpBundled` · `unitsAtLeast` · `hasRate` · `hasWeight` · `inSchedule` · `isExempt` · `chargeAtLeast`†
+
+`ncciPtpBundled` (U28) is line-local like `hasModifier`, not claim-scope, even though its underlying fact is computed from every other line on the claim — the cross-line lookup happens once, in the phase layer (`src/phases/classify.ts`), before the DSL ever runs; the operator itself reads only `subject.ncciPtp`, a precomputed per-line fact, the same shape as any other line-local read.
 
 `statusIn` was listed in §4.3.1's argument table but in none of these category lists until rev 15, even though it is implemented and load-bearing — per §4.3's own rule that adding an operator is a spec change, an operator absent from every category list is not formally in the closed set at all. It belongs here, in `when`, never in `scope` (see the rev-14 note above).
 
@@ -580,7 +582,7 @@ A rule may declare `"exclusive": true`, making any later same-band write of the 
 
 | Operator | Argument |
 |---|---|
-| `always` · `claimAlways` · `isExempt` · `hasRate` · `hasWeight` · `exempt` · `stop` · `route` | `{}` — no arguments |
+| `always` · `claimAlways` · `isExempt` · `hasRate` · `hasWeight` · `exempt` · `stop` · `route` · `ncciPtpBundled` | `{}` — no arguments |
 | `siIs` | `{si: string}` |
 | `codePattern` | `{pattern: string}` |
 | `setStatus` | `{status: Status}` |

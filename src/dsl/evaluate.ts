@@ -67,6 +67,7 @@ import {
   type EvalNode,
   type JsonValue,
   type LineFacts,
+  type LineNcciPtp,
   type OperatorContext,
   type OptionsFacts,
   type PredicateNode,
@@ -100,6 +101,12 @@ export interface AdmittedLine {
   readonly chargeMils: number;
   /** YYYYMMDD. */
   readonly dos: string;
+  /**
+   * U28 — see {@link LineNcciPtp}. Precomputed in `src/phases/classify.ts`.
+   * Optional, same reasoning as `LineFacts.ncciPtp` (operators.ts) — most
+   * lines and most existing fixtures carry no PTP context.
+   */
+  readonly ncciPtp?: LineNcciPtp | null;
 }
 
 /**
@@ -769,6 +776,7 @@ function toLineFacts(ws: LineWorkingState): LineFacts {
     chargeMils: ws.admitted.chargeMils,
     isExempt: ws.isExempt,
     dos: ws.admitted.dos,
+    ncciPtp: ws.admitted.ncciPtp ?? null,
   };
 }
 

@@ -449,6 +449,7 @@ const SAMPLE_ARGS: Record<string, unknown> = {
   isExempt: {},
   siIs: { si: 'J1' },
   hasModifier: { modifier: '59' },
+  ncciPtpBundled: {},
   unitsAtLeast: { units: 2 },
   hasRate: {},
   hasWeight: {},

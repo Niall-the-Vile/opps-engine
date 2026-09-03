@@ -29,17 +29,36 @@ Both are SI-agnostic — they apply to every line regardless of status indicator
 
 ---
 
-## 3. The three data files actually required
+## 3. The data files — now on disk, verified
 
-None of these is in the PDF. All are quarterly.
+Located under the repo's parent folder (not `zips/` — these are separate CMS downloads): `ccioph-v323r0-f1..f4.zip` (PTP, facility Outpatient Hospital — "oph" in the filename) and `facilityoutpatienthospitalservicesmuetable-effective-10-01-2026.zip` (MUE). The sibling `ccipra-*`/`practitionerservicesmuetable-*` files are the **Practitioner** variant and are not what AB needs; `dmesupplierservicesmuetable-*` is DME, also not this. Extracted to a scratch location outside the repo for inspection — nothing raw belongs in the repo, only generated, census-checked output does (same discipline as Addendum B).
 
-| File | Feeds | Notes |
-|---|---|---|
-| **PTP edits — Hospital / Outpatient** | `NCCI.PTP.PAIR` | **Take the facility file, not the Practitioner one.** AB adjudicates hospital outpatient claims. Column 1 / Column 2 / effective / deletion / **CCMI** / rationale. |
-| **MUE — Outpatient Hospital Services** | `MUE.LIMIT` | Again the facility variant, not Practitioner or DME. Code / MUE value / **MAI** / rationale. |
-| **Add-on code edits** | new slot | AOC → acceptable primary codes, Type 1 / Type 2 (I-35). |
+**PTP — `ccioph-v323r0-f1..f4.txt`, version 32.3:**
 
-Expected column shapes above are from the manual's descriptions and should be **verified against the actual download** — `tools/gen-data.mjs` census-checks on every generation and refuses to write on drift, which is the guard.
+| Column | Content |
+|---|---|
+| 1 | Column 1 (controlling) code |
+| 2 | Column 2 (bundled) code |
+| 3 | `*` = in existence prior to 1996 |
+| 4 | Effective date |
+| 5 | Deletion date, or `*` if still active |
+| 6 | CCMI — confirmed exactly `{0, 1, 9}` in the real data, matching the manual |
+| 7 | PTP edit rationale (free text) |
+
+**Measured:** 4 files, **~1.87M edit rows total**, **12,668 distinct codes** touched (Column 1 ∪ Column 2). CCMI distribution: `1` (bypassable) 1,773,211 · `0` (not bypassable) 65,663 · `9` (tombstone) 30,000 — confirms the manual's claim that `9` is rare and reserved for same-day effective/deletion pairs, not a live third policy. Deletion dates run from `20161231` through active (`*`); **343,893 of the sampled rows are still active**, so this is very much a live table, not mostly historical.
+
+**MUE — `MCR_MUE_OutpatientHospitalServices_Eff_10-01-2026.csv`:**
+
+| Column | Content |
+|---|---|
+| 1 | HCPCS/CPT code |
+| 2 | Outpatient Hospital Services MUE value |
+| 3 | MAI, **with the label text embedded** — e.g. `"3 Date of Service Edit: Clinical"`, not a bare `3` |
+| 4 | MUE rationale category (e.g. `Nature of Analyte`, `Code Descriptor / CPT Instruction`) |
+
+**Measured:** 15,171 codes. MAI distribution: `3` (per-DOS, clinical, bypassable) 8,972 · `2` (per-DOS, absolute) 6,147 · `1` (per-line) 42. **1,392 codes carry MUE `0`** — confirms §4.4's "not payable," a real and sizeable category, not an edge case.
+
+**Vintage note — this is NEWER than everything else loaded.** File name says "effective 10-01-2026" and PTP is versioned 32.3 with rows effective through `20261001`. Every other schedule currently loaded (`DATA_VERSION`) is **January 2026**: `opps-cy2026-jan-*`, `clfs-cy2026-q2v1`, `mpfs-cy2026-jan-*`, `dmepos-cy2026-jan`. So generating from these files puts NCCI a full quarter ahead of OPPS/CLFS/MPFS. Not a defect — CMS updates these on independent schedules — but it needs a flag on the generated `DATA_VERSION` entries so a reader isn't misled into assuming a single as-of date for the whole engine. **Recorded as D93.**
 
 ---
 

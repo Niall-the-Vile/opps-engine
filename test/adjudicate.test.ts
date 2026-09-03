@@ -309,14 +309,24 @@ describe('adjudicate — §9.1 C-APC 8011 (U15)', () => {
 });
 
 describe('adjudicate — §9.5/§8.1 reserved edit slots (U17)', () => {
-  it('every adjudicated determination carries NOT_EVALUATED entries for the three reserved slots (D40)', () => {
+  // NCCI.PTP.PAIR is deliberately NOT in these reserved-slot lists as of
+  // U28: it evaluates a real condition against the loaded PTP table now
+  // (src/registry/opps.dispositions.json), so for a claim with no active
+  // PTP conflict it correctly reports a normal NOT_FIRED outcome, not
+  // NOT_EVALUATED — see test/ncciPtp.test.ts for its own dedicated
+  // end-to-end coverage. MUE.LIMIT and OPPS.CLASSIFY.DELETED remain
+  // genuinely reserved (§19.2 units semantics and no termination dates on
+  // disk, respectively).
+  it('every adjudicated determination carries NOT_EVALUATED entries for the remaining reserved slots (D40)', () => {
     const result = adjudicate({ claim: claim({}, [claimLine({ procCode: '00100' })]) });
     const d = det(result, 'L1');
     expect(d.disposition).toBe('ADJUDICATED');
-    for (const ruleId of ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
+    for (const ruleId of ['MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
       const ev = d.trace.find((e) => e.ruleId === ruleId);
       expect(ev?.outcome).toBe('NOT_EVALUATED');
     }
+    const ptpEv = d.trace.find((e) => e.ruleId === 'NCCI.PTP.PAIR');
+    expect(ptpEv?.outcome).toBe('NOT_FIRED');
   });
 
   it('a stop earlier in the phase does not skip the reserved slots (alwaysEvaluate, §4.3)', () => {
@@ -329,10 +339,12 @@ describe('adjudicate — §9.5/§8.1 reserved edit slots (U17)', () => {
     });
     for (const lineId of ['OBS', 'J2']) {
       const d = det(result, lineId);
-      for (const ruleId of ['NCCI.PTP.PAIR', 'MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
+      for (const ruleId of ['MUE.LIMIT', 'OPPS.CLASSIFY.DELETED']) {
         const ev = d.trace.find((e) => e.ruleId === ruleId);
         expect(ev?.outcome).toBe('NOT_EVALUATED');
       }
+      const ptpEv = d.trace.find((e) => e.ruleId === 'NCCI.PTP.PAIR');
+      expect(ptpEv?.outcome).toBe('NOT_FIRED');
     }
   });
 });
